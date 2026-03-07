@@ -1386,3 +1386,271 @@ NAME: InstanceContentQuestBattle_vf384
 SIG:  40 53 48 83 EC 20 0F B6 81 98 1F 00 00 48 8B D9 A8 02 74 5C A8 04 74 58 F6 81 8D 1F 00 00 08 75 4F E8 CA 09 F1 FE 84 C0 75 46 F6 83 98 1F 00 00 01 74 26 48 8B 05 96 8A 09 01 48 85 C0 74 31 66
 DESC: What it is: Another deeper quest battle function inside the instance-content layer. When it runs: During active quest battle state handling. Why you would care: Use it if you want a second hook close to the live quest battle instance logic.
 ----------------------------------------
+
+CATEGORY: Cosmic Exploration - State and Director
+----------------------------------------
+NAME: IsTerritoryTypeCosmicExploration
+SIG:  48 83 EC 28 0F B7 C9 E8 44 8C 9B FF 48 85 C0 75 05 48 83 C4 28 C3 80 78 31 3C 0F 94 C0 48 83 C4 28 C3
+DESC: What it is: The territory-type check for whether an area belongs to Cosmic Exploration. When it runs: When the game needs to decide if the current territory should use Cosmic Exploration rules. Why you would care: Use this as the cleanest gate for Cosmic Exploration territory detection.
+----------------------------------------
+NAME: ContentInventoryManager_IsInCosmicExploration
+SIG:  48 83 EC 28 0F B7 0D D5 D3 0C 01 E8 60 47 58 FF 84 C0 0F 95 C0 48 83 C4 28 C3
+DESC: What it is: A direct check from the content inventory manager for whether the player is inside Cosmic Exploration. When it runs: When the client needs to branch inventory or content behavior based on Cosmic Exploration state. Why you would care: Use this if you want a live in-content check that is closer to active gameplay state than a simple territory test.
+----------------------------------------
+NAME: EventFramework_GetMassivePcContentDirector
+SIG:  48 8B 81 00 01 00 00 4C 8B 81 08 01 00 00 49 3B C0 74 2C 41 B9 0E 80 00 00 0F 1F 80 00 00 00 00 48 8B 10 48 85 D2 74 0E 48 8B 8A D8 02 00 00 66 44 39 49 02 74 0C 48 83 C0 08 49 3B C0 75 E1 33
+DESC: What it is: The event-framework accessor for the active massive content director. When it runs: When the game needs the live controller object behind Cosmic Exploration or another massive content feature. Why you would care: Use this as the main entry point for reaching the underlying Cosmic Exploration director.
+----------------------------------------
+NAME: MassivePcContentDirector_Synchronize
+SIG:  48 83 EC 28 E8 87 FE 30 FF 48 8D 0D E0 4A 07 01 E8 7B 42 20 FF 84 C0 74 10 48 8D 0D D0 4A 07 01 48 83 C4 28 E9 17 42 20 FF 48 83 C4 28 C3
+DESC: What it is: The function that synchronizes the massive content director with current state. When it runs: When the game needs to apply fresh server or local state to the live Cosmic Exploration director. Why you would care: Use this if you want a high-signal hook for real Cosmic Exploration state refreshes.
+----------------------------------------
+NAME: MassivePcContentDirector_Initialize
+SIG:  40 53 48 83 EC 20 48 8B D9 E8 22 01 31 FF 48 8B 0D AB FE 03 01 48 85 C9 74 20 48 8B 83 D8 02 00 00 8B 10 39 91 F4 00 00 00 75 0F 48 8B D3 48 8D 0D FB 49 07 01 E8 16 3E 20 FF 48 8B 03 48 8B CB
+DESC: What it is: The setup function for the shared massive-content director used by Cosmic Exploration. When it runs: When the game prepares the live director object before the feature starts doing real work. Why you would care: Use this if you want the earliest practical hook for Cosmic Exploration system setup.
+----------------------------------------
+NAME: MassivePcContentDirector_Update
+SIG:  40 53 48 83 EC 50 80 B9 10 09 00 00 00 48 8B D9 0F 84 18 03 00 00 48 8B 05 13 6C E9 00 48 89 74 24 68 48 8B B0 40 2B 00 00 48 8B 4E 20 48 8B 01 FF 50 70 84 C0 0F 85 EE 02 00 00 48 89 6C 24 60
+DESC: What it is: The main live update loop for the shared massive content director. When it runs: Repeatedly while Cosmic Exploration is active and the client is updating its core content state. Why you would care: Use this if you want one broad hook that sees ongoing Cosmic Exploration changes as they happen.
+----------------------------------------
+NAME: MassivePcContentDirector_Update2
+SIG:  4C 8B DC 57 48 81 EC D0 00 00 00 48 8B 05 C6 38 E7 00 48 33 C4 48 89 84 24 B0 00 00 00 80 B9 10 09 00 00 00 48 8B F9 0F 84 9D 03 00 00 49 89 5B 10 49 89 6B 18 49 89 73 F0 4D 89 73 E8 E8 9E 2A
+DESC: What it is: A second deeper update path for the shared massive content director. When it runs: During heavier Cosmic Exploration update work that does not stay inside the simpler update function. Why you would care: Use this if the main update hook is too broad and you need a second deeper signal for state changes.
+----------------------------------------
+NAME: MassivePcContentCosmicExploration_Initialize
+SIG:  40 53 48 83 EC 20 48 8B D9 E8 12 B5 30 FF 48 8B 0D 9B B2 03 01 48 85 C9 74 20 48 8B 83 D8 02 00 00 8B 10 39 91 F4 00 00 00 75 0F 48 8B D3 48 8D 0D EB FD 06 01 E8 06 F2 1F FF 48 8B 03 48 8B CB
+DESC: What it is: The setup function for the Cosmic Exploration-specific director layer. When it runs: When the game is preparing Cosmic Exploration state for use. Why you would care: Use this if you want the cleanest hook near the beginning of a Cosmic Exploration session.
+----------------------------------------
+NAME: MassivePcContentCosmicExploration_PopulateMapMarkers
+SIG:  48 89 5C 24 10 48 89 6C 24 18 57 48 83 EC 20 48 8B 0D 3A 12 E9 00 49 8B F8 0F B7 DA E8 5F 95 76 FE 48 85 C0 74 1A 4C 8B 00 48 8B C8 41 FF 90 28 01 00 00 48 8B C8 BA CE 01 00 00 E8 30 49 B1 FE
+DESC: What it is: The function that builds Cosmic Exploration map markers. When it runs: When the game refreshes the world map or mini-map markers for Cosmic Exploration content. Why you would care: Use this if you want a direct hook for Cosmic Exploration marker creation instead of trying to infer them later from UI state.
+----------------------------------------
+NAME: MassivePcContentDirector_IsPlayCutscene
+SIG:  48 89 5C 24 08 57 48 83 EC 50 48 8B D1 48 8D 4C 24 20 E8 79 55 C6 FE 48 8B 4C 24 28 BA 02 00 00 00 B3 01 E8 E8 1D ED FF BA 01 00 00 00 48 8D 4C 24 20 48 8B F8 E8 D6 5F C6 FE 48 8B 4C 24 28 4C
+DESC: What it is: A deeper state check for whether the massive-content director wants to play a cutscene. When it runs: When Cosmic Exploration is deciding whether it should move into a cutscene or similar locked presentation step. Why you would care: Use this if you need to track feature flow around cutscene-driven state changes.
+----------------------------------------
+
+CATEGORY: Cosmic Exploration - Todo and HUD Flow
+----------------------------------------
+NAME: MassivePcContentCosmicExploration_SetAdditionalTodoQuestTitle
+SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 56 48 83 EC 40 0F B7 5C 24 78 49 8B F9 44 8B D3 41 8B F0 8B EA 4C 8B F1 41 83 EA 01 74 54 41 83 FA 01 74 14 8B 44 24 70 66 89 5C
+DESC: What it is: The Cosmic Exploration helper that writes the todo title text. When it runs: When the game updates the main task title shown for Cosmic Exploration. Why you would care: Use this if you want a precise hook for title changes in the Cosmic Exploration objective display.
+----------------------------------------
+NAME: MassivePcContentCosmicExploration_SetAdditionalTodoNumber
+SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 56 48 83 EC 40 0F B7 5C 24 78 49 8B F9 44 8B D3 41 8B F0 8B EA 4C 8B F1 41 83 EA 01 74 6F 41 83 FA 01 74 23 0F B6 84 24 80 00 00
+DESC: What it is: The Cosmic Exploration helper that writes numeric todo values. When it runs: When the game updates a count or numeric objective in the Cosmic Exploration task display. Why you would care: Use this if you want the exact hook for live number changes in Cosmic Exploration tasks.
+----------------------------------------
+NAME: MassivePcContentCosmicExploration_SetAdditionalTodoTimeRemaining
+SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 56 48 83 EC 40 0F B7 5C 24 78 49 8B F9 41 8B F0 8B EA 4C 8B F1 66 83 FB 01 74 19 8B 44 24 70 C6 44 24 30 00 66 89 5C 24 28 89 44
+DESC: What it is: The Cosmic Exploration helper that writes time-remaining text or timer state for the todo display. When it runs: When the game refreshes a countdown or time-limited task in Cosmic Exploration. Why you would care: Use this if you want a direct timer hook for Cosmic Exploration objectives.
+----------------------------------------
+NAME: MassivePcContentCosmicExploration_SetAdditionalTodoJoinButton
+SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 56 48 83 EC 40 0F B7 5C 24 78 4D 8B F1 44 8B D3 41 8B F8 8B F2 48 8B E9 41 83 EA 01 74 56 41 83 FA 01 74 15 0F B6 44 24 70 66 89
+DESC: What it is: The Cosmic Exploration helper that updates the todo join-button state. When it runs: When the game refreshes whether the player can join or interact through the Cosmic Exploration objective panel. Why you would care: Use this if you want the UI-side hook for join availability changes.
+----------------------------------------
+NAME: MassivePcContentTodo_SetDirector
+SIG:  40 55 53 57 48 8D 6C 24 B9 48 81 EC E0 00 00 00 48 8B 05 11 FE C6 01 48 33 C4 48 89 45 37 48 89 51 08 48 8B DA 48 8B F9 48 85 D2 0F 84 CE 02 00 00 48 89 B4 24 10 01 00 00 33 D2 33 F6 41 B8 C4
+DESC: What it is: The function that binds the shared massive-content todo panel to a live director. When it runs: When the HUD-side todo panel is being connected to Cosmic Exploration state. Why you would care: Use this if you want a clean bridge between the director and the visible objective panel.
+----------------------------------------
+NAME: MassivePcContentTodo_SetUpdatePending
+SIG:  48 83 79 08 00 74 10 80 B9 48 01 00 00 00 75 07 C6 81 48 01 00 00 01 C3
+DESC: What it is: The function that marks the shared massive-content todo panel for refresh. When it runs: When the game knows the Cosmic Exploration objective panel needs to update. Why you would care: Use this as a reliable signal that the visible Cosmic Exploration todo panel is about to change.
+----------------------------------------
+NAME: MassivePcContentTodo_GetObjective
+SIG:  40 53 48 83 EC 20 4C 8B 49 08 48 8D 59 78 48 8B D3 49 8B C9 4D 8B 01 41 FF 90 08 08 00 00 48 8B C3 48 83 C4 20 5B C3
+DESC: What it is: The getter for the current objective text in the massive-content todo panel. When it runs: When the game or plugin reads the main objective line shown for Cosmic Exploration. Why you would care: Use this if you want the exact objective text source rather than scraping the HUD.
+----------------------------------------
+NAME: MassivePcContentTodo_GetTimeRemaining
+SIG:  48 89 5C 24 08 57 48 83 EC 20 48 8B 79 08 48 8B 07 48 8B 98 18 08 00 00 E8 23 8B 57 FF 8B D0 48 8B CF 48 8B C3 48 8B 5C 24 30 48 83 C4 20 5F 48 FF E0
+DESC: What it is: The getter for the remaining-time value used by the massive-content todo panel. When it runs: When the game reads the current Cosmic Exploration countdown for the HUD. Why you would care: Use this if you want a clean read-side hook for the active Cosmic Exploration timer.
+----------------------------------------
+NAME: AgentHUD_UpdateMassivePcContentToDo
+SIG:  40 53 55 41 57 48 81 EC 00 01 00 00 48 8B 05 65 89 86 01 48 33 C4 48 89 84 24 D0 00 00 00 48 8B D9 4C 89 44 24 40 48 8D 0D 03 97 A6 01 49 8B E8 4C 8B FA E8 98 8E BF FF 84 C0 0F 85 B9 00 00 00
+DESC: What it is: The HUD update path for the massive-content todo display. When it runs: When the main HUD refreshes the Cosmic Exploration objective panel. Why you would care: Use this if you want the final HUD-side hook after the director and todo data have already been prepared.
+----------------------------------------
+
+CATEGORY: Cosmic Exploration - Packet and Server-Fed Modules
+----------------------------------------
+NAME: WKSMissionModule_ProcessPacket
+SIG:  40 53 48 83 EC 20 B8 D6 01 00 00 48 8B DA 66 39 42 02 74 08 32 C0 48 83 C4 20 5B C3 E8 9F F1 49 FF 48 8B D0 48 85 C0 74 73 0F B7 4B 10 66 89 88 18 0C 00 00 0F B6 4B 12 88 88 1A 0C 00 00
+DESC: What it is: The packet handler that applies incoming Cosmic mission data to the WKS mission module. When it runs: When the client receives the mission packet used by Cosmic Exploration. Why you would care: Use this as the cleanest network-side hook for fresh mission data before the UI reacts to it.
+----------------------------------------
+NAME: WKSMissionModule_SetIntData
+SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 56 48 83 EC 20 81 C2 2C F2 FF FF 49 63 D8 41 8B F1 48 8B F9 83 FA 65 0F 87 69 04 00 00 4C 8D 35 77 FB 64 FE 41 0F B6 84 16 50
+DESC: What it is: The command-style data writer for the WKS mission module. When it runs: After server-fed mission values are being applied to local Cosmic mission state. Why you would care: Use this if you need the deeper state changes that happen after the raw packet has already been accepted.
+----------------------------------------
+NAME: WKSMechaEventModule_ProcessPacket
+SIG:  4C 8B DC 55 57 48 83 EC 68 0F B7 42 02 48 8B FA 48 8B E9 2D 01 01 00 00 0F 84 F8 02 00 00 83 E8 56 0F 84 AD 02 00 00 49 89 5B 08 49 89 73 18 3D AE 01 00 00 0F 84 84 00 00 00 48 8B 41 18 40
+DESC: What it is: The packet handler for Cosmic mecha-event updates. When it runs: When the client receives server data for the mecha side of Cosmic Exploration. Why you would care: Use this as the main network-side hook for live mecha event changes before they are reflected in the HUD and mission state.
+----------------------------------------
+NAME: WKSMechaEventModule_SetIntData
+SIG:  89 54 24 10 55 57 41 56 48 83 EC 50 80 B9 2A CB 00 00 00 45 8B F1 41 8B E8 48 8B F9 75 0B 32 C0 48 83 C4 50 41 5E 5F 5D C3 48 89 5C 24 70 8D 82 0E F2 FF FF 48 89 B4 24 80 00 00 00 4C 89
+DESC: What it is: The command-style data writer for the Cosmic mecha-event module. When it runs: After server-driven mecha event values are being applied to local Cosmic state. Why you would care: Use this if you want the deeper follow-up state changes, flags, and progress updates that happen after the packet is parsed.
+----------------------------------------
+
+CATEGORY: Cosmic Exploration - Research and Unlock Progression
+----------------------------------------
+NAME: WKSResearchModule_ProcessPacket
+SIG:  40 56 48 83 EC 30 B8 FC 00 00 00 48 8B F1 66 39 42 02 74 08 32 C0 48 83 C4 30 5E C3 48 89 5C 24 40 4C 8D 99 8C 00 00 00 48 89 6C 24 48 45 33 D2 48 89 7C 24 50 48 8D 7A 10 4C 89 64 24 58
+DESC: What it is: The packet handler that applies server-fed Cosmic research data to the research module. When it runs: When the client receives updated Cosmic research information from the server. Why you would care: Use this as the cleanest network-side hook for research, stage, and unlock progress before the UI refreshes.
+----------------------------------------
+NAME: WKSResearchModule_SetIntData
+SIG:  40 53 48 83 EC 20 48 8B D9 81 EA 24 0E 00 00 74 45 83 EA 01 74 2B 83 FA 01 74 08 32 C0 48 83 C4 20 5B C3 41 FE C8 41 80 F8 03 73 68 41 0F B6 C0 66 44 89 8C 41 A2 00 00 00 B0 01 48 83 C4 20
+DESC: What it is: The command-style data writer for the Cosmic research module. When it runs: After a research packet has been accepted and the client starts writing new analysis, stage, and unlock values into local state. Why you would care: Use this if you want the deeper state-change hook after the raw packet has already been parsed.
+----------------------------------------
+NAME: WKSResearchModule_GetCurrentAnalysis
+SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 41 0F B6 D8 0F B6 FA 48 8B F1 E8 E2 18 4A FF 80 78 1D 00 74 3D 80 BE A8 00 00 00 00 74 34 40 FE CF 40 80 FF 0A 77 2B FE CB 80 FB 05 77 24 40 0F B6 C7
+DESC: What it is: The getter for the player's current Cosmic research analysis value. When it runs: When the game or UI needs the live analysis amount for a selected research type and stage. Why you would care: Use this if you want the exact read-side hook for current research progress without scraping the screen.
+----------------------------------------
+NAME: WKSResearchModule_GetMaxAnalysis
+SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 41 0F B6 D8 0F B6 FA 48 8B F1 E8 5D 18 4A FF 80 78 1D 00 74 6E 80 BE A8 00 00 00 00 74 65 8D 47 FF 3C 0A 77 5E FE CB 80 FB 05 77 57
+DESC: What it is: The getter for the maximum analysis value for a Cosmic research track at the current stage. When it runs: When the game needs the cap or target value for research progress. Why you would care: Use this if you want a clean way to compute remaining progress or completion percentages from real game data.
+----------------------------------------
+NAME: WKSResearchModule_GetNeededAnalysis
+SIG:  48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 18 41 56 48 83 EC 20 41 0F B6 D8 0F B6 FA 48 8B F1 E8 9C 17 4A FF 80 78 1D 00 74 7D 80 BE A8 00 00 00 00 74 74 8D 47 FF 3C 0A 77 6D FE CB 80 FB 05 77 66
+DESC: What it is: The getter for the amount of analysis still needed for the next research threshold. When it runs: When the client calculates how much more progress is required for a research step. Why you would care: Use this if you want a direct remaining-progress value instead of deriving it yourself.
+----------------------------------------
+NAME: WKSResearchModule_IsTypeAvailable
+SIG:  48 89 5C 24 10 48 89 74 24 18 57 48 83 EC 20 41 0F B6 F0 0F B6 FA 48 8B D9 E8 D2 16 4A FF 80 78 1D 00 0F 84 E0 00 00 00 80 BB A8 00 00 00 00 0F 84 D3 00 00 00 8D 47 FF 3C 0A 0F 87 C8 00 00 00
+DESC: What it is: The availability check for whether a specific Cosmic research type can currently be used. When it runs: When the game decides if a research branch or category should be shown as available. Why you would care: Use this if you want a clean gate for research-type unlocks instead of relying on visible UI state.
+----------------------------------------
+NAME: WKSResearchModule_GetCurrentStage
+SIG:  48 89 5C 24 08 57 48 83 EC 20 0F B6 DA 48 8B F9 E8 BB 15 4A FF 80 78 1D 00 74 26 80 BF A8 00 00 00 00 74 1D FE CB 80 FB 0A 77 16 0F B6 C3 0F B6 84 38 8C 00 00 00 48 8B 5C 24 30 48 83 C4 20 5F
+DESC: What it is: The getter for the player's current Cosmic research stage for a selected branch. When it runs: When the client needs the current stage number for progression logic or UI. Why you would care: Use this if you want the exact current-stage value that drives unlocks and progress displays.
+----------------------------------------
+NAME: WKSResearchModule_IsMaxStage
+SIG:  48 89 5C 24 08 57 48 83 EC 20 0F B6 FA 48 8B D9 E8 EB 14 4A FF 80 78 1D 00 74 67 80 BB A8 00 00 00 00 74 5E 40 FE CF 40 80 FF 0A 77 55 E8 CE 14 4A FF 80 78 1D 00 74 2E 80 BB A8 00 00 00 00 74 25
+DESC: What it is: The check for whether a Cosmic research branch has already reached its maximum stage. When it runs: When the game decides whether more research progression is still possible for that branch. Why you would care: Use this if you want a direct completed-stage gate instead of comparing stage values yourself.
+----------------------------------------
+NAME: WKSResearchModule_IsNextStageAvailable
+SIG:  48 89 5C 24 08 57 48 83 EC 20 0F B6 DA 48 8B F9 E8 4B 14 4A FF 80 78 1D 00 74 61 80 BF A8 00 00 00 00 74 58 FE CB 80 FB 0A 77 51 E8 30 14 4A FF 80 78 1D 00 74 2C 80 BF A8 00 00 00 00 74 23
+DESC: What it is: The check for whether the next Cosmic research stage can now be unlocked. When it runs: When the client decides if the player has met the requirements to advance research further. Why you would care: Use this if you want a clean unlock-ready signal for the next research stage.
+----------------------------------------
+NAME: WKSResearchModule_GetRatePercentage
+SIG:  48 89 5C 24 08 57 48 83 EC 20 0F B6 DA 48 8B F9 E8 BB 13 4A FF 80 78 1D 00 74 26 80 BF A8 00 00 00 00 74 1D FE CB 80 FB 02 77 16 0F B6 C3 0F B7 84 47 A2 00 00 00 48 8B 5C 24 30 48 83 C4 20 5F
+DESC: What it is: The getter for the percentage rate value shown by Cosmic research. When it runs: When the game needs the displayed rate or bonus percentage for a research category. Why you would care: Use this if you want the exact player-facing rate value without reproducing the calculation yourself.
+----------------------------------------
+NAME: WKSResearchModule_GetClassJobLevel
+SIG:  48 83 EC 28 0F B6 C2 FF C8 83 F8 0A 77 7A 48 8D 15 5B 16 65 FE 48 98 8B 8C 82 20 EA 9A 01 48 03 CA FF E1 BA 08 00 00 00 EB 44 BA 09 00 00 00 EB 3D BA 0A 00 00 00 EB 36 BA 0B 00 00 00 EB 2F BA
+DESC: What it is: The helper that maps a Cosmic research branch to the class or job level used for its progression rules. When it runs: When the game needs the player's relevant level to evaluate a research branch. Why you would care: Use this if you want the exact level source behind Cosmic research gating and stage checks.
+----------------------------------------
+
+CATEGORY: Cosmic Exploration - Mission and Progression
+----------------------------------------
+NAME: WKSManager_IsFunctionUnlocked
+SIG:  48 89 5C 24 10 48 89 74 24 18 57 48 83 EC 20 80 79 1A 00 48 8B F9 74 53 48 8B 05 91 91 9A 01 44 0F B6 C2 BA D5 04 00 00 48 8B 88 40 2B 00 00 E8 2C 45 78 FF 48 85 C0 74 32 48 8B 18 48 85 DB 74 2A
+DESC: What it is: The main unlock check for WKS features used by Cosmic Exploration. When it runs: When the game decides whether a Cosmic system or screen should be available to the player. Why you would care: Use this as the cleanest progression gate for features that only open after specific Cosmic unlocks.
+----------------------------------------
+NAME: AgentWKSMission_StartMission
+SIG:  40 53 48 83 EC 20 8B DA E8 33 63 40 00 48 85 C0 74 28 E8 29 63 40 00 48 83 B8 78 0E 00 00 00 74 19 E8 1A 63 40 00 0F B7 D3 48 8B 88 78 0E 00 00 48 83 C4 20 5B E9 D6 79 F6 00 48 83 C4 20 5B C3
+DESC: What it is: The agent-side entry point for starting a Cosmic mission from the mission window. When it runs: When the player confirms that they want to begin a selected Cosmic mission. Why you would care: Use this if you want the cleanest UI hook for mission start requests.
+----------------------------------------
+NAME: WKSMissionModule_InitiateMission
+SIG:  40 53 48 83 EC 30 0F B7 DA E8 62 24 00 00 84 C0 74 75 8B CB E8 A7 7A E6 FE 48 85 C0 74 69 0F B7 48 0C E8 A9 7B E6 FE 48 85 C0 74 5B 83 38 00 74 3C 48 8D 0D 08 31 01 01 E8 63 9D E9 FE 85 C0 75 2C
+DESC: What it is: The mission module call that turns a start request into the actual game command for a Cosmic mission. When it runs: After the player has picked a mission and the client is ready to commit to starting it. Why you would care: Use this if you want the real mission-start hook after the UI layer has already decided to proceed.
+----------------------------------------
+NAME: WKSMissionModule_ReportMission
+SIG:  48 83 EC 38 E8 C7 23 00 00 84 C0 0F 84 89 00 00 00 E8 7A E8 49 FF 48 85 C0 74 7F 80 78 1D 00 74 79 0F B7 88 18 0C 00 00 E8 F3 79 E6 FE 48 85 C0 74 68 0F B7 48 0C E8 F5 7A E6 FE 48 85 C0 74 5A
+DESC: What it is: The mission module call that reports a finished Cosmic mission. When it runs: When the player turns in an active mission and the client is ready to send the completion command. Why you would care: Use this if you want a direct hook for mission hand-in flow and completion timing.
+----------------------------------------
+NAME: WKSMissionModule_AbandonMission
+SIG:  48 83 EC 38 E8 17 23 00 00 84 C0 74 1A 45 33 C9 C7 44 24 20 00 00 00 00 45 33 C0 33 D2 B9 72 0D 00 00 E8 99 8B 1D FF 48 83 C4 38 C3
+DESC: What it is: The mission module call that abandons the current Cosmic mission. When it runs: When the player confirms that they want to give up an active mission. Why you would care: Use this if you need to track mission cancellation separately from mission completion.
+----------------------------------------
+NAME: WKSMissionModule_UpdateTodoProgress
+SIG:  48 85 D2 0F 84 B5 00 00 00 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 41 8B F1 48 89 5C 24 30 41 8B E8 48 8B FA E8 E5 DB 49 FF 48 8B D8 48 85 C0 74 77 66 83 B8 18 0C 00 00 00 74 6D 80 B8 4A
+DESC: What it is: A deeper mission-module function that writes progress values into the Cosmic todo panel. When it runs: When the active mission updates its current progress and the objective display needs new numbers. Why you would care: Use this if you want the exact hook for mission progress changes that affect the Cosmic HUD.
+----------------------------------------
+NAME: WKSMissionModule_UpdateTodoText
+SIG:  48 85 D2 0F 84 C6 02 00 00 55 56 57 41 54 41 56 41 57 48 8D 6C 24 E1 48 81 EC F8 00 00 00 48 8B 05 33 4F E2 00 48 33 C4 48 89 45 07 4C 8B 65 77 45 8B F1 41 8B F0 48 89 9C 24 F0 00 00 00 48 8B
+DESC: What it is: A deeper mission-module function that builds the text shown in the Cosmic todo panel. When it runs: When the client formats mission text and writes it into the visible Cosmic objective area. Why you would care: Use this if you want a deeper hook for mission text changes after the client has already picked the active mission.
+----------------------------------------
+
+CATEGORY: Cosmic Exploration - Mecha Event and Stage Flow
+----------------------------------------
+NAME: WKSMechaEvent_GetEventProgressPercentage
+SIG:  44 8B 81 44 65 00 00 45 85 C0 74 22 8B 91 48 65 00 00 44 3B C2 73 14 B8 1F 85 EB 51 F7 E2 41 8B C0 8B CA 33 D2 C1 E9 05 F7 F1 C3 B0 64 C3
+DESC: What it is: The read-side percentage calculation for Cosmic mecha event progress. When it runs: When the game or UI needs the current completion percentage for an active mecha event. Why you would care: Use this if you want a clean progress read without scraping the screen.
+----------------------------------------
+NAME: WKSMechaEvent_IsPilotRegistrationTimeframeOpen
+SIG:  40 53 48 83 EC 20 8B 81 1C 65 00 00 48 8B D9 C1 E8 08 A8 01 74 15 E8 A5 41 73 FE 3B 83 2C 65 00 00 73 08 B0 01 48 83 C4 20 5B C3 32 C0 48 83 C4 20 5B C3
+DESC: What it is: The time-window check for whether pilot registration is currently open in a Cosmic mecha event. When it runs: When the client decides if the player is still inside the registration period for a mecha event. Why you would care: Use this if you want a direct gate for pilot-registration availability.
+----------------------------------------
+NAME: WKSMechaEvent_IsTeleportTimeframeOpen
+SIG:  40 53 48 83 EC 20 8B 81 1C 65 00 00 48 8B D9 C1 E8 09 A8 01 74 22 E8 65 41 73 FE 3B 83 20 65 00 00 73 15 E8 58 41 73 FE 3B 83 30 65 00 00 76 08 B0 01 48 83 C4 20 5B C3 32 C0 48 83 C4 20 5B C3
+DESC: What it is: The time-window check for whether teleporting into the active mecha event is still allowed. When it runs: When the client decides if the teleport period for a Cosmic mecha event is currently open. Why you would care: Use this if you want a clean gate for late-entry or transport availability during mecha events.
+----------------------------------------
+NAME: WKSMechaEventStageHandler5_ShowTodoAndStartStage
+SIG:  48 89 74 24 10 57 48 83 EC 30 48 8B F1 E8 FE 02 2C FF 48 8B B8 48 0E 00 00 48 85 FF 0F 84 BF 00 00 00 48 89 5C 24 40 E8 54 F2 0E FF 48 8B C8 E8 5C C7 0F FF 48 8B D8 48 85 C0 0F 84 9C 00 00 00
+DESC: What it is: A deeper mecha stage-handler function that shows the Cosmic todo panel and kicks off a stage-specific command. When it runs: When a later mecha-event stage opens and the client is ready to present that stage to the player. Why you would care: Use this if you want a high-signal hook for stage transitions that directly affect what the player sees and can do.
+----------------------------------------
+
+CATEGORY: Cosmic Exploration - Secondary Director Layer
+----------------------------------------
+NAME: MassivePcContentCosmicExploration2_Initialize
+SIG:  40 53 48 83 EC 20 48 8B D9 E8 22 A2 30 FF 48 8B 0D AB 9F 03 01 48 85 C9 74 20 48 8B 83 D8 02 00 00 8B 10 39 91 F4 00 00 00 75 0F 48 8B D3 48 8D 0D FB EA 06 01 E8 16 DF 1F FF 48 8B 03 48 8B CB
+DESC: What it is: The setup function for the second Cosmic-specific director layer. When it runs: When the game prepares the secondary Cosmic director object used for extra feature state. Why you would care: Use this if the primary Cosmic director is not enough and you need the second layer that feeds extra UI and state flow.
+----------------------------------------
+NAME: MassivePcContentCosmicExploration2_UpdateTodoVisibility
+SIG:  48 89 5C 24 08 57 48 83 EC 20 48 8B D9 E8 9E 67 4E FF 48 8B F8 48 85 C0 74 79 48 8B C8 E8 DE 6B 4E FF 84 C0 74 6D B2 08 48 8B CF E8 70 7A 4E FF 48 8D 0D B9 E9 06 01 0F B6 F8 E8 51 E1 1F FF 84
+DESC: What it is: A deeper secondary-director function that shows or hides the Cosmic todo panel based on unlock state. When it runs: When the client notices that a feature has become available or unavailable and needs to change the visible Cosmic objective panel. Why you would care: Use this if you want a direct hook for todo-panel visibility changes driven by Cosmic progression.
+----------------------------------------
+
+CATEGORY: Cosmic Exploration - UI Windows and Interaction
+----------------------------------------
+NAME: AgentWKSPlanetSelect_Update
+SIG:  40 53 48 83 EC 20 48 8B D9 48 8B 49 28 48 85 C9 74 31 80 B9 50 03 00 00 01 75 28 F6 81 60 03 00 00 01 74 1F 48 8B CB E8 B4 14 A1 FF 84 C0 74 13 48 8B CB E8 38 09 00 00 48 8B 43 28 C6 80 50 03
+DESC: What it is: The agent update path for the Cosmic planet-select screen. When it runs: While the planet-select UI is waiting for data and then becoming ready. Why you would care: Use this if you want to watch the planet-select screen move from loading into a usable state.
+----------------------------------------
+NAME: AddonWKSPlanetSelect_OnRefresh
+SIG:  48 89 5C 24 20 41 56 48 83 EC 20 4D 8B F0 48 8B D9 85 D2 0F 8E 3A 01 00 00 80 B9 F2 02 00 00 00 0F 85 2D 01 00 00 C6 81 F2 02 00 00 01 4D 85 C0 0F 84 F7 00 00 00 49 8B C8 48 89 74 24 38 E8 DD
+DESC: What it is: The addon refresh path for the Cosmic planet-select window. When it runs: When the game rebuilds the visible planet list and related state on that screen. Why you would care: Use this if you want the point where planet-select data is turned into visible UI.
+----------------------------------------
+NAME: AgentWKSScoreList_Update
+SIG:  41 56 48 81 EC A0 04 00 00 48 8B 05 58 5F D8 01 48 33 C4 48 89 84 24 80 04 00 00 4C 8B F1 8B 49 28 83 E9 01 74 0A 83 F9 01 74 2F E9 FC 01 00 00 49 8B 4E 10 48 8B 01 FF 90 98 01 00 00 48 8B C8
+DESC: What it is: The agent update path for the Cosmic score list. When it runs: When the client checks for changed score values and prepares the scoreboard for refresh. Why you would care: Use this if you want a strong hook for score updates before they are written into the visible list.
+----------------------------------------
+NAME: AddonWKSScoreList_OnRefresh
+SIG:  48 8B C4 55 41 56 48 83 EC 58 F6 81 A1 01 00 00 01 4D 8B F0 48 8B E9 0F 84 A6 01 00 00 48 89 58 08 33 D2 48 89 70 10 41 B8 00 07 00 00 48 89 78 18 48 81 C1 48 02 00 00 4C 89 78 E8 E8 FF C7 86 00
+DESC: What it is: The addon refresh path for the Cosmic score list window. When it runs: When the game turns refreshed score data into rows and values on the scoreboard. Why you would care: Use this if you want the UI-side hook for visible score-list changes.
+----------------------------------------
+NAME: AgentWKSAchievement_Update
+SIG:  40 57 48 83 EC 20 48 8B F9 E8 12 FA 68 FF 84 C0 0F 84 FB 01 00 00 48 8B 47 28 48 89 5C 24 30 48 89 74 24 40 48 8B 18 48 3B D8 74 47 48 8D 4B 10 E8 1B 1B 00 00 83 BB 90 00 00 00 02 75 35 48 8B
+DESC: What it is: The agent update path for the Cosmic achievement window. When it runs: When achievement data changes or the client refreshes the achievement view while inside Cosmic Exploration. Why you would care: Use this if you want the best hook for live Cosmic achievement state changes.
+----------------------------------------
+NAME: AddonWKSAchievement_OnRefresh
+SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 F6 81 A1 01 00 00 01 49 8B F8 8B F2 48 8B D9 74 2A 49 8B C8 E8 38 A0 1A FF 44 8B C8 4C 8B C7 8B D6 48 8B CB E8 38 00 00 00 B0 01 48 8B 5C 24 30 48 8B
+DESC: What it is: The addon refresh path for the Cosmic achievement window. When it runs: When the game rebuilds the visible achievement list and progress on that screen. Why you would care: Use this if you want the UI-side hook for rendered Cosmic achievement changes.
+----------------------------------------
+NAME: AgentWKSHistoryBoard_Update
+SIG:  40 56 48 81 EC F0 03 00 00 48 8B 05 E8 D9 D7 01 48 33 C4 48 89 84 24 E0 03 00 00 48 83 79 28 00 48 8B F1 0F 84 A3 01 00 00 E8 62 2B A1 FF 84 C0 0F 84 96 01 00 00 48 8B 46 28 80 78 61 00 0F 84
+DESC: What it is: The agent update path for the Cosmic history board. When it runs: When the history board has fresh data or selection changes that need to be reflected on screen. Why you would care: Use this if you want a clean hook for history-board refresh timing and data changes.
+----------------------------------------
+NAME: AddonWKSHistoryBoard_OnRefresh
+SIG:  48 89 74 24 18 57 48 83 EC 40 49 8B F0 48 8B F9 85 D2 7F 38 80 B9 80 02 00 00 00 0F 84 0F 01 00 00 0F B6 81 B9 01 00 00 C6 81 80 02 00 00 00 84 C0 0F 8E F9 00 00 00 FE C8 88 81 B9 01 00 00 B0
+DESC: What it is: The addon refresh path for the Cosmic history board window. When it runs: When the game redraws the selected history entry and its supporting text. Why you would care: Use this if you want the exact point where history-board data becomes visible UI.
+----------------------------------------
+NAME: AgentWKSToolCustomize_Update
+SIG:  40 53 48 83 EC 20 48 83 79 28 00 48 8B D9 74 27 E8 CB 36 A1 FF 84 C0 74 1E 48 8B 43 28 80 78 28 00 74 14 48 8B CB E8 35 02 00 00 84 C0 74 08 48 8B 43 28 C6 40 28 00 48 83 C4 20 5B C3
+DESC: What it is: The agent update path for the Cosmic tool-customize screen. When it runs: When the client checks whether that screen needs a fresh redraw or state change. Why you would care: Use this if you want a hook for live tool-customization updates without scraping the window.
+----------------------------------------
+NAME: AddonWKSToolCustomize_OnRefresh
+SIG:  40 55 56 57 48 83 EC 30 49 8B E8 48 8B F9 85 D2 0F 8E 69 02 00 00 49 8D 88 40 03 00 00 E8 8E 4E 1A FF 8B F0 A8 08 0F 84 53 02 00 00 48 8B 8F 40 02 00 00 48 89 5C 24 50 4C 89 64 24 58 4C 89 6C
+DESC: What it is: The addon refresh path for the Cosmic tool-customize window. When it runs: When the game rebuilds the visible controls and values for tool customization. Why you would care: Use this if you want the UI-side hook for refreshed customization state.
+----------------------------------------
+NAME: AgentWKSPouch_ReceiveEvent
+SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 32 C0 49 8B F0 48 83 79 28 00 48 8B DA 48 8B F9 74 40 45 85 C9 7E 3B 83 6C 24 50 01 75 34 49 8B C8 E8 EB DD BC FF 83 F8 0B 74 0D 48 8B 07 48 8B CF
+DESC: What it is: The input handler for the Cosmic pouch agent. When it runs: When the player clicks or interacts with the pouch-related UI. Why you would care: Use this if you want a clean hook for pouch interactions instead of polling the UI after the fact.
+----------------------------------------
+NAME: AddonWKSPouch_OnRefresh
+SIG:  4C 89 44 24 18 55 56 48 83 EC 38 49 8B E8 48 8B F1 85 D2 0F 8E 08 02 00 00 48 89 5C 24 50 49 8B C8 48 89 7C 24 58 4C 89 64 24 68 4C 89 74 24 28 4C 89 7C 24 20 E8 D6 64 1B FF 45 33 F6 44 8B E0
+DESC: What it is: The refresh path for the Cosmic pouch window. When it runs: When the game rebuilds the visible pouch contents or related state. Why you would care: Use this if you want the exact point where refreshed pouch data becomes visible.
+----------------------------------------
+NAME: AddonWKSReward_ReceiveEvent
+SIG:  48 89 5C 24 08 57 48 83 EC 60 49 8B D9 48 8B F9 41 83 F8 07 75 2F E8 85 44 1E FF 0F B7 97 E4 01 00 00 45 33 C0 48 8D 88 68 01 00 00 E8 BF 4C 1B FF 33 D2 48 8B CB 48 8B 5C 24 70 48 83 C4 60 5F
+DESC: What it is: The input handler for the Cosmic reward window. When it runs: When the player interacts with the reward screen or confirms a reward-related action. Why you would care: Use this if you want a direct hook for reward-screen input instead of waiting for later state changes.
+----------------------------------------
+NAME: AddonWKSReward_OnRefresh
+SIG:  40 55 56 48 83 EC 28 49 8B E8 48 8B F1 85 D2 0F 8E 0E 03 00 00 48 89 5C 24 40 49 8D 48 10 48 89 7C 24 48 4C 89 74 24 58 E8 83 81 1A FF 48 8B D0 48 8D 8E 50 03 00 00 E8 D4 8D C1 FE 48 8B 9E 48
+DESC: What it is: The refresh path for the Cosmic reward window. When it runs: When the game redraws reward contents, counts, or state after a change. Why you would care: Use this if you want the UI-side hook for visible reward updates.
+----------------------------------------
