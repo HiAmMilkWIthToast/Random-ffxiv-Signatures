@@ -1,4 +1,4 @@
-FFXIV PLUGIN SIGNATURE & DATA MAPPING
+CATEGORY: General and Core Signatures
 ============================================================NAME: ActionEffect
 SIG:  40 55 56 57 41 54 41 55 41 56 41 57 48 8D AC 24
 DESC: Triggered when a combat action (ability/spell) connects with a target. Contains data for damage and status application.
@@ -607,7 +607,7 @@ NAME: PvPMKSRankRating_OnSetup
 SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 49 8B D8 48 8B F1 83 FA 10 0F 8C ?? ?? ?? ??
 DESC: Initializes the Crystalline Conflict / MKS rank rating addon.
 ----------------------------------------
-CATEGORY: PvP Agents and Module Vtables
+CATEGORY: PvP Agents and Modules
 ----------------------------------------
 NAME: PvPAgentGauge_ReceiveEvent
 SIG:  C7 02 02 00 00 00 48 8B C2 C6 42 08 00 C3
@@ -621,7 +621,7 @@ NAME: InstanceContentPvpDirector_VtableRef
 SIG:  48 8D 05 ?? ?? ?? ?? C6 83 A0 1F 00 00 00 48 89 03 33 D2 48 8D 05 ?? ?? ?? ?? B9 00 02 00 00 48 89 83 60 04 00 00
 DESC: Constructor-side vtable initialization signature for Client::Game::InstanceContent::InstanceContentPvpDirector.
 ----------------------------------------
-CATEGORY: PvP Core Systems and Persistence
+CATEGORY: PvP Core Systems
 ----------------------------------------
 NAME: Frontline_IsInFrontlineArea
 SIG:  80 3D 9D F9 EB 01 12 0F 94 C0 C3
@@ -679,7 +679,7 @@ NAME: ShellCommandAddPvpAction_ExecuteCommand
 SIG:  40 55 41 55 48 81 EC 98 0C 00 00 48 8B 05 46 78 ED 01 48 33 C4 48 89 84 24 60 0C 00 00
 DESC: Executes the shell command used to add/configure PvP actions.
 ----------------------------------------
-CATEGORY: PvP Profile Addons
+CATEGORY: PvP Profile UI
 ----------------------------------------
 NAME: PvpProfileAddon_OnSetup
 SIG:  48 89 5C 24 20 55 56 57 41 54 41 55 41 56 41 57 48 81 EC D0 00 00 00 48 8B 05 5A 97 57 01
@@ -749,7 +749,7 @@ NAME: PvpProfileQuickChat_ReceiveEvent
 SIG:  48 89 5C 24 10 55 56 57 41 56 41 57 48 81 EC B0 00 00 00 48 8B 05 BE 19 57 01 48 33 C4 48 89 84 24 A0 00 00 00
 DESC: Handles interaction on the PvP profile quick-chat page.
 ----------------------------------------
-CATEGORY: PvP Utility Addons
+CATEGORY: PvP Utility UI
 ----------------------------------------
 NAME: PvpActionSetView_OnSetup
 SIG:  40 55 56 57 48 81 EC A0 00 00 00 48 8B 05 66 0A 57 01 48 33 C4 48 89 84 24 90 00 00 00
@@ -787,7 +787,7 @@ NAME: PvpWelcome_ReceiveEvent
 SIG:  40 53 48 83 EC 20 44 0F B7 D2 49 8B D9 41 83 EA 19 74 32 41 83 EA 2F 74 06 41 83 FA 01 75 3F
 DESC: Handles confirmation and navigation input for the PvP welcome addon.
 ----------------------------------------
-CATEGORY: PvP Agent Controllers
+CATEGORY: PvP Agent UI
 ----------------------------------------
 NAME: AgentPvpProfile_Show
 SIG:  40 53 48 81 EC 00 01 00 00 48 8B 05 78 FF 7D 01 48 33 C4 48 89 84 24 D0 00 00 00 48 8B 01
@@ -845,7 +845,7 @@ NAME: AgentPvpTeam_ReceiveEvent
 SIG:  40 53 56 41 56 48 81 EC 80 00 00 00 48 8B 05 F5 95 26 02 48 33 C4 48 89 44 24 60 48 83 BC 24 C0 00 00 00 00
 DESC: Routes interaction and callback events for the PvP team-management agent.
 ----------------------------------------
-CATEGORY: PvP Records and History
+CATEGORY: PvP Records
 ----------------------------------------
 NAME: FrontlineRecord_OnSetup
 SIG:  48 89 5C 24 10 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 A0 48 81 EC 60 01 00 00 48 8B 05 35 2B 67 01
@@ -871,7 +871,7 @@ NAME: ManeuversHeader_OnSetup
 SIG:  48 89 5C 24 10 55 56 57 41 54 41 55 41 56 41 57 48 81 EC B0 00 00 00 48 8B 05 0A B2 66 01 48 33 C4 48 89 84 24 A0 00 00 00
 DESC: Initializes the Maneuvers header addon used by the PvP-adjacent Maneuvers mode.
 ----------------------------------------
-CATEGORY: Deep Internal and Hidden PvP
+CATEGORY: Hidden PvP Internals
 ----------------------------------------
 NAME: Hidden_ManeuversKillStreakAddon_CreateOrGet
 SIG:  48 89 5C 24 10 48 89 6C 24 18 56 57 41 54 41 56 41 57 48 83 EC 30 48 8B FA 48 8B D9 E8 ?? ?? ?? ?? 4C 8B 7F 08 48 8D 15 ?? ?? ?? ?? 44 0F B7 B3
@@ -909,7 +909,7 @@ NAME: PvPTeamResult_LoadUldResourceHandle_Deep
 SIG:  41 B9 06 00 00 00 48 8D 15 DB 8C BD 00 45 33 C0 E9 3B 52 08 FF
 DESC: Hidden ULD-loader thunk for PvPTeamResult; internal resource loader used before the team-result addon is shown.
 ----------------------------------------
-CATEGORY: Hidden PvP Resource Loaders
+CATEGORY: PvP Resource Loaders
 ----------------------------------------
 NAME: PvPSpectatorList_LoadUldResourceHandle_Deep
 SIG:  41 B9 06 00 00 00 48 8D 15 A3 EA DE 00 45 33 C0 E9 FB 72 31 FF
@@ -951,7 +951,7 @@ NAME: PvpProfileManeuvers_LoadUldResourceHandle_Deep
 SIG:  41 B9 06 00 00 00 48 8D 15 8B 52 EC 00 45 33 C0 E9 BB E1 3E FF
 DESC: Hidden ULD-loader thunk for the Maneuvers tab inside the PvP profile addon.
 ----------------------------------------
-CATEGORY: Hidden PvP Team Controllers
+CATEGORY: PvP Team Controllers
 ----------------------------------------
 NAME: AgentPvpTeamCrestEditor_Show_Deep
 SIG:  40 53 48 83 EC 20 48 8B 01 48 8B D9 FF 50 30 48 8B CB 84 C0 74 0C 48 8B 03 48 83 C4 20 5B 48 FF 60 28
@@ -985,7 +985,7 @@ NAME: AgentPvPTeamOrganization_Update_Deep
 SIG:  48 89 5C 24 10 57 48 81 EC 00 01 00 00 48 8B 05 34 2D 26 02 48 33 C4 48 89 84 24 F0 00 00 00 48 8B 01 0F B6 DA 48 8B F9
 DESC: Per-frame update path for the PvP team organization controller.
 ----------------------------------------
-CATEGORY: PvP Director and Map Internals
+CATEGORY: PvP Directors and Map Internals
 ----------------------------------------
 NAME: EventFramework_GetFrontlinesDirector_Deep
 SIG:  48 8B 81 58 01 00 00 48 85 C0 74 1B 48 8B 88 D8 02 00 00 BA 03 80 00 00 66 39 51 02 75 09 80 B8 CE 0D 00 00 06 74 02 33 C0 C3
@@ -1043,7 +1043,7 @@ NAME: RivalWingDirector_PopulateMapMarkers_Deep
 SIG:  48 8B C4 48 89 58 08 48 89 70 10 48 89 78 18 55 41 54 41 55 41 56 41 57 48 8D 68 A1 48 81 EC D0 00 00 00 41 BE 30 00 00 00 0F 29 70 C8 41 8B F6
 DESC: Core Rival Wings map-marker builder; merges several director-owned marker tables and special objective slots into the event-marker output list.
 ----------------------------------------
-CATEGORY: Hidden PvP Director Vtable Methods
+CATEGORY: PvP Director Vtable Methods
 ----------------------------------------
 NAME: FrontlineDirector_vf319_Deep
 SIG:  48 83 EC 28 45 33 C9 45 33 C0 33 D2 E8 ?? ?? ?? ?? 32 C0 48 83 C4 28 C3
@@ -1105,7 +1105,7 @@ NAME: RivalWingDirector_vf404_Deep
 SIG:  48 83 EC 28 48 8B 0D 55 06 EA 00 E8 80 89 77 FE 48 85 C0 74 2C 48 8B 10 48 8B C8 FF 92 28 01 00 00 48 8B C8 BA 19 01 00 00 E8 52 3D B2 FE
 DESC: Hidden UI-open path that resolves AgentModule internal id `0x119` and shows a Rival Wings-related window or controller on demand.
 ----------------------------------------
-CATEGORY: Crystalline Conflict State and Discovery
+CATEGORY: Crystalline Conflict State
 ----------------------------------------
 NAME: GameMain_IsInCrystallineConflictArea_Deep
 SIG:  0F B6 05 7D F9 EB 01 3C 2A 77 13 48 B9 00 00 00 10 20 04 00 00 48 0F A3 C1 73 03 B0 01 C3 32 C0
@@ -1131,7 +1131,7 @@ NAME: GetInstanceContentCrystallineConflictDirector_Deep
 SIG:  48 83 EC 28 48 83 3D FC D4 06 01 00 74 11 E8 6D 53 30 FF 48 8B C8 48 83 C4 28 E9 51 25 31 FF 33 C0
 DESC: Thin global accessor that returns the current Crystalline Conflict director from EventFramework, or null when the framework is unavailable.
 ----------------------------------------
-CATEGORY: Hidden Crystalline Conflict Director Methods
+CATEGORY: Crystalline Conflict Director Methods
 ----------------------------------------
 NAME: CrystallineConflictDirector_Terminate_Deep
 SIG:  48 89 5C 24 10 48 89 6C 24 18 56 57 41 56 48 81 EC A0 00 00 00 48 8B 05 9C CF E5 00 48 33 C4 48 89 84 24 90 00 00 00 4C 8B F1
@@ -1185,7 +1185,7 @@ NAME: CrystallineConflictDirector_vf319_Deep
 SIG:  48 83 EC 38 44 0F B6 81 D0 0D 00 00 BA 3A 02 00 00 41 B9 01 00 00 00 C7 44 24 20 00 00 00 00 E8 1C B1 2F FF 32 C0
 DESC: Hidden CC broadcast/helper path keyed by event id `0x23A`; emits a director-side message using the byte stored at offset `0xDD0`.
 ----------------------------------------
-CATEGORY: Crystalline Conflict UI Addons
+CATEGORY: Crystalline Conflict UI
 ----------------------------------------
 NAME: PvPMKSBattleLog_OnSetup_Deep
 SIG:  48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 18 4C 89 74 24 20 41 57 48 83 EC 20 48 8B D9 49 8D 48 10
@@ -1251,7 +1251,7 @@ NAME: PvPMKSRankRating_ReceiveEvent_Deep
 SIG:  48 89 5C 24 08 57 48 83 EC 20 49 8B F9 48 8B D9 66 83 FA 09 74 7A 66 83 FA 0F 74 1D 66 83 FA 4A 75 63
 DESC: Handles interaction and dismissal events for the Crystalline Conflict rank-rating screen.
 ----------------------------------------
-CATEGORY: Crystalline Conflict Agents and History
+CATEGORY: Crystalline Conflict Agents and Records
 ----------------------------------------
 NAME: AgentPvPMKSIntroduction_ReceiveEvent_Deep
 SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 48 8B D9 48 8B FA 49 8B C8 40 32 F6 E8 20 41 91 FF 44 8D 40 02
@@ -1371,13 +1371,13 @@ NAME: EventObject_ApplyStateTransition_Deep
 SIG:  40 53 55 56 57 41 56 48 81 EC 40 01 00 00 48 8B 05 13 C0 14 01 48 33 C4 48 89 84 24 30 01 00 00 0F B7 B1 B2 01 00 00
 DESC: Applies an EventObject state transition and dispatches the change either through the object vtable or an attached layout listener. This is the helper hit both by spawn-object handling and by Crystalline Conflict director object updates.
 ----------------------------------------
-CATEGORY: Crystalline Conflict Labels and Feature Text
+CATEGORY: Crystalline Conflict Labels
 ----------------------------------------
 NAME: CrystallineConflict_FormatRecoveryFeatureLabel_Deep
 SIG:  48 89 5C 24 10 48 89 6C 24 18 57 48 83 EC 20 48 8B 0D CA 9C E5 01 49 8B D8 48 8B EA E8 EF 1F 73 FF 48 8B F8 48 85 C0 75 1A 48 8B D5 48 8B CB 48 8B 5C 24 38 48 8B 6C 24 40 48 83 C4 20 5F
 DESC: Formats localized gameplay-feature labels, including Recovery and Maintenance, through Addon text rows 0x21AF and 0x21AE. This is a Crystalline Conflict UI clue for the healing-pickup mechanic, but not the pickup object id itself.
 ----------------------------------------
-CATEGORY: Quest Interaction Gates - Core Quest State Gates
+CATEGORY: Quest Gates - Core State
 ----------------------------------------
 NAME: QuestManager_Instance
 SIG:  48 8D 0D ?? ?? ?? ?? 0F B6 D8 E8 ?? ?? ?? ?? 44 0F B6 C0 8D 53 01 41 3B D0 72 07 BA B6 07 00 00
@@ -1407,7 +1407,7 @@ NAME: QuestManager_IsMapMarkerUnlocked
 SIG:  40 53 48 83 EC 20 0F B7 DA 66 85 DB 74 30 E8 3D 60 E1 FF 44 8B C3 49 C1 E8 03 49 83 F8 40 73 1E
 DESC: Checks whether a quest-driven map marker is unlocked for the local player.
 ----------------------------------------
-CATEGORY: Quest Interaction Gates - Event Framework Interaction Gates
+CATEGORY: Quest Gates - Event Framework
 ----------------------------------------
 NAME: EventFramework_InteractWithObject
 SIG:  40 55 56 57 41 55 48 81 EC 88 01 00 00 48 8B 05 14 66 B5 01 48 33 C4 48 89 84 24 60 01 00 00 48
@@ -1437,7 +1437,7 @@ NAME: TargetSystem_InteractWithObject
 SIG:  48 89 5C 24 10 48 89 6C 24 18 56 48 83 EC 20 48 8B E9 41 0F B6 F0 48 8B CA 48 8B DA E8 0F 54 4D
 DESC: Lower-level interaction call from TargetSystem that ultimately drives object interaction when quest logic uses the standard targeting path.
 ----------------------------------------
-CATEGORY: Quest Interaction Gates - Quest Availability Calculation
+CATEGORY: Quest Gates - Availability
 ----------------------------------------
 NAME: DailyQuestMap_GetQuestIfAvailable
 SIG:  40 56 57 41 56 48 81 EC 80 00 00 00 48 8B 05 D5 40 A3 01 48 33 C4 48 89 44 24 68 48 8B 31 49 8B
@@ -1467,7 +1467,7 @@ NAME: QuestUI_EquipQuestModel
 SIG:  48 89 5C 24 10 48 89 6C 24 18 48 89 74 24 20 41 56 48 83 EC 50 48 8B F1 48 8D 4C 24 20 E8 BE 1F
 DESC: Equips quest-specific presentation models during scripted event scenes and quest interactions.
 ----------------------------------------
-CATEGORY: Quest Interaction Gates - Quest-State Packet Feeds and Received Flags
+CATEGORY: Quest Gates - Packet Feeds and Flags
 ----------------------------------------
 NAME: PacketDispatcher_HandleCompletedQuestsPacket
 SIG:  48 83 EC 28 4C 8B C1 48 81 FA EF 02 00 00 0F 85 1D 01 00 00 48 8D 05 B5 EB E3 01 B9 05 00 00 00
@@ -1517,7 +1517,7 @@ NAME: QuestManager_CompletedLeveQuestsReceivedFlag
 SIG:  0F B7 41 60 66 89 42 60 75 18 C6 05 33 F0 E3 01 01 E8 C4 6E 0D 00 48 8B
 DESC: Byte-pattern for the write path that marks completed levequest state as received.
 ----------------------------------------
-CATEGORY: Quest Interaction Gates - Journal and Accept-Result UI Gates
+CATEGORY: Quest Gates - Journal and Accept UI
 ----------------------------------------
 NAME: Journal_AbandonQuest
 SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 41 8B F8 8B DA 48 8B F1 E8 64 1C 16 00 48 8B C8 E8
@@ -1539,7 +1539,7 @@ NAME: QuestRecompleteManager_IsQuestRecompleteComplete
 SIG:  40 53 48 83 EC 20 33 C0 48 8B D9 66 3B C2 74 40 0F B7 CA 0F BA E9 10 E8 64 7A F5 FE 48 85 C0 74
 DESC: Seasonal quest replay completion check used by QuestRecompleteManager.
 ----------------------------------------
-CATEGORY: Quest Interaction Gates - Deep Quest UI and Director Internals
+CATEGORY: Quest Gates - Deep UI and Directors
 ----------------------------------------
 NAME: QuestBattleDirector_IsUnlocked
 SIG:  48 83 EC 28 48 8B 02 48 8B CA FF 50 10 83 F8 02 0F 95 C0 48 83 C4 28 C3
@@ -1585,7 +1585,7 @@ NAME: AddonQuest_QuestRedoHud_ReceiveEvent
 SIG:  66 83 FA 19 75 1F 53 48 83 EC 20 41 8B D0 49 8B D9 E8 1A 33 36 FF 33 D2 48 8B CB E8 00 38 33 FF
 DESC: Addon-level event handler for the quest redo HUD overlay.
 ----------------------------------------
-CATEGORY: Quest Interaction Gates - Deep Quest Managers and Event Handlers
+CATEGORY: Quest Gates - Managers and Event Handlers
 ----------------------------------------
 NAME: QuestRecompleteManager_Initialize
 SIG:  48 83 EC 28 48 83 3D FC 36 14 01 00 0F 85 A3 00 00 00 48 89 6C 24 38 45 33 C0 33 D2 48 89 7C 24
@@ -1651,7 +1651,7 @@ NAME: AddonQuest_QuestRedo_HandleDPadInput
 SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 54 41 55 41 56 41 57 48 83 EC 70 45 0F B6 F8
 DESC: D-pad navigation handling path inside the quest redo addon.
 ----------------------------------------
-CATEGORY: Quest Interaction Gates - Extended Journal and Redo Flow
+CATEGORY: Quest Gates - Journal and Redo Flow
 ----------------------------------------
 NAME: AgentQuest_Journal_IsActivatable
 SIG:  40 53 48 83 EC 20 BA 04 00 00 00 48 8B D9 E8 FD B9 8B FF 48 85 C0 74 17 BA 04 00 00 00 48 8B C8
@@ -1677,7 +1677,7 @@ NAME: AgentQuest_QuestRedoHud_ReceiveEvent
 SIG:  48 89 5C 24 08 57 48 83 EC 20 48 8B DA 48 8B F9 4D 85 C0 74 69 49 8B C8 E8 C3 A1 A5 FF 83 E8 0B
 DESC: Event dispatcher for the quest redo HUD helper agent.
 ----------------------------------------
-CATEGORY: Quest Interaction Gates - Exhaustive Named Surface and Deep Unknowns
+CATEGORY: Quest Gates - Named Surface and Deep Unknowns
 ----------------------------------------
 NAME: AddonQuest_JournalDetail_HandleCustomInput
 SIG:  40 53 48 83 EC 30 80 7A 04 00 48 8B D9 75 5B 83 3A 02 75 56 E8 D7 99 4F FF 0F B7 93 E8 01 00 00
@@ -1731,7 +1731,7 @@ NAME: QuestEventHandler_vf272_Deep
 SIG:  41 55 41 56 41 57 48 83 EC 40 4C 8B FA 4C 8B F1 48 85 D2 0F 84 7C 02 00 00 4C 8B 2D F0 18 C1 01
 DESC: Deep unnamed QuestEventHandler method adjacent to vf271, included for exhaustive quest-event coverage.
 ----------------------------------------
-CATEGORY: Quest Interaction Gates - Remaining Named UI Lifecycle and Early QuestEventHandler Vtable Surface
+CATEGORY: Quest Gates - UI Lifecycle and Early Vtable
 ----------------------------------------
 NAME: QuestTodoList_vf1
 SIG:  40 53 55 56 57 41 56 41 57 48 81 EC 58 01 00 00 48 8B 05 41 2F CB 01 48 33 C4 48 89 84 24 40 01
@@ -1785,7 +1785,7 @@ NAME: QuestEventHandler_vf21
 SIG:  48 89 5C 24 10 48 89 6C 24 18 48 89 74 24 20 57 41 56 41 57 48 83 EC 40 F6 81 B0 05 00 00 04 45
 DESC: Early quest-event virtual method in the broader event dispatch and gating surface.
 ----------------------------------------
-CATEGORY: Quest Interaction Gates - Mid QuestEventHandler Dispatch Surface
+CATEGORY: Quest Gates - Mid Vtable Dispatch
 ----------------------------------------
 NAME: QuestEventHandler_vf22
 SIG:  40 53 48 83 EC 30 48 8B D9 E8 C2 03 ED FF F6 43 6C 02 74 22 BA 01 80 00 00 66 39 93 12 05 00 00
@@ -1835,7 +1835,7 @@ NAME: QuestEventHandler_vf57
 SIG:  40 53 48 83 EC 20 48 8B 59 70 48 85 DB 74 3D 41 83 F9 01 74 37 0F B6 83 90 00 00 00 3C 0E 77 2C
 DESC: Mid-stage quest-event virtual method that branches on embedded quest-event mode values.
 ----------------------------------------
-CATEGORY: Quest Interaction Gates - Late QuestEventHandler Dispatch Surface
+CATEGORY: Quest Gates - Late Vtable Dispatch
 ----------------------------------------
 NAME: QuestEventHandler_vf58
 SIG:  48 89 74 24 20 41 54 41 56 41 57 48 83 EC 20 48 8B F1 48 89 5C 24 40 48 8B 0D B2 CF A6 01 45 8B
@@ -1885,7 +1885,7 @@ NAME: QuestEventHandler_vf82
 SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 48 83 3D 89 4B C1 01 00 48 8B F9 0F 84 C1 00 00 00
 DESC: Late-stage quest-event virtual method that first checks a shared quest-event global before dispatching.
 ----------------------------------------
-CATEGORY: Quest Interaction Gates - Deep High-Numbered QuestEventHandler Vtable Surface
+CATEGORY: Quest Gates - Deep High-Numbered Vtable
 ----------------------------------------
 NAME: QuestEventHandler_vf205
 SIG:  48 89 5C 24 08 57 48 83 EC 20 48 8B FA 48 8B D9 E8 7B 8E E1 FF 0F B7 8B E0 02 00 00 45 33 C0 48
@@ -1935,7 +1935,7 @@ NAME: QuestEventHandler_vf228
 SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 56 48 83 EC 50 48 8B 3D 4F 3D C1
 DESC: High-numbered quest-event virtual method adjacent to vf227 with a broader register set and stack frame.
 ----------------------------------------
-CATEGORY: Quest Interaction Gates - Ultra Deep QuestEventHandler Tail
+CATEGORY: Quest Gates - Ultra Deep Tail
 ----------------------------------------
 NAME: QuestEventHandler_vf229
 SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 48 8B 01 48 8B F1 FF 50 18 84 C0 0F 84 4A 01 00 00 F6 86 B0 05 00 00 04 0F 85 3D 01 00 00 0F B7 9E E0 02 00 00 E8 17 97 E1 FF 33 D2 8B CA 48 83 C0 10 66 39 58 08
