@@ -84,10 +84,6 @@ NAME: Blacklist_Proxy_NamePointerOffset
 SIG:  Offset: 0x00
 DESC: What it is: The offset to the player name pointer inside one blacklist entry. When it runs: You use it when reading an individual blacklist entry. Why you would care: Use this if you want the displayed name for each blacklist record.
 ----------------------------------------
-NAME: ProcessChatBox
-SIG:  48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B F2 48 8B F9 45 84 C9
-DESC: What it is: The same outgoing chat processor, noted here as a useful hook for issuing chat-driven blacklist commands. When it runs: When the player sends chat text or a chat command. Why you would care: Use this if your feature works by sending slash commands through the normal chat path.
-
 CATEGORY: Limit Break
 ----------------------------------------
 NAME: UseAction_Hook
@@ -1167,13 +1163,12 @@ DESC: What it is: The refresh function for the Variant Dungeon route voting wind
 NAME: AddonVVDVoteRoute_ReceiveEvent
 SIG:  48 83 EC 48 66 83 FA 12 0F 84 CC 00 00 00 66 83 FA 23 0F 85 BD 00 00 00 48 89 74 24 58 48 8B B1 38 02 00 00 48 85 F6 0F 84 A3 00 00 00
 DESC: What it is: The main input handler for the Variant Dungeon route voting window. When it runs: When the player clicks, selects, or confirms a route vote. Why you would care: Use it if you want to watch route voting interaction directly.
-
-CATEGORY: Quest - Core State and Access
 ----------------------------------------
 NAME: AddonVVDVoteRoute_OnRequestedUpdate
 SIG:  40 53 48 83 EC 20 48 8B 99 38 02 00 00 48 85 DB 0F 84 A4 00 00 00 48 8B 4B 08 48 89 6C 24 30 48 89 7C 24 40 48 8B BA F0 04 00 00
 DESC: What it is: A requested-refresh function for the route voting window. When it runs: When another part of the game asks the route voting UI to update. Why you would care: Use it if you want to catch route vote updates triggered from elsewhere.
-----------------------------------------
+
+CATEGORY: Quest - Core State and Access
 NAME: QuestManager_Instance
 SIG:  48 8D 0D ?? ?? ?? ?? 0F B6 D8 E8 ?? ?? ?? ?? 44 0F B6 C0 8D 53 01 41 3B D0 72 07 BA B6 07 00 00
 DESC: What it is: The main quest manager pointer helper. When it runs: When other quest systems need to reach the live quest manager. Why you would care: Use it as the starting point for reading active quest state and related quest data.
@@ -1657,12 +1652,12 @@ DESC: What it is: The refresh path for the Cosmic pouch window. When it runs: Wh
 NAME: AddonWKSReward_ReceiveEvent
 SIG:  48 89 5C 24 08 57 48 83 EC 60 49 8B D9 48 8B F9 41 83 F8 07 75 2F E8 85 44 1E FF 0F B7 97 E4 01 00 00 45 33 C0 48 8D 88 68 01 00 00 E8 BF 4C 1B FF 33 D2 48 8B CB 48 8B 5C 24 70 48 83 C4 60 5F
 DESC: What it is: The input handler for the Cosmic reward window. When it runs: When the player interacts with the reward screen or confirms a reward-related action. Why you would care: Use this if you want a direct hook for reward-screen input instead of waiting for later state changes.
-
-CATEGORY: Gold Saucer - Core State and Director
 ----------------------------------------
 NAME: AddonWKSReward_OnRefresh
 SIG:  40 55 56 48 83 EC 28 49 8B E8 48 8B F1 85 D2 0F 8E 0E 03 00 00 48 89 5C 24 40 49 8D 48 10 48 89 7C 24 48 4C 89 74 24 58 E8 83 81 1A FF 48 8B D0 48 8D 8E 50 03 00 00 E8 D4 8D C1 FE 48 8B 9E 48
 DESC: What it is: The refresh path for the Cosmic reward window. When it runs: When the game redraws reward contents, counts, or state after a change. Why you would care: Use this if you want the UI-side hook for visible reward updates.
+----------------------------------------
+CATEGORY: Gold Saucer - Core State and Director
 ----------------------------------------
 NAME: InventoryManager_GetGoldSaucerCoin
 SIG:  40 53 48 83 EC 20 BA D0 07 00 00 E8 10 97 FE FF 48 85 C0 74 36 48 8B 08 BA 09 00 00 00 4C 8B 41 28 48 8B C8 41 FF D0 48 8B D8 48 85 C0 74 1C 48 8B 10 48 8B C8 FF 52 18 84 C0 75 0F 48 8B 13 48
@@ -1699,13 +1694,12 @@ DESC: What it is: The Gold Saucer manager check for whether a GATE is currently 
 NAME: GoldSaucerManager_GetRunningGateType
 SIG:  48 8B 41 28 48 85 C0 74 08 0F B6 80 9E 07 00 00 C3 C3 CC CC CC CC
 DESC: What it is: The Gold Saucer manager getter for the active GATE type. When it runs: When the client needs to know which specific GATE is currently running. Why you would care: Use this if you want to identify the active GATE directly instead of only knowing that some GATE is running.
-
-CATEGORY: Gold Saucer - Module State and Collectibles
 ----------------------------------------
 NAME: GoldSaucerManager_GetRunningGatePositionType
 SIG:  48 8B 41 28 48 85 C0 74 08 0F B6 80 9F 07 00 00 C3 C3 CC CC CC CC
 DESC: What it is: The Gold Saucer manager getter for the active GATE position type. When it runs: When the client needs to know which location or position bucket the current GATE is using. Why you would care: Use this if you want to tell not just which GATE is active, but where the game thinks that GATE belongs.
-----------------------------------------
+
+CATEGORY: Gold Saucer - Module State and Collectibles
 NAME: GoldSaucerModule_SetDeckName
 SIG:  48 89 5C 24 08 57 48 81 EC 90 00 00 00 48 63 DA 49 8B C0 48 8B F9 83 FB 09 77 30 4C 8B 05 AE EA 88 01 48 8D 4C 24 20 48 8B D0 E8 B1 C6 8C FF 48 6B D3 3A 48 8D 4F 48 4C 8B C0 48 03 CA BA 30 00
 DESC: What it is: The Gold Saucer module function that writes a Triple Triad deck name. When it runs: When the player saves or renames one of their stored deck slots. Why you would care: Use this if you want a direct hook for deck-name changes instead of watching the UI after the save.
@@ -2260,6 +2254,9 @@ NAME: LotteryExchangeShopEventHandler_vf47
 SIG:  48 89 5C 24 20 56 48 81 EC A0 00 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 90 00 00 00 48 8B D9 48 8B 89 58 03 00 00 48 85 C9 74 15 48 8B 01 BA 01 00 00 00 FF 10 48 C7 83 58 03 00 00 00
 DESC: What it is: The deeper exchange-shop state builder for Lottery rewards. When it runs: When the exchange or reward-claim flow rebuilds its available item and reward entries. Why you would care: Use this as the most useful deeper hook for Cactpot exchange-state changes and reward availability.
 ----------------------------------------
+
+CATEGORY: Camera Signatures - Confirmed
+----------------------------------------
 NAME: WorldToViewportPoint
 SIG:  48 89 5C 24 18 57 48 81 EC A0 00 00 00 0F 29 B4 24 90 00 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24
 DESC: What it is: Client::Game::Camera.WorldToViewportPoint. When it runs: When the client projects a 3D world position into 2D screen space. Why you would care: This is a confirmed world-to-screen function for ESP, labels, and overlay positioning.
@@ -2598,4 +2595,5 @@ NAME: EmoteManager_Update
 SIG:  00 00 E8 49 53 42 00 48 2B E0 48 8B 05 B7 B2 F2 00 48 33 C4 48 89 85 F0 0E 00 00 0F B6 79 09 4C 8B F1 85 FF 0F 84 7C 01 00 00 48 89 9C 24 28 10 00 00
 DESC: What it is: The main update routine for the emote manager. When it runs: While the client is advancing live emote state and related transitions. Why you would care: This is the deepest general emote-state hook in this set and is useful when you need frame-by-frame emote timing rather than just start and stop events.
 ----------------------------------------
+
 
