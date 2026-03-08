@@ -2431,3 +2431,171 @@ DESC: What it is: The getter for the Fashion Report manager singleton. When it r
 NAME: FashionCheckServerFlag_WriteRead
 SIG:  C6 81 A0 00 00 00 00 C3 CC CC CC CC CC CC CC CC 0F B6 81 A0 00 00 00 C3
 DESC: What it is: The paired tiny helpers that write and then read the Fashion Report manager byte at offset +0xA0. When it runs: The write side runs when the server-fed actor-control branch updates Fashion Report state, and the read side runs when deeper Fashion Report task logic checks that same state. Why you would care: This is the cleanest low-level anchor for direct polling of the internal Fashion Report state flag once you already have the manager pointer.
+
+CATEGORY: Speed and Mobility - Cast Speed
+----------------------------------------
+NAME: ActionManager_GetAdjustedCastTime
+SIG:  64 03 F8 49 8B CE E8 E5 34 FC FF 83 F8 21 75 3A 81 FB 16 0E 00 00 75 32 45 33 C9 4C 89 7D 48 4C 8D 45 48 44 89 7C 24 20 BA BD 00 00 00 48 8D 0D
+DESC: What it is: The cast-time adjustment routine used by the action system. When it runs: When the client needs the final cast time after action and state adjustments have been applied. Why you would care: This is the cleanest direct hook for tools that want the real cast time the client is using instead of the raw action sheet value.
+----------------------------------------
+NAME: ActionManager_GetAdjustedRecastTime
+SIG:  E9 01 74 18 81 E9 45 0D 00 00 74 10 81 E9 0B 0F 00 00 74 08 81 F9 8B 73 00 00 75 11 BA 68 07 00 00 48 8B CE E8 E7 D7 FC FF 3C 01 74 A6 66 83 7D
+DESC: What it is: The main recast-time adjustment routine used by the action system. When it runs: When the client calculates the final cooldown for an action after statuses, traits, and action data are considered. Why you would care: Use this for cooldown and GCD tracking when you want the adjusted client value instead of a guessed formula.
+----------------------------------------
+NAME: ActionManager_GetAdjustedAdditionalRecastTime
+SIG:  74 34 0F BE 40 37 3C FF 74 2C 8B C8 48 89 5C 24 30 E8 DA 9A F5 FF 8B CF 48 8B D8 E8 D0 9A F5 FF 0F B6 48 60 3A 4B 60 48 8B 5C 24 30 75 08 B0 01
+DESC: What it is: The additional recast adjustment path for action timing. When it runs: When the client applies extra recast logic on top of the normal recast calculation. Why you would care: Useful when a plugin needs the full timing picture for actions that use extra recast handling beyond the basic cooldown path.
+----------------------------------------
+NAME: ActionManager_OnCastStarted
+SIG:  48 83 EC 28 BA B1 01 00 00 48 8D 0D B8 3A 10 02 E8 3B 83 23 00 3C 01 0F 94 C0 48 83 C4 28 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC
+DESC: What it is: The client callback that marks a cast as started. When it runs: As soon as the client transitions into an active cast state for an action. Why you would care: This is the cleanest start-of-cast hook for cast bars, cast logging, and timing overlays.
+----------------------------------------
+NAME: ActionManager_OnCastCanceled
+SIG:  54 F3 0F 10 4F 08 0F 57 D2 0F 2F CA 76 21 66 41 0F 6E C6 0F 5B C0 F3 0F 59 C6 0F 2F C1 76 10 F3 0F 5C CE 0F 2F D1 F3 0F 11 4F 08 76 30 EB 2B 41
+DESC: What it is: The cast-cancel path for the action system. When it runs: When an active cast is interrupted, canceled, or otherwise stopped before completion. Why you would care: Use this to cleanly detect broken casts instead of trying to infer them from UI changes.
+----------------------------------------
+NAME: ActionManager_CancelCast
+SIG:  48 83 EC 38 33 D2 C7 44 24 20 00 00 00 00 45 33 C9 45 33 C0 8D 4A 69 E8 24 0A 02 00 48 83 C4 38 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC 38 91 55 A3 01 00 75 0E C6 81 55 A3 01 00 00 C6 81 5A A3 01 00 00
+DESC: What it is: The direct cancel-cast routine used by the action system. When it runs: When the client actively tears down cast state rather than only observing that a cast has ended. Why you would care: This is the strongest explicit cast-cancel hook in the set if you need the real interruption path instead of only a broader cancel-state callback.
+----------------------------------------
+NAME: ActionManager_IsCasting
+SIG:  8B F0 0F B6 50 2F 83 EA 33 74 14 83 EA 01 74 0F 83 EA 13 74 0A 83 EA 01 74 05 83 FA 01 75 0E 33 D2 8B CB E8 48 49 00 00 83 F8 01 7E 54 40 0F B6
+DESC: What it is: The live cast-state check used by the action system. When it runs: Whenever the client needs to know whether the current actor is in an active cast state. Why you would care: This is a strong read-side hook for plugins that want to track casting without relying only on the visible cast bar.
+----------------------------------------
+NAME: ActionManager_UpdateRecastFromNetwork
+SIG:  C0 F3 0F 11 44 24 48 45 33 C9 89 44 24 40 45 33 C0 89 44 24 38 33 D2 89 44 24 30 B9 5C 24 00 00 89 44 24 28 89 44 24 20 E8 F3 A6 2A 00 32 C0 48
+DESC: What it is: The network-fed recast update path inside the action system. When it runs: When the client applies recast data received from the server. Why you would care: This is the best server-fed cast/recast timing hook in this set because it shows where live cooldown timing is updated from network state.
+----------------------------------------
+NAME: ActionManager_IsCastingSpell
+SIG:  41 8B E9 41 8B F8 E8 E5 FC 1C 00 48 8B F0 48 85 C0 0F 84 AB 00 00 00 8B 94 24 80 00 00 00 4C 89 74 24 60 81 FA 00 00 00 E0 74 15 3B D7 74 11 48 8D 0D
+DESC: What it is: The spell-specific cast-state check used by the action system. When it runs: When the client distinguishes active spell casting from other action-state checks. Why you would care: This is useful when a plugin wants a tighter spell-cast anchor than the broader generic casting check.
+----------------------------------------
+NAME: ActionManager_AdjustRecastTimeByStatusesAndStats
+SIG:  40 53 48 83 EC 50 48 8D 44 24 40 C6 44 24 40 00 48 89 44 24 30 8B 84 24 80 00 00 00 89 44 24 28 44 88 4C 24 20 45 8B C8 44 8B C2 48 8B D1 48 8B
+DESC: What it is: The deeper recast-adjustment helper that applies status- and stat-driven changes to recast time. When it runs: After the base recast path has identified an action that needs additional timing adjustments. Why you would care: This is the strongest deeper timing hook when you need to understand why the final recast differs from the base action data.
+----------------------------------------
+
+CATEGORY: Speed and Mobility - Attack Speed
+----------------------------------------
+NAME: PacketDispatcher_HandleFirstAttackPacket
+SIG:  8B 4B 14 0F 11 44 24 44 89 44 24 40 0F 10 43 4C 0F B6 43 1C 0F 11 4C 24 54 89 4C 24 34 8B CF 0F 10 4B 5C C6 44 24 3F 01 0F 11 44 24 64 88 44 24
+DESC: What it is: The packet handler for the first-attack state update. When it runs: When the client receives the server-side update that starts or refreshes auto-attack timing state. Why you would care: This is one of the best practical anchors for plugins that want to infer attack timing because the client does not expose a neat named attack-speed function.
+----------------------------------------
+NAME: PacketDispatcher_HandlePlayerStatsPacket
+SIG:  C0 74 45 4C 8B 00 48 8B C8 41 FF 50 68 33 C9 90 0F B6 13 48 8D 5B 01 44 0F B6 C1 FF C1 41 88 94 38 18 09 00 00 83 F9 1A 7C E6 F7 05 A8 CF E0 01
+DESC: What it is: The packet handler that applies the player stat update packet. When it runs: When the server sends a fresh block of player stat values to the client. Why you would care: This is the best stat-fed anchor for attack-speed-adjacent work because attack timing is usually exposed through the packeted stat layer rather than a single clean attack-speed function.
+----------------------------------------
+NAME: AutoAttackState_OnActorControl
+SIG:  9F 01 00 8D 42 1F 83 F8 5C 73 0F 8B C8 41 0F B6 40 20 42 88 84 29 5C 9F 01 00 8D 42 20 83 F8 5C 73 0F 8B C8 41 0F B6 40 21 42 88 84 29 5C 9F 01 00
+DESC: What it is: The auto-attack state update path driven by actor-control data. When it runs: When the client applies server-fed actor-control changes that affect the auto-attack state block. Why you would care: This is the cleanest deeper attack-speed-adjacent hook in the client for plugins that want more than just the initial first-attack packet.
+----------------------------------------
+NAME: AutoAttackState_Get
+SIG:  40 53 48 83 EC 20 F6 05 1E 08 EA 01 04 48 8B D9 74 2F 48 8B 0D F7 38 EA 01 48 85 C9 74 1B 45 33 C0 33 D2 E8 C8 64 D7 FF 84 C0 74 0D 80 3B 00 74 08 B0 01 48 83 C4 20 5B C3 32 C0 48 83 C4 20 5B C3
+DESC: What it is: The read-side getter for the auto-attack state block. When it runs: When the client checks the current auto-attack state before deciding how to handle attack timing or actor-control updates. Why you would care: This is the best direct state read for plugins that want to inspect live auto-attack timing without relying only on packet callbacks.
+----------------------------------------
+NAME: AutoAttackState_SetImpl
+SIG:  48 89 5C 24 10 48 89 6C 24 18 48 89 7C 24 20 41 56 48 83 EC 30 0F B6 DA 45 0F B6 F0 48 8B F9 41 0F B6 E9 38 19 0F 84 04 01 00 00 80 FB 01 75 0D E8 2B 3C FE FF 3A C3 0F 84 F2 00 00 00
+DESC: What it is: The internal implementation that writes auto-attack state into the live state block. When it runs: When the client commits a deeper auto-attack state transition after validating the incoming state. Why you would care: This is the strongest write-side hook for server-fed auto-attack timing changes if you need more than the public packet entrypoints.
+----------------------------------------
+NAME: AutoAttackState_Set
+SIG:  48 89 5C 24 08 57 48 83 EC 20 F3 0F 10 05 F2 38 ED 01 0F 57 C9 0F 2F C1 0F B6 DA 48 8B F9 0F 87 AE 00 00 00 45 33 C9 48 8D 0D 62 EC EE 01 45 33 C0 41 8D 51 68 E8 56 49 2B 00 84 C0 0F 84 90 00 00 00
+DESC: What it is: The higher-level auto-attack state setter that routes state writes into the live auto-attack block. When it runs: When the client resolves a new auto-attack state and prepares to apply it. Why you would care: This is a practical hook for tracking or modifying attack-timing state transitions at a higher level than the implementation helper.
+----------------------------------------
+
+CATEGORY: Speed and Mobility - Movement Speed
+----------------------------------------
+NAME: Movement_CalculateSpeedModifier
+SIG:  8C ED AF FF 84 C0 74 08 48 8B CF E8 E0 EC AF FF 49 8B 0F 40 84 F6 74 0A 83 FB 01 75 19 8D 53 02 EB 05 BA 02 00 00 00 45 33 C0 48 81 C1 88 19 00
+DESC: What it is: The movement-speed modifier calculation path. When it runs: When the client evaluates additive or status-driven changes that affect movement speed. Why you would care: Use this when you want the raw movement modifier logic instead of only the final speed value.
+----------------------------------------
+NAME: Movement_CalculateSpeedMultiplier
+SIG:  E4 4C 8B 64 24 58 48 8B 74 24 48 48 8B 6C 24 40 74 3B 80 7B 24 00 75 35 48 8B 5B 08 48 8B 83 38 0A 00 00 F6 80 90 01 00 00 08 74 21 0F B7 93 48
+DESC: What it is: The movement-speed multiplier calculation path. When it runs: When the client turns active movement-related state into a final multiplier. Why you would care: This is the best hook for plugins that want to inspect or display the multiplier side of player movement speed.
+----------------------------------------
+NAME: Movement_CalculateAndApplyOverallSpeed
+SIG:  00 00 45 33 C9 45 33 C0 48 8B CB 48 83 C4 30 5B E9 0B 00 00 00 CC CC CC CC CC CC CC CC CC CC CC 40 53 55 56 57 41 56 41 57 48 83 EC 68 48 8B 05
+DESC: What it is: The routine that combines movement-speed inputs and applies the final result. When it runs: When the client finishes resolving movement-speed logic and writes the effective speed state used by the actor. Why you would care: This is the strongest overall movement-speed hook because it sits at the point where the final speed is applied.
+----------------------------------------
+NAME: Movement_UpdateGameSpeedMultiplier
+SIG:  75 0A 45 0F B6 7E 09 44 89 7C 24 74 84 D2 74 57 4C 89 A4 24 38 01 00 00 44 8B 63 54 83 FF 01 75 36 66 44 39 AB E2 00 00 00 74 2C 48 8B 8B D0 01 00 00
+DESC: What it is: The game-speed multiplier update path tied into movement and live actor state. When it runs: When the client recalculates a live game-speed multiplier that feeds downstream movement behavior. Why you would care: This is a useful deeper hook if you want to understand or watch the step between raw movement logic and the final applied speed result.
+----------------------------------------
+NAME: Character_UpdateMovement
+SIG:  48 89 5C 24 08 57 48 83 EC 20 48 8B D9 0F 1F 00 48 8D 8B F0 01 00 00 E8 A4 E1 E7 00 84 C0 75 37 48 8D 8B F0 01 00 00 E8 F4 7F E7 00 48 8B 8B 80 06 00 00 48 85 C9 74 1F 66 83 BB 88 06 00 00 00
+DESC: What it is: The live character movement update routine. When it runs: When the client advances a character's movement state after speed calculations and movement conditions have already been resolved. Why you would care: This is the best deeper movement anchor in the set if you want to observe the final applied movement behavior on the actor rather than only the speed math that feeds it.
+----------------------------------------
+
+CATEGORY: Speed and Mobility - Teleport
+----------------------------------------
+NAME: Teleport_IsTeleportTimeframeOpen
+SIG:  48 85 C9 0F 84 28 01 00 00 0F 29 74 24 40 F3 0F 10 74 24 30 F3 0F 59 F6 E8 33 2C EC FE F3 0F 10 08 F3 0F 10 40 08 F3 0F 5C 44 24 28 F3 0F 5C 4C
+DESC: What it is: The check for whether the client currently allows teleport execution. When it runs: When teleport UI or teleport logic needs to know if the active timeframe is open. Why you would care: Use this to detect live teleport availability without relying only on the window state.
+----------------------------------------
+NAME: Teleport_Execute
+SIG:  48 8B CB E8 E0 93 19 01 49 8B 06 49 8B CE FF 50 58 4C 8D 44 24 30 BA B8 01 00 00 48 8B C8 E8 AD 04 E5 FF 48 8B 44 24 50 48 85 C0 74 45 48 8B 4C
+DESC: What it is: The main teleport execution path. When it runs: When the client commits a teleport request after the destination and requirements are already selected. Why you would care: This is the direct teleport action hook for logging, gating, or telemetry around actual teleport use.
+----------------------------------------
+NAME: Teleport_GetTeleportCost
+SIG:  6C 24 58 48 8B 74 24 60 48 8B 7C 24 68 48 83 C4 40 41 5E C3 B0 03 EB E1 44 8B 16 48 8D 0D 2E BC E8 01 45 33 C9 66 89 7C 24 30 B8 83 DE 1B 43 C6
+DESC: What it is: The cost calculation path for teleport. When it runs: When the client needs the gil cost for a selected teleport destination. Why you would care: Useful for tools that want exact client-side teleport cost data instead of recalculating from sheet data.
+----------------------------------------
+NAME: Teleport_WithTickets
+SIG:  E8 1B 97 59 FF 48 85 C0 74 3A 48 8B 10 48 8B C8 FF 92 28 01 00 00 48 8B C8 BA 67 00 00 00 E8 ED 4A 94 FF 48 85 C0 74 1C 83 3B 00 48 8B C8 75 0A
+DESC: What it is: The teleport path that consumes teleport tickets instead of normal gil cost. When it runs: When the client executes a ticket-based teleport flow. Why you would care: This is the practical hook for distinguishing ticket teleports from the normal teleport path.
+----------------------------------------
+NAME: Teleport_ToAetheryte
+SIG:  01 00 00 49 89 5B 20 49 89 73 E0 49 89 7B D8 4D 89 73 D0 4D 89 7B C8 66 0F 1F 84 00 00 00 00 00 0F B7 C5 48 8D 0C 40 4C 8D 34 CD 2C 07 00 00 4D 03 F1 41 80 7E 16 00 0F 84 12 01 00 00 45 0F B6
+DESC: What it is: The teleport path that resolves and routes travel to a specific aetheryte destination. When it runs: When the client has a chosen destination and starts preparing the actual move request. Why you would care: Useful when you need the destination-specific side of teleport rather than the higher-level generic execute hook.
+----------------------------------------
+NAME: Teleport_CanUseTeleport
+SIG:  8B C3 48 83 C4 20 5B C3 8B C3 48 83 C4 20 5B C3 CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC 40 55 56 57 48 83 EC 20 48 8D B1 98 01 00 00 8B
+DESC: What it is: The client-side teleport eligibility check. When it runs: When the client decides whether teleport is allowed for the current actor and destination context. Why you would care: This is the best general gating hook for teleport availability checks in a plugin.
+----------------------------------------
+NAME: TeleportHistoryModule_AddHistoryEntry
+SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 20 44 88 44 24 18 57 41 54 41 55 41 56 41 57 48 83 EC 30 0F B6 AC 24 88 00 00 00 48 8D 59 4E 44 0F B6 B4 24 80 00 00 00 33 FF 44 8B EF 44 8B D7 48 8B C3
+DESC: What it is: The teleport history writer used by the teleport history module. When it runs: After a destination is accepted and the client stores it into recent teleport history. Why you would care: This is the strongest practical destination-history hook if you want to track where the player has actually teleported.
+----------------------------------------
+NAME: Teleport_UpdateAetheryteList
+SIG:  48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 55 41 54 41 55 41 56 41 57 48 8D AC 24 90 F5 FF FF 48 81 EC 70 0B 00 00 48 8B 05 5A 0F CA 01 48 33 C4 48 89 85 60 0A 00 00 4C 8B F9 48 89 4C 24 50
+DESC: What it is: The aetheryte-list rebuild path used by the teleport UI and module state. When it runs: When the client refreshes the current destination list after teleport data or ticket state changes. Why you would care: This is the best destination-state hook for tools that need the live teleport destination list instead of only the final selected teleport.
+----------------------------------------
+NAME: Teleport_InvokeSelectUseTicket
+SIG:  40 56 48 81 EC 30 01 00 00 48 8B 05 38 EF C9 01 48 33 C4 48 89 84 24 10 01 00 00 80 79 21 00 48 8B F1 0F 84 CA 01 00 00 83 79 1C 00 0F 85 C0 01 00 00 B9 91 1D 00 00 E8 54 57 CD FF 48 85 C0 0F 84 AD 01 00 00
+DESC: What it is: The teleport ticket-selection invoke path. When it runs: When the client transitions into the select-use-ticket flow before a ticket-based teleport is confirmed. Why you would care: This is the cleanest hook for teleport destination state when the player is deciding whether to consume a teleport ticket.
+----------------------------------------
+
+CATEGORY: Speed and Mobility - Emote and Emote Speed
+----------------------------------------
+NAME: EmoteManager_ExecuteEmote
+SIG:  FE 45 33 FF 48 8D 2D C5 09 12 01 84 C0 75 14 C6 47 3C FF 44 89 7F 30 EB 0A 48 8D 2D B0 09 12 01 45 33 FF 45 33 C9 48 8D 0D 53 C7 13 01 45 33 C0
+DESC: What it is: The emote manager execution path for starting an emote. When it runs: When the client commits an emote request through the main emote system. Why you would care: This is the strongest direct hook for emote execution and is the best starting point for anything timing- or speed-adjacent around emotes.
+----------------------------------------
+NAME: EmoteManager_CanExecuteEmote
+SIG:  CF E8 6A 9D D4 FE 84 C0 0F 84 DA 00 00 00 8B CF E8 CB 9D D4 FE 85 C0 0F 84 CB 00 00 00 48 89 5C 24 60 48 8D 05 4D 10 12 01 0F B6 1C 38 8B CF 4C
+DESC: What it is: The emote manager eligibility check for emote use. When it runs: Before the client allows an emote to start. Why you would care: Use this to understand why an emote can or cannot be executed instead of only watching successful starts.
+----------------------------------------
+NAME: UIState_IsEmoteUnlocked
+SIG:  83 58 06 00 00 48 8D 05 34 AA F9 FF 48 89 83 60 06 00 00 48 8D 05 76 AB F9 FF 48 89 83 68 06 00 00 48 8D 05 98 AE F9 FF 48 89 83 70 06 00 00 48
+DESC: What it is: The unlock-state check for emotes in UI state. When it runs: When the client needs to know whether the player owns or has unlocked an emote. Why you would care: This is useful for emote tools that need ownership checks without scraping the emote UI.
+----------------------------------------
+NAME: AgentEmote_ExecuteEmote
+SIG:  00 01 B2 01 3A C2 0F 84 3F 01 00 00 E8 BF 90 1A FF 4C 8B C0 45 33 C9 33 D2 B9 F8 84 00 00 E8 6D 79 1A FF 48 85 C0 0F 84 1F 01 00 00 48 89 74 24
+DESC: What it is: The emote-agent execution path used by the emote UI. When it runs: When the player triggers an emote through the emote agent rather than a lower-level manager call. Why you would care: Useful if your plugin works at the UI or agent layer and you want the executed emote request there.
+----------------------------------------
+NAME: AgentEmote_CanUseEmote
+SIG:  48 83 EF 10 48 8B CF E8 54 08 73 FF 48 83 EB 01 75 EE 48 8B 5E F8 48 C1 E3 04 48 8D 4E F8 48 8D 53 08 E8 E9 95 DE 00 48 8B 7C 24 40 48 8B 5C 24
+DESC: What it is: The emote-agent eligibility check used by the emote UI flow. When it runs: When the client decides whether a selected emote can be used from the agent/UI layer. Why you would care: This is the most practical gate if you are working from the emote window rather than direct manager calls.
+----------------------------------------
+NAME: EmoteController_IsInEmoteLoop
+SIG:  C3 0F 1F 00 72 64 5F 00 99 64 5F 00 A3 64 5F 00 AD 64 5F 00 D1 64 5F 00 00 00 00 04 04 04 04 04 04 04 04 04 04 04 04 04 04 04 04 04 04 04 04 04
+DESC: What it is: The controller-side check for whether the actor is currently in a looping emote state. When it runs: When the client needs to know whether the actor is still held in an emote loop. Why you would care: Useful for plugins that want to track long-running emote state or reason about timing around looped emotes.
+----------------------------------------
+NAME: EmoteController_IsEmoting
+SIG:  2F C8 72 1F 48 8B D3 48 8B CD E8 71 06 00 00 F3 0F 10 0D 65 EA AA 01 0F 2F C8 76 07 B8 1F 01 00 00 EB 03 0F B7 C6 48 8B 5C 24 30 48 8B 6C 24 38 48
+DESC: What it is: The controller-side check for whether the actor is currently in an emote state at all. When it runs: When the client needs to distinguish normal movement/animation state from active emote playback. Why you would care: This is the best broad emote-state anchor if you want to track whether the actor is currently emoting, not just looping.
+----------------------------------------
+NAME: EmoteManager_Update
+SIG:  00 00 E8 49 53 42 00 48 2B E0 48 8B 05 B7 B2 F2 00 48 33 C4 48 89 85 F0 0E 00 00 0F B6 79 09 4C 8B F1 85 FF 0F 84 7C 01 00 00 48 89 9C 24 28 10 00 00
+DESC: What it is: The main update routine for the emote manager. When it runs: While the client is advancing live emote state and related transitions. Why you would care: This is the deepest general emote-state hook in this set and is useful when you need frame-by-frame emote timing rather than just start and stop events.
+----------------------------------------
+
