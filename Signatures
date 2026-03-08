@@ -2312,11 +2312,56 @@ NAME: EventSceneCameraCollisionMode
 SIG:  40 53 48 83 EC 50 48 8D 4C 24 20 E8 ?? ?? ?? ?? 48 8B 4C 24 28 BA 02 00 00 00 E8 ?? ?? ?? ?? 83 3D ?? ?? ?? ?? 01 48 8B D8 74 16
 DESC: What it is: Client::Game::Event::EventSceneModuleUsualImpl.CameraCollisionMode. When it runs: When an event scene configures how camera collision should behave. Why you would care: This is the best confirmed named hook here if you want to study or alter cutscene camera-collision behavior.
 
+CATEGORY: Gold Saucer - Mini and Jumbo Cactpot Deep State
+----------------------------------------
+NAME: LotteryDailyEventHandler_GetTitle
+SIG:  40 53 48 83 EC 20 4C 8D 81 20 03 00 00 B8 65 00 00 00 41 2B 80 98 01 00 00 48 8B DA 48 6B C8 68 49 03 C8 E8 38 23 28 FF 48 8B D0 48 8B CB 48 83 C4 20 5B E9 58 18 28 FF CC CC CC CC CC CC CC CC
+DESC: What it is: The event-side title reader for Mini Cactpot. When it runs: When the game needs the current Mini Cactpot title text from the lottery event handler. Why you would care: Useful if you want the deeper event-side title/state source instead of only the visible addon text.
+----------------------------------------
+NAME: LotteryDailyEventHandler_vf62
+SIG:  48 89 5C 24 10 48 89 74 24 18 57 48 83 EC 20 41 8B F1 41 8B F8 48 8B D9 83 EA 02 0F 84 C1 00 00 00 83 EA 01 0F 84 B8 00 00 00 83 EA 01 74 47 83 EA 18 74 27 83 FA 02 0F 85 03 01 00 00 40 88 B9 C6 04 00 00 66 89 B1 C4 04 00 00 48 8B 5C 24 38 48 8B 74 24 40 48 83 C4 20 5F C3 85 FF 0F 95 C0
+DESC: What it is: The deeper Mini Cactpot state-write handler. When it runs: When the event layer reveals board cells, updates shown numbers, changes payout state, or flips internal daily flags. Why you would care: This is one of the best hooks for live Mini Cactpot board and payout state instead of only watching the UI redraw.
+----------------------------------------
+NAME: LotteryWeeklyEventHandler_vf35
+SIG:  48 89 5C 24 10 48 89 6C 24 18 48 89 74 24 20 57 48 83 EC 30 48 8B F2 41 0F B7 E8 8B 91 D8 02 00 00 48 8B D9 83 E2 F0 89 91 D8 02 00 00 8B CD 83 E9 06 0F 84 81 00 00 00 83 E9 01 74 7C 83 E9 01 74 35 83 E9 01 74 72 83 F9 01 48 8B CB 74 16 0F B6 44 24 60 48 8B D6 88 44 24 20 E8 20 FE FE FF
+DESC: What it is: A major Jumbo Cactpot weekly state and result builder. When it runs: When the weekly lottery event updates ticket, reward, message, and result-branch state. Why you would care: Useful if you want the deeper weekly result flow instead of only the visible weekly UI.
+----------------------------------------
+NAME: LotteryWeeklyEventHandler_vf86
+SIG:  40 53 48 83 EC 20 83 B9 94 00 00 00 00 44 8B CA 48 8B D9 75 4E 48 8B 89 B8 01 00 00 48 85 C9 74 42 44 8B 81 80 00 00 00 41 83 E8 2E 74 12 41 83 E8 01 74 0C 41 83 E8 58 74 06 41 83 F8 01 75 23 8B 93 E4 02 00 00 33 C9 85 D2 74 17 41 B8 10 27 00 00 66 44 39 84 4B DC 02 00 00 72 1C FF C1 3B
+DESC: What it is: A Jumbo Cactpot follow-up handler that checks prize values and branches into reward-side handling. When it runs: After the weekly lottery state has been updated and the client needs to decide whether claim/result flow should continue. Why you would care: Useful for detecting meaningful weekly prize state instead of just the front-end screen change.
+----------------------------------------
+NAME: LotteryWeeklyEventHandler_vf88
+SIG:  40 53 48 83 EC 20 83 B9 94 00 00 00 00 44 8B CA 48 8B D9 0F 85 18 01 00 00 85 D2 0F 84 A5 00 00 00 83 FA 01 0F 85 07 01 00 00 48 8B 89 B8 01 00 00 48 85 C9 74 7B 81 B9 80 00 00 00 EA 01 00 00 75 6F E8 59 C6 7A FF 48 8B 05 92 FE BC 01 48 85 C0 74 05 8B 50 50 EB 02 33 D2 48 8B 8B B8 01 00
+DESC: What it is: A Jumbo Cactpot result and claim transition handler. When it runs: When the weekly flow advances between result, reward, and MGP-display branches. Why you would care: Useful for tracking how the weekly result state progresses after the initial outcome is known.
+----------------------------------------
+NAME: LotteryWeeklyEventHandler_vf89
+SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 83 B9 94 00 00 00 00 49 8B F0 8B FA 48 8B D9 0F 85 77 02 00 00 83 FE 03 0F 85 6E 02 00 00 85 D2 0F 88 59 02 00 00 F6 81 D8 02 00 00 01 8D 42 01 0F 44 C2 83 F8 05 0F 87 50 02 00 00 48 8D 15 7E 92 1E FF 48 98 8B 8C 82 E8 6F E1 00 48 03 CA FF E1
+DESC: What it is: Another deeper Jumbo Cactpot result-state router. When it runs: When the weekly lottery chooses among outcome-specific follow-up screens and message branches. Why you would care: Useful if you want a deeper hook for exact Jumbo result progression instead of only the outer addon flow.
+----------------------------------------
+NAME: AddonLotteryWeeklyRewardList_OnRefresh
+SIG:  40 55 41 55 48 81 EC 98 00 00 00 48 8B 05 86 62 1C 01 48 33 C4 48 89 44 24 68 41 F6 00 0F 4D 8B E8 4C 89 44 24 30 48 8B E9 0F 84 BA 05 00 00 49 8B C8 E8 39 71 00 FF 84 C0 0F 84 AA 05 00 00 48 8B 8D C8 00 00 00 48 89 9C 24 B8 00 00 00 48 89 B4 24 90 00 00 00 48 89 BC 24 88 00 00 00 BF 11
+DESC: What it is: The refresh path for the Jumbo Cactpot reward-list window. When it runs: When the weekly reward list is rebuilt after state changes or window updates. Why you would care: Useful if you want the point where the visible weekly reward entries are repopulated.
+----------------------------------------
+NAME: LotteryExchangeShopEventHandler_vf49
+SIG:  40 55 53 48 8D AC 24 78 FF FF FF 48 81 EC 88 01 00 00 48 8B 05 3F 78 13 01 48 33 C4 48 89 45 60 48 8B D9 E8 38 A2 5C FF 84 C0 74 07 B0 01 E9 17 01 00 00 48 89 B4 24 80 01 00 00 48 8B CB 48 89 BC 24 78 01 00 00 E8 45 C0 5B FF 0F B6 D0 48 8B CB E8 3A F8 FF FF 48 8D 8B E8 01 00 00 48 8D B3
+DESC: What it is: A deeper exchange-shop message and reward-state builder tied to the Cactpot exchange path. When it runs: When the game prepares exchange or reward-claim text and pushes updated exchange state into the UI flow. Why you would care: Useful if you want the deeper reward/exchange branch rather than only the visible exchange window.
+
+
 CATEGORY: Camera Signatures - Experimental
 ----------------------------------------
 NAME: CameraZoomClampCandidate
 SIG:  F3 41 0F 10 66 2C 0F 57 C9 0F 2F E1 F3 0F 10 35 ?? ?? ?? ?? 76 0E 0F 2F C1 76 09 0F 28 CC
-DESC: What it is: A unique compare-and-clamp sequence inside unnamed function FUN_1403BBF90. When it runs: During a camera-related float comparison path that appears tied to zoom or projection limits. Why you would care: This is worth investigating for zoom-limit work, but Ghidra does not currently give it a strong named camera symbol.
+DESC: What it is: A unique compare-and-clamp sequence inside unnamed function FUN_1403BBF90. When it runs: During a camera-related float comparison path that appears tied to zoom or projection limits. Why you would care: This is worth investigating for zoom-limit work, but IDA does not currently give it a strong named camera symbol.
+
+CATEGORY: Fashion Report - Manager Anchors
+----------------------------------------
+NAME: FashionCheckManager_HasInstance
+SIG:  48 83 3D 08 E5 EF 01 00 0F 95 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC
+DESC: What it is: The singleton-exists check for the Fashion Report manager. When it runs: When client code wants to know whether the Fashion Report manager has already been created. Why you would care: Useful as a direct guard before reading Fashion Report manager state.
+----------------------------------------
+NAME: FashionCheckManager_Initialize
+SIG:  48 83 EC 28 48 83 3D 04 E6 EF 01 00 0F 85 A7 00 00 00 45 33 C0 33 D2 B9 A8 00 00 00 E8 BF 2A 5C FF 48 85 C0 0F 84 84 00 00 00 66 C7 00 00 00 0F 57 C0 66 C7 80 A0 00 00 00 00 00 33 C9 C6 80 A2 00 00 00 00 0F 11 40 08 48 89 48 18 0F 11 40 20 C7 40 21 05 05 05 05 C7 40 25 05 05 05 05 66 C7
+DESC: What it is: The setup routine that allocates and initializes the Fashion Report manager singleton. When it runs: During client setup when the Fashion Report system is first brought online. Why you would care: Useful as the earliest clean hook for manager creation and default Fashion Report state.
 
 CATEGORY: Fashion Report - Core UI and Scoring
 ----------------------------------------
@@ -2395,6 +2440,7 @@ DESC: What it is: The getter for the Fashion Report manager singleton. When it r
 NAME: FashionCheckServerFlag_WriteRead
 SIG:  C6 81 A0 00 00 00 00 C3 CC CC CC CC CC CC CC CC 0F B6 81 A0 00 00 00 C3
 DESC: What it is: The paired tiny helpers that write and then read the Fashion Report manager byte at offset +0xA0. When it runs: The write side runs when the server-fed actor-control branch updates Fashion Report state, and the read side runs when deeper Fashion Report task logic checks that same state. Why you would care: This is the cleanest low-level anchor for direct polling of the internal Fashion Report state flag once you already have the manager pointer.
+
 
 
 
