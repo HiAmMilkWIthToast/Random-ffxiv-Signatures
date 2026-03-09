@@ -117,3 +117,6 @@ Weather - Core Control Hooks
 Weather - UI and State Hooks
 Weather - Packet and Server-Fed Hooks
 Weather - Support and Environment Hooks
+The Firmament - Core UI and State Hooks
+The Firmament - Buyback and Server-Fed Support
+The Firmament - Non-Core and Interaction Hooks
