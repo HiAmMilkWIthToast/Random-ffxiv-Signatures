@@ -3282,3 +3282,26 @@ NAME: AddonMoney_ReceiveEvent
 SIG:  40 53 48 83 EC 30 44 0F B7 C2 48 8B D9 41 83 E8 06 74 7A 41 83 E8 01 74 54 41 83 F8 12 75 78 48 8B 44 24 60 0F B6 48 06 85 C9 74 0F 83 F9 01 75 66 C7 44 24 28 14 00 00 00 EB 08 C7 44 24 28 15 00 00 00 4C 8D 44 24 20 C7 44 24 20 03 00 00 00 BA 01 00 00 00 48 8B CB E8 ?? ?? ?? ?? 48 8D 4C 24 20 E8 ?? ?? ?? ?? 48 83 C4 30 5B C3
 DESC: What it is: The money-widget event handler for close, callback, and tooltip-side interaction flow. When it runs: When the visible money widget receives event traffic such as close, callback, or tooltip cleanup behavior. Why you would care: Use this as a non-core UI hook when you need interaction flow around the gil display rather than only refresh updates.
 ----------------------------------------
+
+CATEGORY: Navigation - Path Layout Hooks
+----------------------------------------
+NAME: PathLayoutInstance_SetProperties
+SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 50 48 8B EA 48 8B F9 48 83 C2 0C 48 8D 4C 24 20 E8 ?? ?? ?? ?? 48 8B 07 48 8D 54 24 20 48 8B CF FF 90 38 02 00 00 48 8B 07 48 8B CF FF 90 B8 00 00 00 48 85 C0 74 14 44 0F B7 4F 1A 48 8D 4F 18 4C 8B C5 48 8B D0 E8 ?? ?? ?? ?? 48 8B 4F 60 33 DB 48 85 C9 74 0C 48 8B 01 8D 53 01 FF 10 48 89 5F 60
+DESC: What it is: The main path-layout property loader that rebuilds the live path object from layout data. When it runs: When a path layout instance receives new path properties and recreates or replaces its internal path representation. Why you would care: Use this as the primary named hook for path object rebuilds and path-state updates.
+----------------------------------------
+CATEGORY: Navigation - Client Path State Hooks
+----------------------------------------
+NAME: ClientPathLayoutInstance_SetActive
+SIG:  48 89 5C 24 08 57 48 83 EC 20 80 61 2B EF 0F B6 C2 C0 E0 04 0F B6 FA 08 41 2B 48 8B D9 48 8B 01 FF 90 B8 00 00 00 48 85 C0 74 0E 80 A0 88 00 00 00 FE 40 08 B8 88 00 00 00 33 D2 39 93 B0 09 00 00 76 31
+DESC: What it is: The client-path activation toggle for the layout instance and its linked child path objects. When it runs: When client path state is enabled or disabled and that active bit is pushed into the live path object set. Why you would care: Use this as the clearest named hook for whether a client path instance is actively participating in movement or layout flow.
+----------------------------------------
+CATEGORY: Navigation - Non-Core Support Hooks
+----------------------------------------
+NAME: PathLayoutInstance_GetBoundingSphereImpl
+SIG:  48 89 5C 24 10 56 48 81 EC D0 00 00 00 48 8B 01 48 8B DA 48 8B F1 FF 90 00 02 00 00 44 8B 00 44 89 03 44 8B 40 04 44 89 43 04 8B 40 08 89 43 08 C7 43 0C 00 00 80 3F 48 8B 4E 60 48 85 C9 0F 84 0C 02 00 00 48 8B 01 48 89 BC 24 E0 00 00 00 33 FF FF 50 20 85 C0 0F 8E EF 01 00 00
+DESC: What it is: The non-core helper that derives the bounding sphere around the current path layout nodes. When it runs: When code asks a path layout instance for its spatial bounds based on the active path representation. Why you would care: Use this as a support hook when you need path-space bounds or area estimation around an active layout path.
+----------------------------------------
+NAME: PathLayoutInstance_vf73
+SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 56 41 57 48 83 EC 40 48 8B 01 48 8B FA 4C 8B F1 FF 90 00 02 00 00 4D 8B 06 49 8B CE 48 8B D8 41 FF 90 00 02 00 00 48 8D 77 10 4C 8D 7F 04 48 8D 6F 08 44 8B 00 44 89 07 44 8B 40 04 45 89 07 8B 48 08 89 4D 00 8B 03 89 06 8B 43 04 89 46 04 8B 43 08 89 46 08 49 8B 4E 60 48 85 C9 0F 84 E1 00 00 00 48 8B 01 33 DB FF 50 20 85 C0 0F 8E D1 00 00 00
+DESC: What it is: The non-core path helper that derives min and max spatial extents over the active path nodes. When it runs: When code asks a path layout instance for a broader spatial footprint than a simple bounding sphere. Why you would care: Use this as a support hook when you need path extents or box-style bounds around an active layout path.
+----------------------------------------
