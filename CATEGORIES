@@ -158,5 +158,11 @@ CATEGORY: Cosmic Exploration - Research and Unlock Progression
 CATEGORY: Cosmic Exploration - Todo and HUD Flow
 CATEGORY: Cosmic Exploration - UI Windows and Interaction
 CATEGORY: Cosmic Exploration - Mecha Event and Stage Flow
+Local Character - Core PlayerState Hooks
+Local Character - Identity and Access Hooks
+Local Character - Packet and Server-Fed Hooks
+Local Character - Party, Instance, and Social State
+Local Character - Job Change and UI Hooks
+Local Character - Non-Core PlayerState Support
+Local Character - Conditions and Permission Support
 
-Total Categories: 123
