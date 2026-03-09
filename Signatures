@@ -85,6 +85,143 @@ SIG:  40 53 48 83 EC 60 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 44 24 ?? 48 85 D2
 DESC: What it is: A low-level hook near the game's internal targeting logic. When it runs: When the client is updating or validating a target selection. Why you would care: Use this if you want to inspect, block, or alter targeting behavior at a deep level.
 ----------------------------------------
 
+CATEGORY: Local Character - Core PlayerState Hooks
+----------------------------------------
+NAME: PlayerState_GetClassJobId
+SIG:  48 8B C1 84 D2 74 21 F6 05 ?? ?? ?? ?? 04 74 18 48 8B 0D ?? ?? ?? ?? 48 85 C9 74 0C 48 81 C1 A0 01 00 00 E9 ?? ?? ?? ?? 0F B6 40 7E C3
+DESC: What it is: The direct local-player reader for the current class or job id. When it runs: When code asks PlayerState for the current local character class/job, optionally resolving the active instance-content override path first. Why you would care: Use this as a core local-character hook when you need the player's current class/job identity without duplicating packet readers.
+----------------------------------------
+NAME: PlayerState_GetClassJobLevel
+SIG:  48 89 5C 24 08 57 48 83 EC 20 41 0F B6 F8 48 8B D9 83 FA 2E 7D 6E 48 8B 81 80 00 00 00 48 85 C0 74 62 83 FA FF 74 0C 8B CA E8 ?? ?? ?? ?? 48 85 C0 74 51 80 78 5A 00 74 4B 48 0F BE 48 68 80 F9 22 77 41 0F B7 94 4B 8A 00 00 00
+DESC: What it is: The direct local-player reader for class/job level. When it runs: When PlayerState resolves the current or requested class/job level for the local character, including content-aware overrides when present. Why you would care: Use this as a core local-character hook when you need the player's effective level without duplicating packet ingestion.
+----------------------------------------
+NAME: PlayerState_GetCurrentClassJobExp
+SIG:  48 89 5C 24 08 57 48 83 EC 20 48 8B F9 E8 ?? ?? ?? ?? 48 8B C8 E8 ?? ?? ?? ?? 48 8B D8 48 85 C0 74 27 48 8B 10 48 8B C8 FF 92 58 0C 00 00 84 C0 74 17 48 8B 13 48 8B CB 48 8B 5C 24 30 48 83 C4 20 5F 48 FF A2 60 0C 00 00 0F B6 4F 7E 83 F9 2E 73 25 E8 ?? ?? ?? ?? 48 85 C0 74 1B 48 0F BE 40 68 3C 22 77 12 8B 84 87 D0 00 00 00
+DESC: What it is: The direct local-player reader for current class/job experience. When it runs: When PlayerState resolves the current job exp for the local character, including content-director overrides when an instance supplies its own value. Why you would care: Use this as a core local-character hook when you need live current-job exp from the local player state layer.
+----------------------------------------
+NAME: PlayerState_GetCurrentClassJobNeededExp
+SIG:  48 89 5C 24 08 57 48 83 EC 20 48 8B F9 E8 ?? ?? ?? ?? 48 8B C8 E8 ?? ?? ?? ?? 48 8B D8 48 85 C0 74 27 48 8B 10 48 8B C8 FF 92 58 0C 00 00 84 C0 74 17 48 8B 13 48 8B CB 48 8B 5C 24 30 48 83 C4 20 5F 48 FF A2 68 0C 00 00 0F B6 4F 7E 33 DB 83 F9 2E 73 2C 48 39 9F 80 00 00 00 74 23 E8 ?? ?? ?? ?? 48 85 C0 74 19 38 58 5A 74 14 48 0F BE 48 68 80 F9 22 77 0A 0F B7 8C 4F 8A 00 00 00 EB 02 8B CB E8 ?? ?? ?? ?? 48 85 C0 74 02 8B 18
+DESC: What it is: The direct local-player reader for the exp still needed to reach the next level on the current class/job. When it runs: When PlayerState resolves next-level exp requirements for the local character, including content-director overrides when present. Why you would care: Use this as a core local-character hook when you need progression-to-next-level without duplicating packet-side state readers.
+----------------------------------------
+NAME: PlayerState_GetGrandCompanyRank
+SIG:  0F B6 81 D0 02 00 00 FF C8 83 F8 03 73 09 0F B6 84 08 D1 02 00 00 C3 32 C0 C3
+DESC: What it is: The direct local-player reader for current grand company rank. When it runs: When PlayerState resolves the local character's stored grand company rank from the current player-state block. Why you would care: Use this as a core local-character hook when you need current GC rank for local-player state features.
+----------------------------------------
+NAME: PlayerState_GetMaxLevel
+SIG:  48 89 5C 24 18 55 48 83 EC 20 33 DB 48 8B E9 83 FA 01 0F 85 F8 01 00 00 0F B7 81 8A 00 00 00 0F B7 91 8C 00 00 00 66 85 C0 66 0F 44 C3 66 3B D0 66 0F 46 D0 0F B7 81 8E 00 00 00 0F B7 89 90 00 00 00 66 3B C2 66 0F 46 C2 66 3B C8 66 0F 46 C8 0F B7 85 92 00 00 00
+DESC: What it is: The direct local-player reader for the highest unlocked level across the tracked class/job progression set. When it runs: When PlayerState calculates the max level visible from the local character's stored class/job level data. Why you would care: Use this as a core local-character hook when you need the player's current max progression level from PlayerState.
+----------------------------------------
+
+CATEGORY: Local Character - Identity and Access Hooks
+----------------------------------------
+NAME: InfoModule_GetLocalCharacterName
+SIG:  48 89 5C 24 08 57 48 83 EC 20 48 8B 81 98 1A 00 00 48 8B D9 80 38 00 74 13 33 D2 48 81 C1 98 1A 00 00 E8 ?? ?? ?? ?? 80 38 00 75 70 4C 8B 83 90 1A 00 00 4C 8B 93 78 19 00 00 4D 85 C0 75 1A
+DESC: What it is: The InfoModule accessor for the local character name string. When it runs: When UI or higher-level systems ask the info module for the cached local-player display name. Why you would care: Use this as an identity helper when you need the local character name from the client-side info cache.
+----------------------------------------
+NAME: InfoModule_GetLocalContentId
+SIG:  48 8B 81 90 1A 00 00 48 85 C0 75 15 48 8B 05 ?? ?? ?? ?? 48 89 81 90 1A 00 00
+DESC: What it is: The InfoModule accessor for the local content id cache. When it runs: When client code asks for the local player content id and the info module serves it from cache or fills it from PlayerState-backed globals. Why you would care: Use this as a local identity hook when you need the player's content id without scanning packet handlers directly.
+----------------------------------------
+NAME: EventFramework_GetCurrentContentId
+SIG:  48 83 EC 28 48 8B 05 ?? ?? ?? ?? 48 85 C0 74 55 83 B8 18 3C 00 00 06 75 4C 48 89 5C 24 20 33 DB E8 ?? ?? ?? ?? 48 8B C8 E8 ?? ?? ?? ?? 48 85 C0 74 12 8B 98 E0 02 00 00 8B C3 48 8B 5C 24 20 48 83 C4 28 C3 E8 ?? ?? ?? ?? 48 85 C0 74 0B E8 ?? ?? ?? ?? 8B 98 9C 00 00 00 8B C3 48 8B 5C 24 20
+DESC: What it is: The event-framework accessor for the local player's current live content id. When it runs: When client systems ask the event framework which active content instance, duty, or encounter id is currently bound to the local player. Why you would care: Use this as a local-identity context hook when you need to correlate the local player with the current content flow without duplicating packet-side state.
+----------------------------------------
+
+CATEGORY: Local Character - Packet and Server-Fed Hooks
+----------------------------------------
+NAME: Conditions_ReadPacket
+SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 54 41 56 41 57 48 83 EC 20 4C 8B FA 4C 8B E1 E8 ?? ?? ?? ?? 48 8B C8 48 8B D8 E8 ?? ?? ?? ?? 48 8B CB 0F B6 E8 E8 ?? ?? ?? ?? 33 F6 44 8B F0 8B DE 40 B7 01
+DESC: What it is: The deeper conditions packet reader that decodes the local player's server-fed condition bitfield into the live client conditions table. When it runs: When the client receives a condition-state update packet and expands its bits into local player condition flags. Why you would care: Use this as the stronger local-character packet hook for duty, movement, interaction, and permission-style state that would be too thin to catch at the wrapper level.
+----------------------------------------
+
+CATEGORY: Local Character - Party, Instance, and Social State
+----------------------------------------
+NAME: InfoProxyCrossRealm_IsLocalPlayerInGroup
+SIG:  48 83 EC 28 E8 ?? ?? ?? ?? 84 C0 75 1E 33 D2 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 80 B8 DC 7F 00 00 01 77 07 32 C0 48 83 C4 28 C3 B0 01 48 83 C4 28 C3
+DESC: What it is: The cross-realm info helper that answers whether the local player is currently considered to be in a group. When it runs: When UI or social-state code checks group membership for the local player, including duty-bound and standard group cases. Why you would care: Use this as a local-player party-state hook when you need a simple grouped-or-not answer without rebuilding it from lower-level roster reads.
+----------------------------------------
+NAME: InfoProxyCrossRealm_IsLocalPlayerInParty
+SIG:  48 83 EC 28 33 D2 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 80 B8 DC 7F 00 00 01 76 07 B0 01 48 83 C4 28 C3 E8 ?? ?? ?? ?? 84 C0 74 27 E8 ?? ?? ?? ?? 84 C0 74 0F E8 ?? ?? ?? ?? 3C 01 0F 97 C0 48 83 C4 28 C3 E8 ?? ?? ?? ?? 3C 01 0F 97 C0 48 83 C4 28 C3 32 C0 48 83 C4 28 C3
+DESC: What it is: The cross-realm info helper that answers whether the local player is currently in a party. When it runs: When client social-state code checks ordinary party, cross-realm party, or alliance-derived party membership for the local player. Why you would care: Use this as a direct local-player social-state hook when you need to know whether the player is currently party-bound.
+----------------------------------------
+
+CATEGORY: Local Character - Job Change and UI Hooks
+----------------------------------------
+NAME: AgentModule_PropagateClassJobChange
+SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 8B F2 48 8D 59 20 BF EA 01 00 00 66 0F 1F 44 00 00 48 8B 0B 8B D6 48 8B 01 FF 50 60 48 8D 5B 08 48 83 EF 01 75 EB 48 8B 5C 24 30 48 8B 74 24 38 48 83 C4 20 5F C3
+DESC: What it is: The agent-module broadcast path that propagates a local class/job change across the active UI agent set. When it runs: When the local player changes class or job and the client fans that event out to all interested UI agents. Why you would care: Use this as the highest-value generic local-player job-change hook instead of chasing dozens of feature-specific UI updates.
+----------------------------------------
+NAME: AgentClass2JobHotbar_OnClassJobChange
+SIG:  48 89 74 24 20 57 48 83 EC 60 80 79 34 00 8B F2 48 8B F9 0F 84 3E 01 00 00 E8 ?? ?? ?? ?? 84 C0 0F 85 31 01 00 00 33 D2 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 0F B6 C0 3B F0 0F 85 18 01 00 00 0F B6 05 ?? ?? ?? ?? 3B F0 0F 85 09 01 00 00 8B 57 2C 48 8B CF E8 ?? ?? ?? ?? 48 8D 57 28 48 8B CF E8 ?? ?? ?? ?? 8B D6 48 8B CF E8 ?? ?? ?? ?? 84 C0 0F 84 E0 00 00 00 48 89 5C 24 70 8B CE 48 89 6C 24 78 4C 89 B4 24 80 00 00 00 E8 ?? ?? ?? ?? 89 77 2C
+DESC: What it is: The local-player class-to-job hotbar update path that reacts to a class/job change and rebuilds the relevant hotbar-selection flow. When it runs: When the player changes jobs and the class-to-job hotbar agent verifies the new job, closes any old addon state, and opens the updated job hotbar view. Why you would care: Use this as a job-change UI hook when you care about local hotbar or class-to-job UI refresh triggered by a real player job switch.
+----------------------------------------
+NAME: AgentHUD_OnClassJobChange
+SIG:  48 89 74 24 10 57 48 83 EC 20 48 8B 79 58 8B F2 48 85 FF 74 3D 48 8B 0F 48 89 5C 24 30 8B 5F 10 C7 47 10 00 00 00 00 48 8B 01 FF 50 40 8B D3 48 8B C8 4C 8B 00 41 FF 90 A8 00 00 00 8B D6 C7 47 14 00 00 00 00 48 8B CF E8 ?? ?? ?? ??
+DESC: What it is: The HUD-side local class/job change hook that resets and rebinds the current job HUD state. When it runs: When the local player changes jobs and the main HUD refreshes the active job-hud module and its displayed state. Why you would care: Use this as a generic local-player job-change UI hook when you want the HUD-level transition rather than only low-level player-state readers.
+----------------------------------------
+NAME: AgentStatus_OnClassJobChange
+SIG:  40 53 48 83 EC 20 8B C2 48 8B D9 8B C8 33 D2 E8 ?? ?? ?? ?? 8B C8 E8 ?? ?? ?? ?? 48 85 C0 74 0E 0F B6 48 5A E8 ?? ?? ?? ?? 83 F8 01 74 27 83 7B 28 00 74 21 48 8B 4B 10 48 8B 01 FF 50 40 8B 53 28 48 8B C8 4C 8B 00 41 FF 90 A8 00 00 00 C7 43 28 00 00 00 00
+DESC: What it is: The status-window local class/job change hook that resets status-agent state after a job switch. When it runs: When the local player changes jobs and the status agent tears down any stale job-specific state before rebuilding the current status view. Why you would care: Use this as a local-player job-change support hook when you need the status-panel side of a real job transition.
+----------------------------------------
+
+CATEGORY: Local Character - Non-Core PlayerState Support
+----------------------------------------
+NAME: PlayerState_IsCurrentJobCombat
+SIG:  48 83 EC 28 83 FA FF 75 04 0F B6 51 7E 8B CA E8 ?? ?? ?? ?? 48 85 C0 74 10 0F B6 40 5A 2C 1E 3C 01 0F 96 C0 48 83 C4 28 C3
+DESC: What it is: The support reader that answers whether the local player's current job is a combat job. When it runs: When PlayerState resolves the current class/job category for the local player and classifies it as combat or not. Why you would care: Use this as a non-core helper when you need quick combat-job branching without manually decoding the current class/job id.
+----------------------------------------
+NAME: PlayerState_IsCurrentJobCrafter
+SIG:  48 83 EC 28 0F B6 49 7E E8 ?? ?? ?? ?? 80 78 5A 21 0F 94 C0 48 83 C4 28 C3
+DESC: What it is: The support reader that answers whether the local player's current job is a crafter. When it runs: When PlayerState classifies the current local class/job against the crafting category flag. Why you would care: Use this as a non-core helper when you need a direct crafter-or-not test without reconstructing it from class/job metadata yourself.
+----------------------------------------
+NAME: PlayerState_IsCurrentJobGatherer
+SIG:  48 83 EC 28 0F B6 49 7E E8 ?? ?? ?? ?? 80 78 5A 20 0F 94 C0 48 83 C4 28 C3
+DESC: What it is: The support reader that answers whether the local player's current job is a gatherer. When it runs: When PlayerState classifies the current local class/job against the gathering category flag. Why you would care: Use this as a non-core helper when you need a direct gatherer-or-not test from local player state.
+----------------------------------------
+NAME: PlayerState_IsCurrentJobLimited
+SIG:  48 83 EC 28 0F B6 49 7E E8 ?? ?? ?? ?? 0F B6 40 6C 24 01 48 83 C4 28 C3
+DESC: What it is: The support reader that answers whether the local player's current job is a limited job. When it runs: When PlayerState checks the current local class/job metadata for the limited-job flag. Why you would care: Use this as a non-core helper when you need a direct limited-job test from the local player state layer.
+----------------------------------------
+NAME: PlayerState_GetClassJobLevelForIdOrCurrent
+SIG:  40 53 48 83 EC 20 48 8B D9 83 FA 2E 7D 3B 48 8B 81 80 00 00 00 48 85 C0 74 2F 83 FA FF 74 0C 8B CA E8 ?? ?? ?? ?? 48 85 C0 74 1E 80 78 5A 00 74 18 48 0F BE 48 68 80 F9 22 77 0E 0F B7 84 4B 8A 00 00 00
+DESC: What it is: The support reader for class/job level by requested id or the current local job when the caller passes a sentinel id. When it runs: When PlayerState needs either a specific class/job level or the local character's current job level from the same access path. Why you would care: Use this as a non-core helper when you want one reader that handles both explicit and current-job level lookups.
+----------------------------------------
+NAME: PlayerState_GetClassJobExp
+SIG:  40 53 48 83 EC 20 48 8B D9 83 FA 2D 77 22 8B CA E8 ?? ?? ?? ?? 48 85 C0 74 16 48 0F BE 40 68 3C 22 77 0D 8B 84 83 D0 00 00 00 48 83 C4 20 5B C3
+DESC: What it is: The support reader for stored class/job experience by requested job id. When it runs: When PlayerState reads exp for a specific class/job entry from the local player's progression arrays. Why you would care: Use this as a non-core helper when you need exp for arbitrary jobs instead of only the current one.
+----------------------------------------
+NAME: PlayerState_GetClassJobNeededExp
+SIG:  40 53 48 83 EC 20 48 8B D9 83 FA 2E 7D 37 48 8B 81 80 00 00 00 48 85 C0 74 2B 83 FA FF 74 0C 8B CA E8 ?? ?? ?? ?? 48 85 C0 74 1A 80 78 5A 00 74 14 48 0F BE 48 68 80 F9 22 77 0A 0F B7 8C 4B 8A 00 00 00
+DESC: What it is: The support reader for next-level exp requirements by requested class/job id. When it runs: When PlayerState resolves the exp-to-next-level value for a specific class/job entry in the local player data. Why you would care: Use this as a non-core helper when you need next-level progression values for arbitrary jobs.
+----------------------------------------
+NAME: PlayerState_GetGrandCompanyRankForGc
+SIG:  0F B6 C2 FF C8 83 F8 03 73 09 0F B6 84 08 D1 02 00 00 C3 32 C0 C3
+DESC: What it is: The support reader for grand company rank by requested grand company id. When it runs: When PlayerState resolves the local character's stored GC rank for a specific company slot rather than just the currently active one. Why you would care: Use this as a non-core helper when you need explicit GC-slot rank reads from local player state.
+----------------------------------------
+NAME: PlayerState_HasTrackedStatus
+SIG:  4C 8B 81 C0 08 00 00 49 8B C8 49 8B 40 08 80 78 19 00 75 17 39 50 1C 7D 06 48 8B 40 10 EB 06 4C 8B C0 48 8B 00 80 78 19 00 74 E9 41 80 78 19 00 75 11 41 3B 50 1C 7C 0B 4C 3B C1 74 06 41 0F B6 40 20
+DESC: What it is: The support reader that answers whether the local player's tracked-status set currently contains a specific status id. When it runs: When UI or higher-level state code checks the local tracked-status tree for a particular status entry. Why you would care: Use this as a non-core local-player helper when you need a direct tracked-status presence test without rebuilding the tracked set yourself.
+----------------------------------------
+NAME: PlayerState_IsPlayerStateFlagSet
+SIG:  8B C2 4C 8B C9 C1 E8 03 83 F8 03 73 1C 83 E2 07 41 B8 01 00 00 00 0F B6 CA 41 D3 E0 46 84 84 08 25 05 00 00 74 03 B0 01 C3 32 C0 C3
+DESC: What it is: The support reader that tests whether a specific local-player state flag bit is currently set in the PlayerState bitfield. When it runs: When code checks local-player state flags such as mentor, novice, returner, and similar bit-backed player-state values. Why you would care: Use this as a non-core helper when you need direct local-player flag tests without decoding the bitfield by hand.
+----------------------------------------
+NAME: PlayerState_IsMentor
+SIG:  F6 81 25 05 00 00 08 75 0C F6 81 27 05 00 00 01 75 03 32 C0 C3 B0 01 C3
+DESC: What it is: The support reader that answers whether the local player is currently flagged as any kind of mentor. When it runs: When PlayerState checks the mentor-related bits in the local player state block and resolves them into a single mentor-or-not answer. Why you would care: Use this as a non-core helper when you need a direct mentor-state check for the local character.
+----------------------------------------
+
+CATEGORY: Local Character - Conditions and Permission Support
+----------------------------------------
+NAME: Conditions_HasPermission
+SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 54 41 56 41 57 48 83 EC 20 33 DB 41 8B E9 48 39 1D ?? ?? ?? ?? 45 8B F0 8B F2 4C 8B E1 74 13 E8 ?? ?? ?? ?? 8B D6 48 8B C8 E8 ?? ?? ?? ??
+DESC: What it is: The conditions helper that resolves whether the local player currently satisfies a permission-style condition gate. When it runs: When client code checks local condition state against permission tables, event restrictions, or content-specific allow/deny logic. Why you would care: Use this as a local-player support hook when you need a higher-level permission answer instead of manually combining condition bits yourself.
+----------------------------------------
+NAME: Conditions_HasPermissionCondition
+SIG:  48 89 5C 24 08 57 48 83 EC 20 8D 82 17 FC FF FF 49 63 D8 48 8B F9 83 F8 07 77 3A 48 8D 0D ?? ?? ?? ?? 48 98 44 8B 8C 81 54 CC DA 00 4C 03 C9 41 FF E1 BA 62 00 00 00 EB 21 BA 60 00 00 00 EB 1A
+DESC: What it is: The conditions helper that checks a specific permission-mapped condition index against the local player's current condition state. When it runs: When client logic translates a permission or gate id into an underlying condition slot and tests whether the local player currently satisfies it. Why you would care: Use this as a non-core local-player support hook when you need direct access to permission-condition checks that sit above the raw condition bitfield.
+----------------------------------------
+
 CATEGORY: Network - Core Packet Dispatcher Hooks
 ----------------------------------------
 NAME: PacketDispatcher_HandleEventPlayPacket
