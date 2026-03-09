@@ -2982,3 +2982,113 @@ NAME: DutyActionManager_HandleActorControlSubtypes
 SIG:  48 89 5C 24 10 57 48 83 EC 50 48 8B 05 57 F7 EF 01 48 33 C4 48 89 44 24 48 81 C2 18 FA FF FF 41 8B F9 48 8B D9 83 FA 05 0F 87 8F 01 00 00 48 8D 0D 4B 8D 72 FF 8B 94 91 58 74 8D 00 48 03 D1 FF E2 44 38 43 01 0F 84 36 01 00 00 41 80 F8 18 44 88 03 48 8B CB 0F 94 C0 88 43 19 E8 A0 FB FF FF B0 01 E9 58 01 00 00 8B 84 24 80 00 00 00 48 8D 54 24 40 44 89 44 24 40 48 8B CB 41 B8 02 00 00
 DESC: What it is: The duty-action manager branch handler for specialized actor-control subtype updates. When it runs: After generic actor-control parsing, when the client dispatches subtype-specific duty-action state such as action availability, active flags, or related encounter-side control state. Why you would care: Use this when you want a deeper actor-control hook than the generic packet path and need the actual subtype-driven state changes that content can consume.
 ----------------------------------------
+
+CATEGORY: Armoury Chest - UI and State Hooks
+----------------------------------------
+NAME: ArmouryChest_GetArmoryInventoryTypeByIndex
+SIG:  83 F9 0B 77 0E 48 63 C1 48 8D 0D ?? ?? ?? ?? 8B 04 81 C3 B8 0F 27 00 00
+DESC: What it is: The helper that maps an armoury tab index to the underlying inventory container type. When it runs: Whenever armoury-board code converts a visible tab index into a real armoury chest container id. Why you would care: Use this to translate UI tab state into the exact inventory container a plugin should read.
+----------------------------------------
+NAME: InventoryType_IsArmory
+SIG:  8D 81 54 F2 FF FF 85 C0 74 1E 8D 81 80 F3 FF FF 83 F8 09 76 13 81 F9 E4 0C 00 00
+DESC: What it is: The inventory-type classifier that checks whether a container id belongs to the armoury chest. When it runs: Whenever inventory code needs to distinguish armoury containers from normal bags, equipped slots, or other storage classes. Why you would care: Use this as a clean read-side filter when a plugin only wants armoury chest containers.
+----------------------------------------
+NAME: InventoryManager_GetInventoryContainer
+SIG:  48 89 5C 24 08 57 48 83 EC 20 8B DA 48 8B F9 E8 ?? ?? ?? ?? 84 C0 74 2C
+DESC: What it is: The core inventory-manager lookup that returns a live container object for a requested inventory type. When it runs: Whenever the client resolves an inventory type into the backing container structure, including armoury chest pages. Why you would care: Use this as one of the main entrypoints for reading armoury chest state directly from live container memory.
+----------------------------------------
+NAME: InventoryManager_GetInventorySlot
+SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 41 8B F8 8B DA 48 8B F1 E8 ?? ?? ?? ?? 84 C0
+DESC: What it is: The inventory-manager accessor that resolves a slot object out of a chosen container. When it runs: Whenever the client looks up a specific slot within an armoury or normal inventory container. Why you would care: Use this when a plugin needs direct slot-level reads for item id, quantity, spiritbond, or attached item state inside the armoury chest.
+----------------------------------------
+NAME: InventoryManager_IsContainerLoaded
+SIG:  48 83 EC 28 E8 ?? ?? ?? ?? 0F B6 40 18 48 83 C4 28 C3 CC CC CC CC CC CC
+DESC: What it is: The inventory-manager helper that checks whether a container is presently loaded and ready. When it runs: Whenever the client confirms that an inventory container exists and has valid live data before reading from it. Why you would care: Use this to guard armoury chest reads so a plugin does not assume a container is ready before the client has loaded it.
+----------------------------------------
+NAME: InventoryManager_GetItemCountInContainer
+SIG:  40 53 41 54 41 57 48 83 EC 20 44 8B E2 41 0F B6 D9 41 8B D0 E8 ?? ?? ?? ?? 4C 8B F8 48 85 C0 75 0A
+DESC: What it is: The inventory-manager routine that counts a target item inside one specific container. When it runs: Whenever the client totals item quantity inside a chosen bag, armoury page, or other single inventory container. Why you would care: Use this when a plugin wants per-container item totals instead of a combined count across all inventory locations.
+----------------------------------------
+NAME: InventoryManager_GetInventoryItemCount
+SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 54 41 56 41 57 48 83 EC 40 33 ED 8D 82 BF BD F0 FF 45 0F B6 E1 45 0F B6 F0
+DESC: What it is: The higher-level inventory counter that totals an item across the client inventory model, including optional armoury coverage. When it runs: Whenever the game computes how many copies of an item exist across inventory scopes such as bags, currency containers, and armoury chest pages. Why you would care: Use this for plugin logic that needs authoritative item counts without manually iterating every container.
+----------------------------------------
+NAME: AgentArmouryBoard_Show
+SIG:  41 57 48 81 EC E0 00 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 B0 00 00 00 48 8B 01 4C 8B F9
+DESC: What it is: The agent-level show path that opens the armoury chest interface and seeds its initial tab state. When it runs: When the client opens the armoury board and decides which tab and backing container set should be shown first. Why you would care: Use this as a strong UI-state hook for detecting armoury chest open events and initial tab selection.
+----------------------------------------
+NAME: AgentArmouryBoard_Update
+SIG:  48 89 5C 24 18 55 56 57 41 54 41 55 41 56 41 57 48 81 EC C0 00 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4
+DESC: What it is: The agent update path that refreshes armoury chest page state from the live inventory containers. When it runs: When the armoury board polls and re-evaluates the currently visible armoury tabs, slot contents, and dirty-state refresh logic. Why you would care: Use this as the main armoury UI/state hook when a plugin wants to react to refreshed container contents instead of only raw inventory packets.
+----------------------------------------
+NAME: AddonArmouryBoard_OnRefresh
+SIG:  48 89 5C 24 18 48 89 6C 24 20 41 56 48 83 EC 30 48 8B D9 49 8B E8 49 8D 48 30 E8 ?? ?? ?? ?? 44 8B F0 83 F8 02 75 58
+DESC: What it is: The addon refresh path that applies new tab, filter, and displayed-entry state to the visible armoury board. When it runs: When the armoury UI receives a refresh payload and rebuilds the visible page state for the current tab. Why you would care: Use this if a plugin needs the visible armoury board refresh after the UI has decided what data to present.
+----------------------------------------
+NAME: AddonArmouryBoard_OnRequestedUpdate
+SIG:  48 89 6C 24 18 56 48 83 EC 20 48 8B AA 38 01 00 00 48 8B F1 48 85 ED 74 69 4D 8B 80 20 01 00 00
+DESC: What it is: The addon path that services requested armoury-board updates for the currently displayed panel state. When it runs: When the visible armoury addon receives a targeted update request and pushes live numbers or text into the on-screen board. Why you would care: Use this as a lighter UI hook when a plugin cares about the displayed armoury panel state rather than only the deeper agent refresh cycle.
+----------------------------------------
+CATEGORY: Armoury Chest - Packet and Server-Fed Hooks
+----------------------------------------
+NAME: PacketDispatcher_HandleInventoryItemUpdatePacket
+SIG:  48 89 5C 24 08 57 48 81 EC 80 00 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 44 24 70 0F B7 5A 08
+DESC: What it is: The server packet path that applies a full inventory-item update onto an existing live slot. When it runs: When the client receives an item update packet and copies the changed item fields into the resolved container slot, including armoury chest slots. Why you would care: Use this as the strongest packet-side hook for armoury and inventory changes after the server has already identified the exact slot being updated.
+----------------------------------------
+NAME: PacketDispatcher_HandleInventoryItemPacket
+SIG:  48 89 5C 24 08 57 48 83 EC 20 0F B7 5A 08 48 8B FA 8B CB E8 ?? ?? ?? ?? 84 C0 B9 DA 07 00 00 0F 45 D9
+DESC: What it is: The packet-dispatch path that materializes a standard inventory item payload into a live container slot. When it runs: When the client receives a regular inventory item packet for a container and slot, including armoury chest pages when they are addressed through item packet flow. Why you would care: Use this for direct packet-side visibility into server-fed item arrival and slot population.
+----------------------------------------
+NAME: PacketDispatcher_HandleInventoryItemCurrencyPacket
+SIG:  48 89 5C 24 08 57 48 83 EC 20 0F B7 5A 04 48 8B FA 8B CB E8 ?? ?? ?? ?? 84 C0 B9 DA 07 00 00 0F 45 D9
+DESC: What it is: The packet-dispatch path for currency-style inventory entries and related special inventory containers. When it runs: When the client receives a currency-oriented inventory packet and applies it to the resolved live slot. Why you would care: Use this when a plugin needs packet-level visibility into currency and special inventory updates alongside normal armoury and bag item flows.
+----------------------------------------
+NAME: PacketDispatcher_HandleInventoryItemSymbolicPacket
+SIG:  48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 18 4C 89 74 24 20 41 57 48 83 EC 20 48 8B DA
+DESC: What it is: The packet-dispatch path that applies symbolic or linked-item inventory updates across two resolved slots. When it runs: When the client receives an inventory payload that links one slot to another item reference rather than behaving like a plain standalone item update. Why you would care: Use this for inventory tooling that needs the packet layer for linked or symbolic item relationships instead of only ordinary slot updates.
+----------------------------------------
+NAME: InventoryManager_HandleActionAck
+SIG:  48 89 5C 24 08 57 48 83 EC 30 48 8B 05 ?? ?? ?? ?? 48 8B D9 41 0F B6 50
+DESC: What it is: The deeper inventory-manager handler that processes acknowledged inventory operations after the packet-dispatch wrapper forwards them. When it runs: When the client handles server acknowledgements for inventory operations and updates internal inventory state, UI dirty flags, or operation-specific follow-up logic. Why you would care: Use this instead of the tiny packet thunk when you want a stronger hook for acknowledged inventory actions that affect armoury or related inventory state.
+----------------------------------------
+NAME: PacketDispatcher_HandlePlayerGearsetDataPacket
+SIG:  40 53 48 83 EC 20 48 8B DA 8B D1 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 85 C0 74 14 48 8D 88 F8 06 00 00 48 8B D3 48 83 C4 20 5B E9 ?? ?? ?? ??
+DESC: What it is: The server packet path that applies gearset draw-data updates to a live character. When it runs: When the client receives gearset appearance data for a character and loads it into that actor's draw-data container after resolving the target by entity id. Why you would care: Use this for gear and appearance-aware tooling when you need the authoritative server-fed moment a character's equipped visual set is refreshed.
+----------------------------------------
+CATEGORY: Armoury Chest - Support and Context Hooks
+----------------------------------------
+NAME: AgentInventoryContext_OpenForItemSlot
+SIG:  83 B9 E4 06 00 00 00 7E 11 39 91 DC 06 00 00 75 09 44 39 81 E0 06 00 00 74 3C
+DESC: What it is: The inventory-context entrypoint that opens a context menu for a specific container and slot. When it runs: When the client binds the currently selected item slot into the shared inventory-context agent for later menu actions or inspection. Why you would care: Use this as a routing hook when a plugin wants to know exactly which armoury slot the user is interacting with before context-driven UI actions happen.
+----------------------------------------
+NAME: AgentInventoryContext_Update
+SIG:  40 53 48 83 EC 30 8B 81 E4 06 00 00 48 8B D9 85 C0 7E 08 FF C8 89 81 E4
+DESC: What it is: The inventory-context update loop that keeps the active item-slot context synchronized with live inventory state. When it runs: When the client refreshes an open inventory context menu and verifies that the referenced armoury or inventory slot still exists and still matches the expected item state. Why you would care: Use this to follow live context-menu state for armoury items rather than only the initial context-open event.
+----------------------------------------
+NAME: ContentInventoryManager_GetInventoryTypeByItemId
+SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 48 8B 41 08 8B EA
+DESC: What it is: The content-inventory lookup that resolves which content-owned container currently holds a given item id. When it runs: When the client searches content inventory providers for the live container type backing a requested item id. Why you would care: Use this for armoury-adjacent tooling when an item may be owned by a content inventory provider and you need the container type instead of only a direct slot pointer.
+----------------------------------------
+NAME: ItemOrderModule_GetArmorySorter
+SIG:  40 53 48 83 EC 20 48 8B D9 66 83 FA 05 75 0D 48 8B 81 B0 00 00 00 48 83
+DESC: What it is: The item-order module helper that returns the sorter object for an armoury page. When it runs: When the client asks for the live sorter backing one armoury chest category rather than the generic inventory sorter set. Why you would care: Use this as a support hook for plugins that want armoury-specific ordering, cached page order, or tab-aware sorting context.
+----------------------------------------
+CATEGORY: Armoury Chest - UI and State Hooks
+----------------------------------------
+NAME: AgentArmouryBoard_ReceiveEvent
+SIG:  48 89 5C 24 08 55 56 57 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 40 48 8B F9
+DESC: What it is: The high-level armoury-board agent event handler that routes user-facing armoury commands into the backing inventory and UI systems. When it runs: When the armoury agent receives tab changes, slot commands, inventory-open requests, or other board-level events from the visible interface. Why you would care: Use this as the main agent-side event hook when you want armoury interaction flow beyond passive refreshes.
+----------------------------------------
+NAME: AddonArmouryBoard_NextTab
+SIG:  40 53 48 83 EC 20 80 B9 C4 06 00 00 00 48 8B D9 75 10 8B 89 A8 06 00 00
+DESC: What it is: The addon helper that advances the visible armoury board to the next tab. When it runs: When the client moves the armoury UI forward across the weapon, armor, or accessory tab sequence. Why you would care: Use this as a direct UI-state hook for forward tab navigation when tab changes themselves matter to a plugin.
+----------------------------------------
+NAME: AddonArmouryBoard_PreviousTab
+SIG:  40 53 48 83 EC 20 80 B9 C4 06 00 00 00 48 8B D9 0F 85 ?? ?? ?? ?? 8B 81 A8 06 00 00
+DESC: What it is: The addon helper that moves the visible armoury board back to the previous tab. When it runs: When the client navigates backward through the armoury tab sequence. Why you would care: Use this alongside the next-tab hook when a plugin needs explicit backward navigation state instead of inferring tab changes later.
+----------------------------------------
+NAME: AddonArmouryBoard_ReceiveEvent
+SIG:  4C 8B DC 55 53 41 54 41 56 41 57 49 8D 6B A9 48 81 EC C0 00 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4
+DESC: What it is: The lower-level addon event handler for the visible armoury board widget tree. When it runs: When button clicks, tab events, item interactions, or UI-driven refresh events are handled directly by the addon layer before or alongside agent routing. Why you would care: Use this when you need the raw visible armoury-board interaction flow instead of only the higher-level agent event layer.
+----------------------------------------
+
