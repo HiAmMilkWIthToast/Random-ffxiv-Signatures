@@ -165,6 +165,6 @@ CATEGORY: Local Character - Party, Instance, and Social State
 CATEGORY: Local Character - Job Change and UI Hooks
 CATEGORY: Local Character - Non-Core PlayerState Support
 CATEGORY: Local Character - Conditions and Permission Support
-CATEGORY:Animation Lock - Core State and Action Hooks
-CATEGORY:Animation Lock - Cast, Forced-Cast, and Reset Hooks
-CATEGORY:Animation Lock - Non-Core Timing and Support
+CATEGORY: Animation Lock - Core State and Action Hooks
+CATEGORY: Animation Lock - Cast, Forced-Cast, and Reset Hooks
+CATEGORY: Animation Lock - Non-Core Timing and Support
