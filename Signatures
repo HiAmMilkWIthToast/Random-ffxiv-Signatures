@@ -1,27 +1,23 @@
 CATEGORY: General and Core Signatures
 ----------------------------------------
 NAME: ActionEffect
-SIG:  40 55 56 57 41 54 41 55 41 56 41 57 48 8D AC 24
+SIG:  40 55 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 60 FF FF FF 48 81 EC A0 01 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 45 70 48 8B 85 00 01 00 00 44 8B E1 4C 8B B5 08 01 00 00 49 8B F1 89 4C 24 54 4D 8B F8 41 0F B7 49 1C 48 8B FA 48 89 44 24 68 4C 89 74 24 60 4C 89 44 24 70 48 89 55 80
 DESC: What it is: A general action effect handler used when the game applies the results of an action to a target. When it runs: After an action has been resolved and the client is processing damage, healing, status changes, or similar results. Why you would care: Use this if you want to react to actions actually landing instead of just being requested.
 ----------------------------------------
 NAME: ActorVfx_Create
-SIG:  40 53 55 56 57 48 81 EC ?? ?? ?? ?? 0F 29 B4 24 ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 ?? ?? ?? ?? 0F B6 AC 24 ?? ?? ?? ?? 0F 28 F3 49 8B F8
+SIG:  40 53 55 56 57 48 81 EC 08 02 00 00 0F 29 B4 24 F0 01 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 E0 01 00 00 0F B6 AC 24 50 02 00 00 0F 28 F3 49 8B F8 48 8B F2 48 8B D9 48 85 D2 0F 84 3A 01 00 00 4D 85 C0 0F 84 31 01 00 00 80 BC 24 60 02 00 00 00 75 14 49 8B 00 49 8B C8 FF 90 50 01 00 00
 DESC: What it is: The function that creates a visual effect attached to a character or other game object. When it runs: When the client starts a new attached effect such as a skill effect, aura, or visual indicator. Why you would care: Use this if you want to watch actor-attached effects being created or identify which effects are starting.
 ----------------------------------------
 NAME: AtkUnitBase_ReceiveEvent
-SIG:  48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 30 0F B7 FA
+SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 0F B7 FA 48 8B D9 B9 FD FF 00 00 49 8B F1 8D 47 E9 66 85 C1 0F 85 DF 00 00 00 80 BB D0 02 00 00 00 0F 84 D2 00 00 00 80 BB D1 02 00 00 00 0F 85 C5 00 00 00 45 85 C0 0F 85 BC 00 00 00 48 8B 83 38 02 00 00 48 85 C0 0F 84 AC 00 00 00
 DESC: What it is: The main input handler for game UI windows built on AtkUnitBase. When it runs: When the player clicks, presses keys, changes focus, or otherwise interacts with a supported UI window. Why you would care: Use this if you want a broad hook for UI interaction without targeting one specific addon first.
 ----------------------------------------
-NAME: Blacklist_Proxy_IdentifierOffset
-SIG:  Offset: 0x10
-DESC: What it is: The offset to the account or content id field inside one blacklist entry. When it runs: You use it when reading an individual blacklist entry. Why you would care: Use this if you want the stable identifier instead of only the displayed name.
-----------------------------------------
-NAME: Blacklist_Proxy_NamePointerOffset
-SIG:  Offset: 0x00
-DESC: What it is: The offset to the player name pointer inside one blacklist entry. When it runs: You use it when reading an individual blacklist entry. Why you would care: Use this if you want the displayed name for each blacklist record.
+NAME: Blacklist_Proxy_GetBlockResult
+SIG:  4C 8B 91 F8 19 00 00 33 C0 48 89 42 08 4C 8B D9 89 42 10 49 8B CA C7 02 01 00 00 00 49 8B 42 08 80 78 19 00 75 18
+DESC: What it is: The blacklist proxy helper that resolves a blacklist entry result record for the requested key. When it runs: When the client looks up a blacklist entry by account/content id or by the alternate key path and returns the matching result structure. Why you would care: Use this as the real AoB-backed anchor for blacklist entries; the returned entry record still carries the stable identifier field at `+0x10` rather than exposing it as a raw non-AoB offset marker.
 ----------------------------------------
 NAME: Cutscene_SkipCondition
-SIG:  75 11 BA ?? ?? ?? ?? 48 8B CF E8 ?? ?? ?? ?? 84 C0 74 4C
+SIG:  75 11 BA 03 00 00 00 48 8B CF E8 ?? ?? ?? ?? 84 C0 74 4C 48 8B 53 38 48 85 D2 75 20 48 8B 4B 08 48 8B 01 FF 50 58 48 8B C8 BA 91 03 00 00 E8 ?? ?? ?? ?? 80 7B 2B 00 0F 94 C0 EB 2E 48 8B CE
 DESC: What it is: A small branch point tied to whether the client allows a cutscene to be skipped. When it runs: During the game's cutscene skip checks. Why you would care: Use this if you want to detect or patch the condition that controls skipping.
 ----------------------------------------
 NAME: CutsceneHandleInput
@@ -30,42 +26,38 @@ DESC: What it is: The function that handles input while a cutscene is active. Wh
 ----------------------------------------
 NAME: DirectorUpdate
 SIG:  40 53 57 48 83 EC 58 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 44 24 ?? 41 8B F9
-DESC: What it is: A central update function for directors, the systems that manage duties, encounters, and other controlled game content. When it runs: Repeatedly while a director-controlled activity is active. Why you would care: Use this if you want a deep hook into duty or encounter state changes.
+DESC: What it is: A central update function for directors, the systems that manage duties, encounters, and other controlled game content. When it runs: Repeatedly while a director-controlled activity is active. Why you would care: Use this if you want a deep hook into duty or encounter state changes. Extra context: This is the broad per-frame director-side update layer and sits upstream of more specialized director helpers like sequence changes, sync application, or content-specific `Update2` style passes. Pairs with: Director_SetSequence, Director_Synchronize
 ----------------------------------------
 NAME: GetNameplateColor
 SIG:  48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B 35 ?? ?? ?? ?? 48 8B F9
 DESC: What it is: The function that decides the color used for a target or nameplate. When it runs: When the game needs to draw or refresh nameplate colors. Why you would care: Use this if you want to inspect or change how nameplate colors are chosen.
 ----------------------------------------
 NAME: Inventory_SortHandler
-SIG:  48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 30 83 B9 ?? ?? ?? ?? ?? 41 8B F0
-DESC: What it is: A function involved in inventory sorting. When it runs: When the game starts or processes an inventory sort operation. Why you would care: Use this if you want to watch, block, or react to sort requests.
+SIG:  48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 30 83 B9 58 05 00 00 00 41 8B F0 8B EA 48 8B F9 0F 85 AA 00 00 00 48 89 5C 24 40 33 DB 0F 1F 44 00 00 0F B7 D3 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 85 C0 74 0D 48 8B 10 48 8B C8 FF 52 30 85 C0 74 09 FF C3 83 FB 05 7C D8
+DESC: What it is: A function involved in inventory sorting. When it runs: When the game starts or processes an inventory sort operation. Why you would care: Use this if you want to watch, block, or react to sort requests. Extra context: This is the request-side sort path on the client side, before later server acknowledgement and deeper inventory-state reconciliation. Pairs with: InventoryManager_HandleActionAck, PacketDispatcher_HandleInventoryActionAckPacket
 ----------------------------------------
 NAME: MapEffect
 SIG:  48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B FA 41 0F B7 E8
 DESC: What it is: A function that processes map-driven effects and related state changes. When it runs: When the game applies an effect caused by the map or environment. Why you would care: Use this if you want to watch map mechanics, environmental visuals, or related transitions.
 ----------------------------------------
 NAME: MarketBoard_ConfirmPurchase
-SIG:  0F B6 FC ?? ?? ?? ?? 4C EC 18 ?? ?? ?? ?? E8 EA EB 0F 50
+SIG:  40 53 48 81 EC 80 0F 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 70 0F 00 00 48 8B D9 48 8B 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 4C 8B D0 48 85 C0 0F 84 8E 00 00 00 8B 8B 94 56 00 00 45 33 C9 8B 83 9C 56 00 00 45 33 C0 48 8B 93 80 56 00 00 89 44 24 5C 0F B7 83 A0 56 00 00 48 89 54 24 40
 DESC: What it is: A function used when the Market Board opens or confirms the purchase flow. When it runs: When the client moves into purchase confirmation for a listing. Why you would care: Use this if you want to detect or inspect purchase confirmation events.
 ----------------------------------------
 NAME: MarketBoard_ItemRequest
 SIG:  48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 30 48 8B 5C 24 ?? 41 8B F0
-DESC: What it is: A function that requests item-related data for the Market Board. When it runs: When the client asks for listing or item information from the Market Board flow. Why you would care: Use this if you want to track Market Board queries rather than final purchases.
+DESC: What it is: A function that requests item-related data for the Market Board. When it runs: When the client asks for listing or item information from the Market Board flow. Why you would care: Use this if you want to track Market Board queries rather than final purchases. Extra context: This sits on the request side of the Market Board flow and is useful for catching searches or listing-detail lookups before result packets and purchase-confirmation handling take over.
 ----------------------------------------
 NAME: ProcessChatBox
 SIG:  48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B F2 48 8B F9 45 84 C9
 DESC: What it is: The same outgoing chat processor, noted here as a useful hook for issuing chat-driven blacklist commands. When it runs: When the player sends chat text or a chat command. Why you would care: Use this if your feature works by sending slash commands through the normal chat path.
-----------------------------------------
-NAME: ProcessMapEffectEx
-SIG:  40 55 41 57 48 83 EC ?? 48 83 B9
-DESC: What it is: A more detailed map effect handler used for map-driven effect processing. When it runs: When the client applies a more complex map effect or related update. Why you would care: Use this if the simpler map effect hook is not enough for the behavior you are tracking.
 ----------------------------------------
 NAME: ProcessZonePacketUp
 SIG:  48 89 5C 24 ?? 48 89 74 24 ?? 4C 89 64 24 ?? 55 41 56 41 57 48 8B EC 48 83 EC 70
 DESC: What it is: A function involved in handling outgoing zone-change traffic or related zone transition work. When it runs: As the client is preparing or processing a move between areas. Why you would care: Use this if you want to study zone transitions or hook logic near them.
 ----------------------------------------
 NAME: QuestManager
-SIG:  48 8D 0D ?? ?? ?? ?? 0F B6 D8 E8 ?? ?? ?? ?? 44 0F B6 C0
+SIG:  48 8D 0D ?? ?? ?? ?? 0F B6 D8 E8 ?? ?? ?? ?? 44 0F B6 C0 8D 53 01 41 3B D0 72 07 BA B6 07 00 00 EB 33 0F B6 57 30 48 8D 0D ?? ?? ?? ?? 41 B0 01 E8 ?? ?? ?? ?? 84 C0 74 17 48 8B CF 48 8B 5C 24 30 48 8B 74 24 38 48 83 C4 20 5F E9 B5 FA FF FF
 DESC: What it is: A pointer to the client's main quest manager. When it runs: You read it when you need access to current quest state. Why you would care: Use this if you want a direct entry point into quest data.
 ----------------------------------------
 NAME: SanitizeString
@@ -73,15 +65,15 @@ SIG:  48 89 5C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 ?? 48 81 EC ??
 DESC: What it is: A general string cleanup function used before text is displayed or processed. When it runs: When the client needs to sanitize text for chat or another UI-facing use. Why you would care: Use this if you want to inspect how the client cleans or normalizes text.
 ----------------------------------------
 NAME: SendAction
-SIG:  48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 ?? ?? ?? ?? 48 8B E9 41 0F B7 D9
+SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 81 EC 80 0F 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 70 0F 00 00 48 8B E9 41 0F B7 D9 48 8B 0D ?? ?? ?? ?? 41 8B F8 0F B6 F2 E8 ?? ?? ?? ?? 4C 8B D0 48 85 C0 74 7C 48 8B 84 24 C0 0F 00 00 48 8D 54 24 20
 DESC: What it is: A low-level function that sends an action request from the client. When it runs: When the player uses an ability, item, or another action that needs to be sent out. Why you would care: Use this if you want a direct hook on action sending before the result comes back.
 ----------------------------------------
 NAME: StaticVfx_Run
-SIG:  E8 ?? ?? ?? ?? B0 02 EB 02
+SIG:  E8 ?? ?? ?? ?? B0 02 EB 02 B0 01 88 83 88 00 00 00 48 8B 43 08 48 39 05 ?? ?? ?? ?? 75 1F E8 ?? ?? ?? ?? 48 8B C8 E8 ?? ?? ?? ?? 48 85 C0 74 0D 48 8B C8 48 83 C4 20 5B E9 66 25 0A 01
 DESC: What it is: A function that updates a visual effect placed at a fixed world position. When it runs: While that static effect is active in the world. Why you would care: Use this if you want to watch or identify world-anchored effects instead of character-attached ones.
 ----------------------------------------
 NAME: TargetingGuard_Hook
-SIG:  40 53 48 83 EC 60 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 44 24 ?? 48 85 D2
+SIG:  40 53 48 83 EC 60 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 44 24 50 48 85 D2 74 2A 48 8B 02 48 8B CA FF 50 08 48 0F BA E0 20 48 8B D8 73 08 41 B8 01 00 00 00 EB 17 48 0F BA E0 22 73 0D 41 B8 02 00 00 00 EB 08 BB 00 00 00 E0 45 33 C0 45 33 C9 C7 44 24 20 00 00 00 00 8B D3 41 8D 49 03
 DESC: What it is: A low-level hook near the game's internal targeting logic. When it runs: When the client is updating or validating a target selection. Why you would care: Use this if you want to inspect, block, or alter targeting behavior at a deep level.
 ----------------------------------------
 
@@ -1607,7 +1599,7 @@ CATEGORY: Armoury Chest - Packet and Server-Fed Hooks
 ----------------------------------------
 NAME: InventoryManager_HandleActionAck
 SIG:  48 89 5C 24 08 57 48 83 EC 30 48 8B 05 ?? ?? ?? ?? 48 8B D9 41 0F B6 50
-DESC: What it is: The deeper inventory-manager handler that processes acknowledged inventory operations after the packet-dispatch wrapper forwards them. When it runs: When the client handles server acknowledgements for inventory operations and updates internal inventory state, UI dirty flags, or operation-specific follow-up logic. Why you would care: Use this instead of the tiny packet thunk when you want a stronger hook for acknowledged inventory actions that affect armoury or related inventory state.
+DESC: What it is: The deeper inventory-manager handler that processes acknowledged inventory operations after the packet-dispatch wrapper forwards them. When it runs: When the client handles server acknowledgements for inventory operations and updates internal inventory state, UI dirty flags, or operation-specific follow-up logic. Why you would care: Use this instead of the tiny packet thunk when you want a stronger hook for acknowledged inventory actions that affect armoury or related inventory state. Extra context: This is the applied-state inventory-side layer after packet ingress, so it is usually a better hook than the dispatcher if you care about the actual accepted operation rather than raw packet arrival. Pairs with: PacketDispatcher_HandleInventoryActionAckPacket
 ----------------------------------------
 NAME: PacketDispatcher_HandleInventoryItemCurrencyPacket
 SIG:  48 89 5C 24 08 57 48 83 EC 20 0F B7 5A 04 48 8B FA 8B CB E8 ?? ?? ?? ?? 84 C0 B9 DA 07 00 00 0F 45 D9
@@ -1788,10 +1780,6 @@ NAME: LimitBreakController_SetValues
 SIG:  0F B6 44 24 28 88 41 0E 0F B6 44 24 30 88 41 0F 88 51 08 66 44 89 41 0A 66 44 89 49 0C C3
 DESC: What it is: The function that writes the current Limit Break controller values into its fields. When it runs: When the client updates Limit Break availability, flags, or stored action ids. Why you would care: Use this if you want to watch the Limit Break state being refreshed in one place.
 ----------------------------------------
-NAME: LimitBreakUI_Update
-SIG:  40 57 48 83 EC 50 F6 81 A1 01 00 00 01 48 8B F9 44 0F 29 44 24 20 44 0F 28 C1 0F 84 ?? ?? ?? ??
-DESC: What it is: The main update function for the Limit Break UI window. When it runs: While the Limit Break gauge is visible and the client is keeping the UI in sync. Why you would care: Use this if you want a UI-side hook for gauge changes, bar updates, or segment animation.
-----------------------------------------
 NAME: StatusEffectListPlayerPacket
 SIG:  48 89 5C 24 08 57 48 83 EC 20 48 8B 1D ?? ?? ?? ?? 48 8B FA 48 85 DB 74 28
 DESC: What it is: The packet handler that loads a player's status-effect list into the local status manager. When it runs: When the client receives the normal player status packet from the server. Why you would care: Use this if you want a direct hook when the client refreshes live status data from the network.
@@ -1799,10 +1787,6 @@ DESC: What it is: The packet handler that loads a player's status-effect list in
 NAME: StatusManager_AddStatus
 SIG:  66 85 D2 0F 84 ?? ?? ?? ?? 48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 40
 DESC: What it is: The function that adds or refreshes a status entry in an actor's status manager. When it runs: When the client applies a gained or updated status to an actor. Why you would care: Use this if you want to watch statuses being added or refreshed in real time.
-----------------------------------------
-NAME: StatusManager_EntryCount
-SIG:  45 33 D2 48 8D 41 10 45 8B CA 41 BB 00 00 00 E0 0F B7 48 F8 3B CA 75 0A 4D 3B C3 74 1B 4C 39 00 74 16 41 FF C2 49 FF C1 48 83 C0 10 49 83 F9 3C
-DESC: What it is: A scan path that exposes the fixed slot count used by the status manager. When it runs: When the client loops through status slots looking for a match. Why you would care: Use this if you need the real status slot limit used by the client.
 ----------------------------------------
 NAME: StatusManager_EntryParamOffset
 SIG:  48 89 5C 24 08 48 89 7C 24 10 33 FF 4C 8D 49 10 44 8B DF 44 8B D7 BB 00 00 00 E0 0F 1F 44 00 00
@@ -1817,7 +1801,7 @@ SIG:  83 FA 3C 72 04 0F 57 C0 C3 8B C2 48 03 C0 F3 0F 10 44 C1 0C
 DESC: What it is: A helper that returns the remaining duration for a status slot. When it runs: When the client needs the remaining time for a given status index. Why you would care: Use this if you want a simple hook for duration reads instead of manual pointer math.
 ----------------------------------------
 NAME: StatusManager_GetStatusId
-SIG:  83 FA 3C 72 03 33 C0 C3 8B C2 48 03 C0 0F B7 44 C1 08 C3
+SIG:  83 FA 3C 72 03 33 C0 C3 8B C2 48 03 C0 0F B7 44 C1 08 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC 83 FA 3C 72 04 0F 57 C0 C3 8B C2 48 03 C0
 DESC: What it is: A helper that returns the status id stored in a given status slot. When it runs: When the client wants the status id for a particular index. Why you would care: Use this if you want a compact status-id lookup hook.
 ----------------------------------------
 
@@ -1828,7 +1812,7 @@ SIG:  48 89 5C 24 08 57 48 83 EC 20 41 0F B6 D8 48 8B F9 48 85 D2 74 33 80 FB 03
 DESC: What it is: The function that picks the correct Limit Break action id for an actor and LB tier. When it runs: When the client needs to validate or resolve which Limit Break action should be used. Why you would care: Use this if you want the exact action id behind the current Limit Break state.
 ----------------------------------------
 NAME: LimitBreakController_InstanceRef
-SIG:  48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 85 C0 75 0A B8 3E 02 00 00
+SIG:  48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 85 C0 75 0A B8 3E 02 00 00 E9 01 E8 FF FF 44 8B C0 E9 0F 03 00 00 E8 ?? ?? ?? ?? BA 01 00 0A 00 48 8B C8 E8 ?? ?? ?? ?? 48 85 C0 0F 84 39 04 00 00 4D 8B C7 8B D7 48 8B C8 E8 ?? ?? ?? ??
 DESC: What it is: A reference path to the global LimitBreakController object. When it runs: When the client checks Limit Break action state through the action system. Why you would care: Use this if you need the shared Limit Break controller rather than a single helper function.
 ----------------------------------------
 NAME: LimitBreakController_IsValidLBActionForClass
@@ -1860,6 +1844,7 @@ DESC: What it is: The main recast-time adjustment routine used by the action sys
 NAME: ActionManager_IsCastingSpell
 SIG:  41 8B E9 41 8B F8 E8 E5 FC 1C 00 48 8B F0 48 85 C0 0F 84 AB 00 00 00 8B 94 24 80 00 00 00 4C 89 74 24 60 81 FA 00 00 00 E0 74 15 3B D7 74 11 48 8D 0D
 DESC: What it is: The spell-specific cast-state check used by the action system. When it runs: When the client distinguishes active spell casting from other action-state checks. Why you would care: This is useful when a plugin wants a tighter spell-cast anchor than the broader generic casting check.
+----------------------------------------
 NAME: ActionManager_UpdateRecastFromNetwork
 SIG:  C0 F3 0F 11 44 24 48 45 33 C9 89 44 24 40 45 33 C0 89 44 24 38 33 D2 89 44 24 30 B9 5C 24 00 00 89 44 24 28 89 44 24 20 E8 F3 A6 2A 00 32 C0 48
 DESC: What it is: The network-fed recast update path inside the action system. When it runs: When the client applies recast data received from the server. Why you would care: This is the best server-fed cast/recast timing hook in this set because it shows where live cooldown timing is updated from network state.
@@ -2004,21 +1989,17 @@ CATEGORY: Party Finder - Non-Core and Request Hooks
 ----------------------------------------
 NAME: AgentLookingForGroup_RequestListingsUpdate
 SIG:  40 53 48 83 EC 40 48 8B D9 48 8B 89 E0 00 00 00 48 85 C9 75 08 32 C0 48 83 C4 40 5B C3 8B 83 F8 31 00 00 C1 E8 02 A8 01 74 0D E8 ?? ?? ?? ?? B0 01 48 83 C4 40 5B C3
-DESC: What it is: The LookingForGroup agent request path that asks the game to refresh or fetch the current party-finder listing set. When it runs: When the party-finder UI requests a listings refresh based on the current filter and listing state. Why you would care: Use this as a non-core request hook if you want to observe when the client actively asks for new party-finder listings rather than only consuming the received results.
+DESC: What it is: The LookingForGroup agent request path that asks the game to refresh or fetch the current party-finder listing set. When it runs: When the party-finder UI requests a listings refresh based on the current filter and listing state. Why you would care: Use this as a non-core request hook if you want to observe when the client actively asks for new party-finder listings rather than only consuming the received results. Extra context: This is the UI-to-network bridge point for listing refreshes, so it is useful when you want outbound request timing instead of only the later listing-data apply path.
 ----------------------------------------
 
 CATEGORY: PvP Core Systems
 ----------------------------------------
-NAME: Frontline_GetDirector
-SIG:  48 8B 81 58 01 00 00 48 85 C0 74 1B 48 8B 88 D8 02 00 00 BA 03 80 00 00 66 39 51 02 75 09
-DESC: What it is: The helper that resolves the active Frontline director from the event framework. When it runs: When the client needs the Frontline-specific director object for live match state. Why you would care: Use this if you want direct access to Frontline match control data.
-----------------------------------------
 NAME: Frontline_IsInFrontlineArea
-SIG:  80 3D 9D F9 EB 01 12 0F 94 C0 C3
+SIG:  80 3D ?? ?? ?? ?? 12 0F 94 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC
 DESC: What it is: A check that answers whether the current territory is a Frontline area. When it runs: When the client needs a yes-or-no answer for Frontline territory state. Why you would care: Use this if your plugin should only react in Frontline zones.
 ----------------------------------------
 NAME: Hotbar_ResetPvPHotbarsForClass
-SIG:  48 83 EC 28 41 8B D0 E8 44 16 00 00 B0 01 48 83 C4 28 C3
+SIG:  48 83 EC 28 41 8B D0 E8 ?? ?? ?? ?? B0 01 48 83 C4 28 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC 41 54 41 56 41 57 48 81 EC 90 00 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 44 24 60 33 C0 4C 63
 DESC: What it is: A helper that resets a job's PvP hotbar layout to the default setup. When it runs: When the client needs to rebuild a PvP hotbar from its default state. Why you would care: Use this if you want to detect or trigger a reset of PvP hotbar data.
 ----------------------------------------
 NAME: Hotbar_ResetPvPHotbarsForClassInner
@@ -2028,18 +2009,6 @@ DESC: What it is: The worker function used behind the PvP hotbar reset path. Whe
 NAME: InstanceContentPvpDirector_VtableRef
 SIG:  48 8D 05 ?? ?? ?? ?? C6 83 A0 1F 00 00 00 48 89 03 33 D2 48 8D 05 ?? ?? ?? ?? B9 00 02 00 00 48 89 83 60 04 00 00
 DESC: What it is: A constructor-side signature that identifies the main PvP content director's vtable setup. When it runs: When the client is constructing the PvP content director. Why you would care: Use this if you need a stable anchor for the shared PvP director object.
-----------------------------------------
-NAME: PvpSetModule_GetDataSize
-SIG:  B8 42 00 00 00 C3
-DESC: What it is: A helper that returns the size of the serialized PvP set data. When it runs: When the client prepares to read or write that data format. Why you would care: Use this if you need the exact saved data size for file work or validation.
-----------------------------------------
-NAME: PvpSetModule_GetFileType
-SIG:  B8 90 01 00 00 C3
-DESC: What it is: A helper that returns the file-type id used by saved PvP set data. When it runs: When the client checks or writes the saved file type. Why you would care: Use this if you need the same file-type id as the client for tooling or parsing.
-----------------------------------------
-NAME: PvpSetModule_GetFileVersion
-SIG:  B8 00 04 00 00 C3
-DESC: What it is: A helper that returns the file version used by saved PvP set data. When it runs: When the client checks or writes the saved format version. Why you would care: Use this if you need to validate or mirror the saved file format.
 ----------------------------------------
 NAME: PvpSetModule_ReadFile
 SIG:  84 D2 74 48 4D 85 C0 74 43 B8 90 01 00 00 66 44 3B C8 72 38 41 0F 10 40 10 0F 11 41 48
@@ -2066,19 +2035,11 @@ SIG:  48 89 5C 24 20 56 57 41 56 48 81 EC 10 01 00 00 48 8B 05 C1 B6 ED 01 48 33
 DESC: What it is: The function that executes a PvP-related chat shell command such as `/pvpteam`. When it runs: When the player enters that command through chat. Why you would care: Use this if you want to react to or inspect PvP chat command handling.
 ----------------------------------------
 NAME: UIModule_GetPvpSetModule
-SIG:  48 8D 81 D8 65 09 00 C3
+SIG:  48 8D 81 D8 65 09 00 C3 CC CC CC CC CC CC CC CC 48 8D 81 50 66 09 00 C3 CC CC CC CC CC CC CC CC
 DESC: What it is: A helper that returns the PvP set module from the main UI module. When it runs: When the client or plugin code needs the shared PvP set module pointer. Why you would care: Use this if you want an easy path to the module that stores PvP set data.
 ----------------------------------------
 
 CATEGORY: PvP State Checks
-----------------------------------------
-NAME: BuffStatusUI_OnSetup
-SIG:  48 89 5C 24 10 48 89 6C 24 18 48 89 74 24 20 57 41 54 41 55 41 56 41 57 48 81 EC 80 00 00 00
-DESC: What it is: The setup function for the HUD buff and status display. When it runs: When the game first builds that HUD element. Why you would care: Use this if you want a clean hook when the buff display is being created.
-----------------------------------------
-NAME: BuffStatusUI_Update
-SIG:  40 56 48 83 EC 30 48 8B F1 E8 ?? ?? ?? ?? F6 86 A1 01 00 00 01 0F 84 ?? ?? ?? ?? 8B 86 98 01 00 00
-DESC: What it is: The main update function for the HUD buff and status display. When it runs: While that HUD element is visible and the client is refreshing its state. Why you would care: Use this if you want a UI-side hook for ongoing buff bar changes.
 ----------------------------------------
 NAME: PvP_IsInPvP
 SIG:  48 89 5C 24 08 57 48 83 EC 20 8B 15 ?? ?? ?? ?? 48 8B F9 8B 1D ?? ?? ?? ?? 85 D2 0F 45 DA
@@ -2158,10 +2119,6 @@ NAME: PvPProfile_GetCurrentRankNeededExp
 SIG:  48 83 EC 28 0F B6 05 ?? ?? ?? ?? FE C8 3C 02 77 5D 48 89 5C 24 30 48 89 74 24 38
 DESC: What it is: A helper that returns how much experience is required to reach the next PvP rank. When it runs: When the client wants the target progress value for the current rank. Why you would care: Use this if you want to calculate or display PvP rank completion.
 ----------------------------------------
-NAME: PvPProfile_InstanceRef
-SIG:  48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 85 C0 B9 7E 71 00 00 0F 45 C8
-DESC: What it is: A reference path to the global PvP profile object. When it runs: When the client resolves the shared PvP profile state for rank and profile reads. Why you would care: Use this if you want the profile object itself instead of calling one helper at a time.
-----------------------------------------
 
 CATEGORY: PvP Map Objects and Pickups
 ----------------------------------------
@@ -2203,10 +2160,6 @@ DESC: What it is: The repeating update path for reaction event objects in the wo
 ----------------------------------------
 
 CATEGORY: PvP Agents and Modules
-----------------------------------------
-NAME: PvPAgentGauge_ReceiveEvent
-SIG:  C7 02 02 00 00 00 48 8B C2 C6 42 08 00 C3
-DESC: What it is: A small receive-event handler for the PvP gauge agent. When it runs: When that agent receives a simple event and writes its updated state. Why you would care: Use this if you want a lightweight hook close to the gauge agent's own state handling.
 ----------------------------------------
 NAME: PvPMKSIntroduction_OnSetup
 SIG:  48 89 5C 24 10 48 89 74 24 20 57 48 83 EC 20 48 83 B9 38 02 00 00 00 49 8B F8 8B DA 48 8B F1
@@ -2267,10 +2220,6 @@ NAME: AgentPvPSpectator_Update
 SIG:  40 53 56 57 48 83 EC 70 48 8B 05 B9 79 AD 01 48 33 C4 48 89 44 24 50 48 8B D9 E8 51 20 00 00
 DESC: What it is: The active update function for the PvP spectator agent. When it runs: While the spectator agent is active and the client is refreshing its state. Why you would care: Use this if you want a live hook at the agent layer during spectating.
 ----------------------------------------
-NAME: PvpWelcome_OnSetup
-SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 54 41 56 41 57 48 83 EC 50
-DESC: What it is: The setup function for the PvP welcome or tutorial window. When it runs: When the game first builds that introductory UI. Why you would care: Use this if you want a clean hook when the welcome panel appears.
-----------------------------------------
 NAME: PvpWelcome_ReceiveEvent
 SIG:  40 53 48 83 EC 20 44 0F B7 D2 49 8B D9 41 83 EA 19 74 32 41 83 EA 2F 74 06 41 83 FA 01 75 3F
 DESC: What it is: The input handler for the PvP welcome or tutorial window. When it runs: When the player confirms, advances, or otherwise interacts with that UI. Why you would care: Use this if you want to track direct interaction with the welcome flow.
@@ -2298,10 +2247,6 @@ NAME: PvPTeamStatus_OnRequestedUpdate
 SIG:  48 89 74 24 10 57 48 83 EC 20 48 8B F9 E8 ?? ?? ?? ?? 48 8B C8 E8 ?? ?? ?? ?? 48 8B CF 48 8B B0 C0 02 00 00
 DESC: What it is: A refresh function for the PvP team status window. When it runs: When the game has new values and wants the window to redraw using the latest data. Why you would care: Use this if you want a UI-side hook for updated PvP team status information.
 ----------------------------------------
-NAME: PvPTeamStatus_OnSetup
-SIG:  48 89 5C 24 20 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 70 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 44 24 60
-DESC: What it is: The setup function for the PvP team status window. When it runs: When the game first builds that UI window and binds its controls. Why you would care: Use this if you want a clean hook when the PvP status window is being created.
-----------------------------------------
 NAME: PvPTeamStatus_ReceiveEvent
 SIG:  66 83 FA 19 0F 85 ?? ?? ?? ?? 48 89 5C 24 08 57 48 83 EC 30 49 8B D9 48 8B F9 41 83 F8 01 75 57
 DESC: What it is: The input handler for the PvP team status window. When it runs: When the player clicks or confirms something in that window. Why you would care: Use this if you want to track or respond to direct interaction with the PvP status UI.
@@ -2318,38 +2263,22 @@ NAME: StatusManager_GetStatusByIndex
 SIG:  83 FA 3C 72 08 48 8D 05 ?? ?? ?? ?? C3 8B C2 48 C1 E0 04 48 83 C0 08 48 03 C1 C3
 DESC: What it is: A helper that returns the raw status entry pointer for a slot index. When it runs: When the client needs direct access to the entry instead of just one field. Why you would care: Use this if you want the whole status record for a slot.
 ----------------------------------------
-NAME: StatusManager_GetStatusIndex
-SIG:  45 33 D2 48 8D 41 10 45 8B CA 41 BB 00 00 00 E0 0F B7 48 F8 3B CA 75 0A 4D 3B C3 74 1B 4C 39 00 74 16 41 FF C2 49 FF C1 48 83 C0 10 49 83 F9 3C
-DESC: What it is: A search helper that returns the slot index for a matching status. When it runs: When the client needs the position of a status entry rather than just a true or false answer. Why you would care: Use this if your logic needs to reuse the same slot index later.
-----------------------------------------
-NAME: StatusManager_HasStatus
-SIG:  45 33 D2 48 8D 41 10 45 8B CA 41 BB 00 00 00 E0 0F B7 48 F8 3B CA 75 0A 4D 3B C3 74 1B 4C 39 00
-DESC: What it is: A search function that checks whether an actor currently has a particular status. When it runs: When the client wants a yes-or-no answer for status presence, with an optional source filter. Why you would care: Use this if you want the same status lookup behavior the client already relies on.
-----------------------------------------
 
 CATEGORY: PvP Character Window
-----------------------------------------
-NAME: PvPCharacter_OnSetup
-SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 54 41 56 41 57 48 83 EC 30
-DESC: What it is: The setup function for the PvP character window. When it runs: When the game first builds that character UI and its PvP-specific panels. Why you would care: Use this if you want a clean hook when the PvP character window is created.
 ----------------------------------------
 NAME: PvPFrontlineInfo_OnRefresh
 SIG:  48 83 EC 28 F6 81 A1 01 00 00 01 74 08 45 33 C9 E8 1B 00 00 00 B0 01 48 83 C4 28 C3
 DESC: What it is: A refresh function for the Frontline info window. When it runs: When the game has updated match data for that panel. Why you would care: Use this if you want a UI-side hook for Frontline info updates.
 ----------------------------------------
-NAME: PvPFrontlineInfo_OnSetup
-SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 48 8B D9 49 8B F8 49 8B C8 8B F2
-DESC: What it is: The setup function for the Frontline info window. When it runs: When the game first builds that info panel. Why you would care: Use this if you want a clean hook when the Frontline info UI appears.
-----------------------------------------
 
 CATEGORY: PvP Profile and Rank Data
 ----------------------------------------
 NAME: PvP_IsInPvPArea
-SIG:  48 8B 05 ?? ?? ?? ?? 48 85 C0 75 01 C3 0F B6 40 3B C0 E8 ?? 24 ?? C3
+SIG:  48 8B 05 ?? ?? ?? ?? 48 85 C0 75 01 C3 0F B6 40 3B C0 E8 ?? ?? ?? ?? CC CC CC CC CC CC CC CC
 DESC: What it is: A check for whether the current zone or content area is marked as PvP. When it runs: When the client needs to know if the player is standing in a PvP-enabled area. Why you would care: Use this if your plugin should only react in PvP zones.
 ----------------------------------------
 NAME: PvP_IsInPvPInstance
-SIG:  40 53 48 83 EC 20 48 8B 1D ?? ?? ?? ?? 48 85 DB 74 1E 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 84 C0
+SIG:  40 53 48 83 EC 20 48 8B 1D ?? ?? ?? ?? 48 85 DB 74 1E 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 84 C0 74 0E F6 43 3B 20 74 08 B0 01 48 83 C4 20 5B C3 32 C0 48 83 C4 20 5B C3
 DESC: What it is: A check for whether the player is inside an active PvP instance. When it runs: When the client needs to distinguish real match content from a zone that merely supports PvP rules. Why you would care: Use this if your plugin should only run inside live PvP duties.
 ----------------------------------------
 NAME: PvPProfile_GetCurrentRankExp
@@ -2357,7 +2286,7 @@ SIG:  40 53 48 83 EC 20 0F B6 05 ?? ?? ?? ?? 48 8B D9 FE C8 3C 02 77 3D 48 89 7C
 DESC: What it is: A helper that returns the experience already earned toward the current PvP rank. When it runs: When the client wants the current progress value for the active rank. Why you would care: Use this if you want to display or track PvP rank progress.
 ----------------------------------------
 NAME: PvPProfile_GetPvPRank
-SIG:  0F B6 05 ?? ?? ?? ?? FE C8 3C 02 77 09 0F B6 C0 0F B6 44 08 10 C3
+SIG:  0F B6 05 ?? ?? ?? ?? FE C8 3C 02 77 09 0F B6 C0 0F B6 44 08 10 C3 32 C0 C3
 DESC: What it is: A helper that returns the current PvP rank from the stored profile state. When it runs: When the client wants the player's current PvP rank number. Why you would care: Use this if you want a simple hook or lookup for the current PvP rank.
 ----------------------------------------
 NAME: PvPProfile_ReadPacket
@@ -2374,10 +2303,6 @@ DESC: What it is: The custom input path for the PvP quick chat window. When it r
 NAME: PvpProfileAction_OnRequestedUpdate
 SIG:  48 8B C4 55 53 41 54 41 55 41 56 48 8D 68 A1 48 81 EC B0 00 00 00 48 89 70 D0 45 33 E4
 DESC: What it is: A refresh function for the PvP profile action page. When it runs: When the game has new action or profile data for that page. Why you would care: Use this if you want a UI-side hook for action-page updates.
-----------------------------------------
-NAME: PvpProfileAction_OnSetup
-SIG:  48 8B C4 48 89 58 10 48 89 70 18 48 89 78 20 55 41 54 41 55 41 56 41 57 48 8D 68 A1
-DESC: What it is: The setup function for the PvP profile action page. When it runs: When the game first builds that page inside the profile UI. Why you would care: Use this if you want a clean hook when the action page is created.
 ----------------------------------------
 NAME: PvpProfileAction_ReceiveEvent
 SIG:  40 55 53 56 57 41 54 41 56 41 57 48 8D 6C 24 E1 48 81 EC C0 00 00 00 48 8B 05 7A 71 57 01
@@ -2419,10 +2344,6 @@ NAME: PvpProfileFrontline_OnSetup
 SIG:  48 8B C4 48 89 58 10 48 89 70 18 48 89 78 20 55 41 54 41 55 41 56 41 57 48 8D A8 88 FC FF FF
 DESC: What it is: The setup function for the Frontline page inside the PvP profile UI. When it runs: When the game first builds that page. Why you would care: Use this if you want a clean hook when the Frontline profile page is created.
 ----------------------------------------
-NAME: PvpProfileManeuvers_OnRequestedUpdate
-SIG:  48 8B 42 08 41 B9 07 00 00 00 48 8B 10 44 8B 42 04 45 85 C0 74 1A 41 83 E8 01 74 0C
-DESC: What it is: A refresh function for the Maneuvers page inside the PvP profile UI. When it runs: When the game wants that page to reload its current data. Why you would care: Use this if you want a UI-side hook for Maneuvers profile updates.
-----------------------------------------
 NAME: PvpProfileManeuvers_OnSetup
 SIG:  48 89 5C 24 10 48 89 74 24 18 57 48 81 EC 90 00 00 00 0F 29 B4 24 80 00 00 00 48 8B 05 27 13 57 01
 DESC: What it is: The setup function for the Maneuvers page inside the PvP profile UI. When it runs: When the game first builds that page. Why you would care: Use this if you want a clean hook when the Maneuvers profile page is created.
@@ -2454,10 +2375,6 @@ NAME: AgentPvpTeam_Show
 SIG:  40 57 48 81 EC 80 00 00 00 48 8B 05 E8 9A 26 02 48 33 C4 48 89 44 24 70 48 8B 01 48 8B F9
 DESC: What it is: The function that shows the PvP team-management agent. When it runs: When the game opens the team-management flow through the agent layer. Why you would care: Use this if you want an agent-level hook when team management starts.
 ----------------------------------------
-NAME: FrontlineRecord_OnRefresh
-SIG:  48 89 5C 24 10 57 48 83 EC 20 F6 81 A1 01 00 00 01 49 8B F8 48 8B D9 75 0D 32 C0
-DESC: What it is: A refresh function for the Frontline record or history window. When it runs: When the game reloads the data shown in that record UI. Why you would care: Use this if you want a UI-side hook for Frontline history updates.
-----------------------------------------
 NAME: FrontlineRecord_OnSetup
 SIG:  48 89 5C 24 10 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 A0 48 81 EC 60 01 00 00 48 8B 05 35 2B 67 01
 DESC: What it is: The setup function for the Frontline record or history window. When it runs: When the game first builds that record UI. Why you would care: Use this if you want a clean hook when the Frontline history screen appears.
@@ -2477,10 +2394,6 @@ NAME: PvPMap_GetWindowBounds
 SIG:  40 53 48 83 EC 20 48 83 B9 40 14 00 00 00 48 8B DA 74 15 48 8B 89 C8 00 00 00
 DESC: What it is: A helper that returns the current on-screen bounds of the PvP map window. When it runs: When the client needs the map window size or position for layout or hit testing. Why you would care: Use this if you need the real window rectangle for overlay or input work.
 ----------------------------------------
-NAME: PvPMap_Update
-SIG:  40 53 48 83 EC 20 48 8B D9 E8 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 03 33 C0 48 89 83 38 02 00 00
-DESC: What it is: The active update function for the PvP map window. When it runs: While the PvP map is open and the client is keeping it current. Why you would care: Use this if you want a live hook for ongoing map-state changes.
-----------------------------------------
 NAME: PvPScreenHotbar_OnSetup
 SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 8B DA 49 8B F0 BA 01 00 00 00 48 8B F9
 DESC: What it is: The setup function for the PvP screen hotbar window. When it runs: When the game first builds that hotbar UI. Why you would care: Use this if you want a clean hook when the PvP screen hotbar is created.
@@ -2496,10 +2409,6 @@ NAME: PvPSpectatorCameraList_OnSetup
 SIG:  40 53 48 83 EC 20 48 8B D9 E8 62 04 00 00 BA 11 00 00 00 48 8B CB E8 ?? ?? ?? ?? 48 8B C8
 DESC: What it is: The setup function for the spectator camera list window. When it runs: When the game first builds the camera selection UI for spectating. Why you would care: Use this if you want a clean hook when the spectator camera list is created.
 ----------------------------------------
-NAME: PvPTeam_OnSetup
-SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 56 41 57 48 83 EC 30 44 8B F2 49 8B E8
-DESC: What it is: The setup function for the main PvP team window. When it runs: When the game first builds that team UI. Why you would care: Use this if you want a clean hook when the PvP team window is created.
-----------------------------------------
 NAME: PvPTeam_ReceiveEvent
 SIG:  66 83 FA 19 0F 85 ?? ?? ?? ?? 4C 8B DC 49 89 73 20 41 56 48 83 EC 60 49 89 6B 10
 DESC: What it is: The input handler for the main PvP team window. When it runs: When the player clicks, confirms, or otherwise interacts with that UI. Why you would care: Use this if you want to track or react to direct team-window interaction.
@@ -2507,10 +2416,6 @@ DESC: What it is: The input handler for the main PvP team window. When it runs: 
 NAME: PvPTeam_Update
 SIG:  40 53 48 83 EC 30 0F 29 74 24 20 48 8B D9 0F 28 F1 E8 ?? ?? ?? ?? 48 8D 8B B0 02 00 00
 DESC: What it is: The active update function for the main PvP team window. When it runs: While the team UI is open and the client is keeping it current. Why you would care: Use this if you want a live hook for changes inside the team window.
-----------------------------------------
-NAME: PvPTeamActivity_OnSetup
-SIG:  40 53 55 56 57 41 56 48 81 EC 80 00 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 44 24 78
-DESC: What it is: The setup function for the PvP team activity window. When it runs: When the game first builds that activity UI. Why you would care: Use this if you want a clean hook when the team activity panel is created.
 ----------------------------------------
 
 CATEGORY: PvP Utility UI
@@ -2522,10 +2427,6 @@ DESC: What it is: The setup function for the PvP action set view window. When it
 NAME: PvpActionSetView_ReceiveEvent
 SIG:  40 57 48 83 EC 60 48 8B F9 66 83 FA 21 0F 85 01 01 00 00 48 89 B4 24 80 00 00 00 48 8B B4 24 90 00 00 00
 DESC: What it is: The input handler for the PvP action set view window. When it runs: When the player interacts with that UI, such as selecting or confirming an action set. Why you would care: Use this if you want to track direct action-set interaction.
-----------------------------------------
-NAME: PvpCalendar_OnSetup
-SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 54 41 55 41 56 41 57 48 83 EC 30
-DESC: What it is: The setup function for the PvP calendar window. When it runs: When the game first builds that calendar UI. Why you would care: Use this if you want a clean hook when the PvP calendar appears.
 ----------------------------------------
 NAME: PvpCalendar_ReceiveEvent
 SIG:  40 53 55 56 57 41 57 48 83 EC 70 48 8B 05 96 FE 56 01 48 33 C4 48 89 44 24 60 4D 8B F9
@@ -2554,10 +2455,6 @@ NAME: PvPFrontlineGauge_OnRefresh
 SIG:  48 83 EC 28 F6 81 A1 01 00 00 01 74 08 45 33 C9 E8 2B 00 00 00 B0 01 48 83 C4 28 C3
 DESC: What it is: A refresh function for the Frontline gauge display. When it runs: When the game has updated match values and wants the gauge to redraw. Why you would care: Use this if you want a UI-side hook for gauge value changes.
 ----------------------------------------
-NAME: PvPFrontlineGauge_OnSetup
-SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 56 48 83 EC 20 48 8B E9
-DESC: What it is: The setup function for the Frontline gauge window. When it runs: When the game first builds the Frontline gauge UI. Why you would care: Use this if you want a clean hook when the gauge window is created.
-----------------------------------------
 NAME: PvPFrontlineHeader_OnRequestedUpdate
 SIG:  48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 30 48 8B B2 C0 03 00 00 48 8B E9 48 8B 46 28
 DESC: What it is: A refresh function for the Frontline header. When it runs: When the game has new scoreboard or match-state data for the header. Why you would care: Use this if you want a UI-side hook for Frontline header updates.
@@ -2581,14 +2478,6 @@ NAME: PvPCharacter_OnRequestedUpdate
 SIG:  40 55 56 57 48 83 EC 50 F6 81 A1 01 00 00 01 49 8B F0 48 8B FA 48 8B E9 0F 84 ?? ?? ?? ??
 DESC: What it is: A refresh function for the PvP character window. When it runs: When the game has new PvP profile or character values and wants the window to redraw. Why you would care: Use this if you want a UI-side hook for PvP character updates.
 ----------------------------------------
-NAME: PvPCharacter_ReceiveEvent
-SIG:  40 55 53 56 57 41 56 48 8D 6C 24 D1 48 81 EC E0 00 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4
-DESC: What it is: The input handler for the PvP character window. When it runs: When the player clicks, changes tabs, or otherwise interacts with that window. Why you would care: Use this if you want to track direct interaction with the PvP character UI.
-----------------------------------------
-NAME: PvPDuelRequest_Show
-SIG:  40 53 48 83 EC 20 48 8B D9 E8 ?? ?? ?? ?? 80 8B A1 01 00 00 40 48 83 C4 20 5B C3
-DESC: What it is: The function that shows the PvP duel request window. When it runs: When the game decides to display an incoming duel request. Why you would care: Use this if you want a clean hook when a duel request appears.
-----------------------------------------
 
 CATEGORY: Spectator UI
 ----------------------------------------
@@ -2596,17 +2485,9 @@ NAME: PvPDuelRequest_OnSetup
 SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 40 49 8B F0 0F 29 74 24 30 F3 0F 10 35 ?? ?? ?? ??
 DESC: What it is: The setup function for the PvP duel request window. When it runs: When the game first builds that UI. Why you would care: Use this if you want a hook during creation of the duel request window.
 ----------------------------------------
-NAME: PvPDuelRequest_ReceiveEvent
-SIG:  66 83 FA 19 75 2E 53 48 83 EC 20 49 8B D9 45 85 C0 74 0B 41 83 F8 01 75 0C 41 8B D0
-DESC: What it is: The input handler for the PvP duel request window. When it runs: When the player accepts, declines, or interacts with the duel request UI. Why you would care: Use this if you want to react to player decisions on duel prompts.
-----------------------------------------
 NAME: PvPSpectatorList_OnRequestedUpdate
 SIG:  40 56 48 83 EC 30 48 89 5C 24 40 48 8B F1 48 8B 0D ?? ?? ?? ?? 49 8B D8 48 89 7C 24 50
 DESC: What it is: A refresh function for the spectator list window. When it runs: When the game has new spectator or camera data and wants the window to redraw. Why you would care: Use this if you want a UI-side hook for spectator list updates.
-----------------------------------------
-NAME: PvPSpectatorList_OnSetup
-SIG:  48 89 5C 24 10 48 89 6C 24 18 48 89 74 24 20 57 48 81 EC B0 00 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4
-DESC: What it is: The setup function for the PvP spectator list window. When it runs: When the game first builds the spectator list UI. Why you would care: Use this if you want a clean hook when the spectator list appears.
 ----------------------------------------
 
 CATEGORY: Crystalline Conflict State
@@ -2638,17 +2519,13 @@ DESC: What it is: The shutdown path for the Rival Wings match controller. When i
 
 CATEGORY: Crystalline Conflict Director Methods
 ----------------------------------------
-NAME: CrystallineConflictDirector_SetSequence_Deep
-SIG:  48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 41 0F B6 F8 0F B6 F2 48 8B E9 80 FA 14 74 5A 41 80 F8 14 75 4E
-DESC: What it is: The Crystalline Conflict sequence-change function that moves the match from one stage to another. When it runs: It runs when the match enters a new sequence, such as a major phase change or screen-state transition. Why you would care: Use it if you want a clean hook for major Crystalline Conflict phase changes instead of trying to infer them from many smaller updates.
-----------------------------------------
 NAME: CrystallineConflictDirector_Terminate_Deep
 SIG:  48 89 5C 24 10 48 89 6C 24 18 56 57 41 56 48 81 EC A0 00 00 00 48 8B 05 9C CF E5 00 48 33 C4 48 89 84 24 90 00 00 00 4C 8B F1
-DESC: What it is: The shutdown path for the Crystalline Conflict match controller. When it runs: It runs when the game is cleaning up the active Crystalline Conflict director at the end of a match or when leaving the content. Why you would care: Use it if you want to detect or hook the moment Crystalline Conflict state is being torn down.
+DESC: What it is: The shutdown path for the Crystalline Conflict match controller. When it runs: It runs when the game is cleaning up the active Crystalline Conflict director at the end of a match or when leaving the content. Why you would care: Use it if you want to detect or hook the moment Crystalline Conflict state is being torn down. Extra context: This is the teardown-side counterpart to the live director lookup and update paths, and it is useful when cached match objects or UI state need to be invalidated cleanly. Pairs with: EventFramework_GetCrystallineConflictDirector_Deep, GetInstanceContentCrystallineConflictDirector_Deep
 ----------------------------------------
 NAME: CrystallineConflictDirector_vf252_Deep
 SIG:  48 89 5C 24 18 55 56 57 48 83 EC 30 48 8B 02 48 8B F9 48 8B CA 41 0F B7 E9 41 0F B7 F0 48 8B DA FF 50 10 83 F8 07 0F 85 CF 00 00 00
-DESC: What it is: A deeper Crystalline Conflict object handler that gives special treatment to certain match objects. When it runs: When the director processes event or interactable objects that need Crystalline-specific handling. Why you would care: Use this to catch pickup and map-object state changes that do not go through simple generic object flow.
+DESC: What it is: A deeper Crystalline Conflict object handler that gives special treatment to certain match objects. When it runs: When the director processes event or interactable objects that need Crystalline-specific handling. Why you would care: Use this to catch pickup and map-object state changes that do not go through simple generic object flow. Extra context: This sits below broad match-phase logic and is one of the more object-focused director branches, making it useful for crystal, pickup, or interactable-specific handling that does not show up as a plain phase change. Parameters: one arg is the live object or object-like record being classified. Pairs with: CrystallineConflictDirector_vf378_Deep
 ----------------------------------------
 NAME: CrystallineConflictDirector_vf281_Deep
 SIG:  48 83 EC 28 F6 81 EA 20 00 00 01 74 10 E8 5E 7E 2F FF 3C 15 75 07 B0 01 48 83 C4 28 C3
@@ -2660,7 +2537,7 @@ DESC: What it is: A director-side lookup that finds a tracked Crystalline partic
 ----------------------------------------
 NAME: CrystallineConflictDirector_vf320_Deep
 SIG:  40 53 56 57 48 83 EC 20 48 8B 05 51 FA E7 00 33 FF 4C 8B 81 E8 1F 00 00 48 BB 07 69 90 06 69 90 06 69
-DESC: What it is: A hidden Crystalline Conflict update function that keeps match data, timers, names, and visible state current while the match is active. When it runs: It runs repeatedly during live Crystalline Conflict as part of the director's main update cycle. Why you would care: Use it if you want one broad hook for ongoing Crystalline Conflict state changes.
+DESC: What it is: A hidden Crystalline Conflict update function that keeps match data, timers, names, and visible state current while the match is active. When it runs: It runs repeatedly during live Crystalline Conflict as part of the director's main update cycle. Why you would care: Use it if you want one broad hook for ongoing Crystalline Conflict state changes. Extra context: This is the heavy per-frame maintenance layer rather than a single event edge, so it is best for observing continuously refreshed scoreboard, timer, or objective state after the director has already accepted the current phase. Pairs with: CrystallineConflictDirector_SetSequence_Deep, CrystallineConflictDirector_vf378_Deep
 ----------------------------------------
 NAME: CrystallineConflictDirector_vf323_Deep
 SIG:  48 89 5C 24 08 57 48 83 EC 20 E8 A1 1B F7 FF 48 8B 0D 4A FE E7 00 E8 75 81 75 FE 48 8B C8 48 8B F8 48 8B 10 FF 92 28 01 00 00
@@ -2672,11 +2549,11 @@ DESC: What it is: A hidden Crystalline Conflict phase check paired with `vf281` 
 ----------------------------------------
 NAME: CrystallineConflictDirector_vf378_Deep
 SIG:  40 55 53 57 41 54 41 56 41 57 48 8D AC 24 08 FF FF FF 48 81 EC F8 01 00 00 48 8B 05 18 C7 E5 00 48 33 C4
-DESC: What it is: A large Crystalline Conflict event handler that processes major match events in one place. When it runs: During phase changes, roster changes, object-related updates, and other large director-side event traffic. Why you would care: Use this if you want one high-value hook that sees most important Crystalline match events, including many pickup-related transitions.
+DESC: What it is: A large Crystalline Conflict event handler that processes major match events in one place. When it runs: During phase changes, roster changes, object-related updates, and other large director-side event traffic. Why you would care: Use this if you want one high-value hook that sees most important Crystalline match events, including many pickup-related transitions. Extra context: This is closer to the director's event-application layer than the steady-state update loop, so it is usually the better hook when you want the actual transition or event cause rather than the later refreshed state. Pairs with: CrystallineConflictDirector_SetSequence_Deep, CrystallineConflictDirector_vf320_Deep
 ----------------------------------------
 NAME: CrystallineConflictDirector_vf380_Deep
 SIG:  48 89 5C 24 18 55 48 8B EC 48 81 EC 80 00 00 00 48 8B 1D 09 56 05 01 48 85 DB 0F 84 8E 01 00 00 0F 57 C0
-DESC: What it is: A hidden Crystalline Conflict helper that shows or queues one of the match screen images or banner displays. When it runs: It runs when the game wants to present that large Crystalline Conflict screen image at the correct moment. Why you would care: Use it if you want to detect or react to those larger on-screen presentation moments instead of only the lower-level match state.
+DESC: What it is: A hidden Crystalline Conflict helper that shows or queues one of the match screen images or banner displays. When it runs: It runs when the game wants to present that large Crystalline Conflict screen image at the correct moment. Why you would care: Use it if you want to detect or react to those larger on-screen presentation moments instead of only the lower-level match state. Extra context: This is a UI-side presentation helper downstream of director event processing, so it is useful for intro, checkpoint, or result-style banners rather than the raw match-state transition itself. Pairs with: CrystallineConflictDirector_vf378_Deep
 ----------------------------------------
 NAME: CrystallineConflictDirector_vf399_Deep
 SIG:  40 53 48 83 EC 20 48 8B D9 E8 02 7E 2F FF 3C 17 75 08 32 C0 48 83 C4 20 5B C3 48 8B CB 48 83 C4 20 5B E9 89 EF F6 FF
@@ -2684,11 +2561,11 @@ DESC: What it is: A hidden Crystalline Conflict state check that blocks the norm
 ----------------------------------------
 NAME: EventFramework_GetCrystallineConflictDirector_Deep
 SIG:  48 8B 81 58 01 00 00 48 85 C0 74 1B 48 8B 88 D8 02 00 00 BA 03 80 00 00 66 39 51 02 75 09 80 B8 CE 0D 00 00 05 74 02 33 C0 C3
-DESC: What it is: The EventFramework lookup for the live Crystalline Conflict director. When it runs: When the game needs the active match controller for Crystalline Conflict. Why you would care: Use this as the cleanest entry point into live match state instead of searching broader framework state.
+DESC: What it is: The EventFramework lookup for the live Crystalline Conflict director. When it runs: When the game needs the active match controller for Crystalline Conflict. Why you would care: Use this as the cleanest entry point into live match state instead of searching broader framework state. Extra context: This is the framework-side accessor and is the better anchor when you want a validated live director pointer before calling deeper match methods. Pairs with: GetInstanceContentCrystallineConflictDirector_Deep
 ----------------------------------------
 NAME: GetInstanceContentCrystallineConflictDirector_Deep
 SIG:  48 83 EC 28 48 83 3D FC D4 06 01 00 74 11 E8 6D 53 30 FF 48 8B C8 48 83 C4 28 E9 51 25 31 FF 33 C0
-DESC: What it is: A small global helper that returns the current Crystalline Conflict director if one exists. When it runs: When code wants the live director quickly without walking the full EventFramework. Why you would care: Use this if you want the shortest direct hook or lookup for active Crystalline Conflict state.
+DESC: What it is: A small global helper that returns the current Crystalline Conflict director if one exists. When it runs: When code wants the live director quickly without walking the full EventFramework. Why you would care: Use this if you want the shortest direct hook or lookup for active Crystalline Conflict state. Extra context: This is the lightweight global accessor version of the framework lookup and is useful when you want a fast null-checked anchor rather than the broader EventFramework path. Pairs with: EventFramework_GetCrystallineConflictDirector_Deep
 ----------------------------------------
 
 CATEGORY: Crystalline Conflict Agents and Records
@@ -2714,7 +2591,7 @@ SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 48 8B D9 48 8B FA 49 8B C8 40
 DESC: What it is: The agent-side input handler for the Crystalline Conflict introduction flow. When it runs: It runs when the game passes introduction screen events through the agent layer before they reach the addon. Why you would care: Use it if you want an earlier hook than the addon itself for introduction-screen input.
 ----------------------------------------
 NAME: AgentPvPMKSIntroduction_Update_Deep
-SIG:  48 89 6C 24 18 56 48 83 EC 40 48 8B 01 8B EA 48 8B F1 FF 50 30 84 C0 0F 84 ED 00 00 00 48 89 5C 24 50
+SIG:  48 89 6C 24 18 56 48 83 EC 40 48 8B 01 8B EA 48 8B F1 FF 50 30 84 C0 0F 84 ED 00 00 00 48 89 5C 24 50 48 8B 5E 28 83 7B 20 00 0F 84 D5 00 00 00 48 89 7C 24 58 48 81 C3 68 02 00 00 BF 05 00 00 00 48 8D 8B 60 04 00 00 E8 ?? ?? ?? ?? 83 3B 00 7E 0B 48 8D 4B F8 8B D5 E8 ?? ?? ?? ?? 48 81 C3
 DESC: What it is: The repeating update function for the Crystalline Conflict introduction agent. When it runs: It runs while the introduction flow is active to keep the agent-side state current. Why you would care: Use it if you want a live hook on the controller layer instead of only the UI layer.
 ----------------------------------------
 NAME: AgentPvPMKSRankRating_Hide_Deep
@@ -2737,10 +2614,6 @@ NAME: ColosseumRecord_OnOpenTransitionStarted_Deep
 SIG:  40 53 48 83 EC 20 48 8B D9 E8 12 18 4F FF 48 8B 50 20 48 8B 82 50 91 00 00 48 85 C0 74 09
 DESC: What it is: A hook that runs when the Colosseum record screen is starting to open. When it runs: It runs during the opening transition before the history view is fully visible. Why you would care: Use it if you want an early hook before that record screen fully appears.
 ----------------------------------------
-NAME: ColosseumRecord_OnRefresh_Deep
-SIG:  48 89 6C 24 18 56 48 83 EC 20 F6 81 A1 01 00 00 01 49 8B F0 48 8B E9 75 0D 32 C0 48 8B 6C 24 40 48 83 C4 20 5E C3
-DESC: What it is: The refresh function for the Colosseum record or history screen. When it runs: It runs when the game redraws the visible ranked-history data on that screen. Why you would care: Use it if you want a hook for changes to the displayed Colosseum history data.
-----------------------------------------
 NAME: ColosseumRecord_ReceiveEvent_Deep
 SIG:  66 83 FA 19 0F 85 33 01 00 00 48 89 5C 24 08 57 48 83 EC 40 48 8B F9 41 8B D8 49 8B C9 33 D2 E8 1C E3 4B FF
 DESC: What it is: The input handler for the Colosseum record or history screen. When it runs: It runs when the player interacts with that record screen. Why you would care: Use it if you want to track direct input on that history UI.
@@ -2748,10 +2621,6 @@ DESC: What it is: The input handler for the Colosseum record or history screen. 
 NAME: MKSRecord_HandleBackButtonInput_Deep
 SIG:  48 89 5C 24 10 48 89 6C 24 18 56 48 83 EC 50 33 F6 4C 8D 99 D8 02 00 00 45 33 D2 48 8B E9
 DESC: What it is: The back-button handler for the Crystalline Conflict record screen. When it runs: It runs when the player uses the back action to leave or step out of the record UI. Why you would care: Use it if you want a narrow hook for record-screen back or close input.
-----------------------------------------
-NAME: MKSRecord_HandleCustomInput_Deep
-SIG:  40 53 48 83 EC 30 80 7A 04 00 48 8B D9 75 46 83 3A 02 75 41 48 8B 91 50 02 00 00 45 33 C9 41 B0 01
-DESC: What it is: A helper that handles controller-style or custom input for the Crystalline Conflict record screen. When it runs: It runs when that screen receives non-mouse input paths that need special handling. Why you would care: Use it if you want to catch controller or alternate input separately from normal click handling.
 ----------------------------------------
 NAME: MKSRecord_OnOpenTransitionStarted_Deep
 SIG:  40 53 48 83 EC 20 48 8B D9 E8 12 98 4E FF 48 8B 50 20 48 8B 82 50 91 00 00 48 85 C0 74 09
@@ -2796,10 +2665,6 @@ NAME: PvPMKSBattleLog_OnSetup_Deep
 SIG:  48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 18 4C 89 74 24 20 41 57 48 83 EC 20 48 8B D9 49 8D 48 10
 DESC: What it is: The setup function for the Crystalline Conflict battle log window. When it runs: It runs when the battle log is first being created and connected to its UI resources. Why you would care: Use it if you want a clean hook for the moment the battle log window is first built.
 ----------------------------------------
-NAME: PvPMKSHeader_OnRefresh_Deep
-SIG:  48 89 5C 24 08 57 48 83 EC 20 F6 81 A1 01 00 00 01 49 8B D8 48 8B F9 74 2C 85 D2 74 28 48 85 DB 74 23
-DESC: What it is: The refresh function for the main Crystalline Conflict header at the top of the screen. When it runs: It runs when the game wants to redraw the visible header text or indicators. Why you would care: Use it if you want a hook for visible match-state updates in the main header.
-----------------------------------------
 NAME: PvPMKSHeader_OnRequestedUpdate_Deep
 SIG:  48 89 5C 24 18 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 40 4C 8B B2 A8 03 00 00 33 ED 4D 8B A8 48 03 00 00
 DESC: What it is: A helper that decides whether the Crystalline Conflict header needs to refresh. When it runs: It runs when match data changes and the game needs to decide if the visible header should be updated. Why you would care: Use it if you want a lighter hook before the full header refresh runs.
@@ -2819,10 +2684,6 @@ DESC: What it is: The resource-loading function for the Crystalline Conflict int
 NAME: PvPMKSIntroduction_OnRefresh_Deep
 SIG:  40 53 48 83 EC 20 48 8B D9 E8 42 04 00 00 BA 01 00 00 00 48 8B CB E8 95 DC 31 FF 48 85 C0 74 0D
 DESC: What it is: The refresh function for the Crystalline Conflict introduction screen. When it runs: It runs after loading or after state changes when the game wants to redraw the visible contents of the screen. Why you would care: Use it if you want to react when the introduction screen content changes.
-----------------------------------------
-NAME: PvPMKSIntroduction_ReceiveEvent_Deep
-SIG:  66 83 FA 4A 75 66 48 89 5C 24 08 57 48 83 EC 20 41 F6 41 2A 01 49 8B F9 48 8B D9 75 45
-DESC: What it is: The input handler for the Crystalline Conflict introduction screen. When it runs: It runs when the player presses buttons or closes or advances the introduction screen. Why you would care: Use it if you want to catch direct player interaction with that screen.
 ----------------------------------------
 NAME: PvPMKSIntroduction_Update_Deep
 SIG:  40 53 48 83 EC 30 8B 81 50 02 00 00 48 8B D9 0F 29 74 24 20 0F 28 F1 83 F8 02 75 44
@@ -2892,7 +2753,7 @@ DESC: What it is: The Gold Saucer manager check for whether a GATE is currently 
 ----------------------------------------
 NAME: GoldSaucerManager_Update
 SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 F6 41 48 01 48 8B D9 74 0B 48 83 C1 30 E8 1F F8 FF FF EB 4E 48 8B 0D 96 62 9F 01 E8 C1 E5 2C FF 48 85 C0 74 3D 48 8B 10 48 8B C8 FF 92 28 01 00 00
-DESC: What it is: The main live update path for the Gold Saucer manager. When it runs: Repeatedly while Gold Saucer state is active and the client is refreshing gate or manager-side data. Why you would care: Use this if you want one broad hook that sees live Gold Saucer manager changes as they happen.
+DESC: What it is: The main live update path for the Gold Saucer manager. When it runs: Repeatedly while Gold Saucer state is active and the client is refreshing gate or manager-side data. Why you would care: Use this if you want one broad hook that sees live Gold Saucer manager changes as they happen. Extra context: This is the manager-wide per-frame layer above specific GATE or mini-game directors, so it is useful when you want broad Gold Saucer state churn without committing to one event family. Pairs with: GFateDirector_Update2
 ----------------------------------------
 NAME: InventoryManager_GetGoldSaucerCoin
 SIG:  40 53 48 83 EC 20 BA D0 07 00 00 E8 10 97 FE FF 48 85 C0 74 36 48 8B 08 BA 09 00 00 00 4C 8B 41 28 48 8B C8 41 FF D0 48 8B D8 48 85 C0 74 1C 48 8B 10 48 8B C8 FF 52 18 84 C0 75 0F 48 8B 13 48
@@ -2943,7 +2804,7 @@ DESC: What it is: The base Gold Saucer GATE function that fills the map with eve
 ----------------------------------------
 NAME: GFateDirector_Update2
 SIG:  40 53 48 83 EC 20 B8 FF FF 00 00 48 8B D9 66 39 41 78 74 4F 48 83 3D 6C E2 BD 01 00 74 51 48 8B 91 10 06 00 00 48 8D 0D 84 51 9A 01 E8 BF 65 CA FF 48 85 C0 75 39 E8 C5 60 E7 FF 48 8D 88 B0 01
-DESC: What it is: A deeper base GATE update step that runs after the simpler state checks. When it runs: While the client is refreshing live Gold Saucer event state during an active GATE. Why you would care: Use this if you need a deeper gameplay-state hook than the simple running or accepting checks.
+DESC: What it is: A deeper base GATE update step that runs after the simpler state checks. When it runs: While the client is refreshing live Gold Saucer event state during an active GATE. Why you would care: Use this if you need a deeper gameplay-state hook than the simple running or accepting checks. Extra context: This is the shared deeper per-event update layer inherited by multiple GATE-style directors, so it is usually more reusable than a single event-specific helper. Pairs with: GoldSaucerManager_Update
 ----------------------------------------
 NAME: GFateHiddenObjectDirector_IsAcceptingGate
 SIG:  48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 18 41 56 48 83 EC 20 48 8B 05 F4 FC 9E 01 48 8B DA 48 8B F9 BA 6C 01 00 00 49 8B F1 4D 8B F0 48 8B 88 40 2B 00 00 E8 F7 AB 7C FF 48 3B D8 75 37 33 C0
@@ -3247,7 +3108,7 @@ DESC: What it is: The main update path for the Lord of Verminion gameplay direct
 ----------------------------------------
 NAME: VerminionDirector_Update2
 SIG:  40 53 48 83 EC 20 48 8B D9 E8 62 1D 00 00 48 8B CB 48 83 C4 20 5B E9 05 09 00 00
-DESC: What it is: A second live update path used by the Lord of Verminion gameplay director. When it runs: As part of the ongoing Verminion gameplay refresh after the primary update path has advanced state. Why you would care: Use this if you need a second timing point inside the live Verminion update flow.
+DESC: What it is: A second live update path used by the Lord of Verminion gameplay director. When it runs: As part of the ongoing Verminion gameplay refresh after the primary update path has advanced state. Why you would care: Use this if you need a second timing point inside the live Verminion update flow. Extra context: This is the deeper post-update maintenance pass rather than the broadest gameplay tick, so it is useful when the primary update is too noisy and you want a later timing point in the same frame.
 ----------------------------------------
 NAME: VerminionEventHandler_GetTitle
 SIG:  40 53 48 83 EC 20 B9 4D 8F 01 00 48 8B DA E8 8D 67 9F FF 48 8B C8 E8 F5 C5 19 01 48 8B D0 48 8B CB 48 83 C4 20 5B E9 25 E6 26 FF
@@ -3318,11 +3179,11 @@ DESC: What it is: The main getter for the live Mahjong content director. When it
 ----------------------------------------
 NAME: InstanceContentAirForceOne_Update
 SIG:  40 53 48 83 EC 20 48 8B D9 48 8B 89 B0 1F 00 00 E8 FB 77 F3 FF 84 C0 74 29 48 8B 8B B0 1F 00 00 E8 BB 79 F3 FF 48 8B 8B B0 1F 00 00 E8 CF 78 F3 FF 84 C0 74 0D
-DESC: What it is: The main live update path for the Air Force One instance-content director. When it runs: Repeatedly while an Air Force One run is active and the game is advancing its internal state. Why you would care: Use this as the broadest Air Force One gameplay-state hook.
+DESC: What it is: The main live update path for the Air Force One instance-content director. When it runs: Repeatedly while an Air Force One run is active and the game is advancing its internal state. Why you would care: Use this as the broadest Air Force One gameplay-state hook. Extra context: This is the top-level per-frame director update for the mini-game, and it is the better starting hook before diving into deeper internal branches. Pairs with: InstanceContentAirForceOne_vf384
 ----------------------------------------
 NAME: InstanceContentAirForceOne_vf384
 SIG:  40 53 48 83 EC 20 48 8B D9 48 8B 89 B0 1F 00 00 E8 8B 77 F3 FF 84 C0 74 28 48 8B 8B B0 1F 00 00 E8 4B 79 F3 FF 48 8B 8B B0 1F 00 00 E8 1F 79 F3 FF 84 C0 74 0C
-DESC: What it is: A second internal state path used by the Air Force One director. When it runs: During live Air Force One processing after the main update path has already checked or advanced run state. Why you would care: Use this if you need a deeper Air Force One state hook than the main update alone.
+DESC: What it is: A second internal state path used by the Air Force One director. When it runs: During live Air Force One processing after the main update path has already checked or advanced run state. Why you would care: Use this if you need a deeper Air Force One state hook than the main update alone. Extra context: This is a later branch inside the Air Force One live-state flow, so it is useful when the top-level update is too broad and you need a narrower gameplay-stage signal. Pairs with: InstanceContentAirForceOne_Update
 ----------------------------------------
 
 CATEGORY: Gold Saucer - Gathering Mini-Games
@@ -3426,15 +3287,15 @@ DESC: What it is: The input handler for the Jumbo Cactpot history window. When i
 ----------------------------------------
 NAME: GoldSaucerArcadeMachineEventHandler_vf40
 SIG:  48 89 5C 24 10 48 89 6C 24 18 48 89 74 24 20 57 41 54 41 57 48 83 EC 40 48 8B F1 49 8B E9 41 0F B6 C8 80 BE 70 05 00 00 01 0F 84 95 01 00 00 83 E9 15 0F 84 32 01 00 00
-DESC: What it is: A deep state-processing path in the Gold Saucer arcade-machine event handler. When it runs: When the arcade-machine gameplay flow is consuming a new event step, timer value, or stage transition. Why you would care: Use this as a high-value hook for deeper arcade-machine state changes when simple UI hooks are not enough.
+DESC: What it is: A deep state-processing path in the Gold Saucer arcade-machine event handler. When it runs: When the arcade-machine gameplay flow is consuming a new event step, timer value, or stage transition. Why you would care: Use this as a high-value hook for deeper arcade-machine state changes when simple UI hooks are not enough. Extra context: This is one of the heavier applied-state branches for arcade-machine style content and is a better hook than pure addon refreshes when you want live state rather than presentation. Pairs with: GoldSaucerArcadeMachineEventHandler_vf52, GoldSaucerArcadeMachineEventHandler_vf89
 ----------------------------------------
 NAME: GoldSaucerArcadeMachineEventHandler_vf52
 SIG:  40 53 57 48 83 EC 28 48 8B D9 8B FA 8B 89 E8 02 00 00 80 BB 70 05 00 00 01 0F 84 D5 00 00 00 3B D1 75 40 8B 8B 80 05 00 00 83 C9 04 8B C1 89 8B 80 05 00 00
-DESC: What it is: A timer and follow-up state path in the Gold Saucer arcade-machine event handler. When it runs: When an arcade-machine sequence is finishing a timed step, opening a result path, or pushing the next state into the UI. Why you would care: Use this if you want a deeper hook for score/result timing in arcade-machine style Gold Saucer content.
+DESC: What it is: A timer and follow-up state path in the Gold Saucer arcade-machine event handler. When it runs: When an arcade-machine sequence is finishing a timed step, opening a result path, or pushing the next state into the UI. Why you would care: Use this if you want a deeper hook for score/result timing in arcade-machine style Gold Saucer content. Extra context: This sits later in the same event-handler flow than the broader state-processing branch and is especially useful around timed completion and result presentation. Pairs with: GoldSaucerArcadeMachineEventHandler_vf40
 ----------------------------------------
 NAME: GoldSaucerArcadeMachineEventHandler_vf89
 SIG:  40 53 48 83 EC 20 48 8B D9 8D 42 02 B9 FF FF FF FF 44 8B D1 83 F8 01 0F 86 80 00 00 00 45 8B C8 41 83 E9 01 74 0F 41 83 F9 01 75 0E 41 8D 4A 03 45 8B D1
-DESC: What it is: A decision path in the Gold Saucer arcade-machine event handler that checks cost and action direction. When it runs: When the arcade-machine content is deciding whether to proceed, cancel, or take another branch based on player input and available MGP. Why you would care: Use this if you want a deeper hook tied to arcade-machine acceptance, rejection, or cost-gated actions.
+DESC: What it is: A decision path in the Gold Saucer arcade-machine event handler that checks cost and action direction. When it runs: When the arcade-machine content is deciding whether to proceed, cancel, or take another branch based on player input and available MGP. Why you would care: Use this if you want a deeper hook tied to arcade-machine acceptance, rejection, or cost-gated actions. Extra context: This is a decision-side branch rather than the later timed update logic, so it is most useful for entry, cancel, and cost-check style transitions. Pairs with: GoldSaucerArcadeMachineEventHandler_vf40, GoldSaucerArcadeMachineEventHandler_vf52
 ----------------------------------------
 NAME: InstanceContentAirForceOne_vf392
 SIG:  40 57 48 83 EC 20 48 8B F9 85 D2 74 7E 83 FA 01 0F 85 81 00 00 00 48 8B 0D C3 AA E9 00 E8 EE 2D 77 FE 48 85 C0 74 70 48 8B 10 48 8B C8 48 89 5C 24 30 FF 92 28 01 00 00
@@ -3485,19 +3346,19 @@ DESC: What it is: The deeper Mini Cactpot state-write handler. When it runs: Whe
 ----------------------------------------
 NAME: LotteryWeeklyEventHandler_vf35
 SIG:  48 89 5C 24 10 48 89 6C 24 18 48 89 74 24 20 57 48 83 EC 30 48 8B F2 41 0F B7 E8 8B 91 D8 02 00 00 48 8B D9 83 E2 F0 89 91 D8 02 00 00 8B CD 83 E9 06 0F 84 81 00 00 00 83 E9 01 74 7C 83 E9 01 74 35 83 E9 01 74 72 83 F9 01 48 8B CB 74 16 0F B6 44 24 60 48 8B D6 88 44 24 20 E8 20 FE FE FF
-DESC: What it is: A major Jumbo Cactpot weekly state and result builder. When it runs: When the weekly lottery event updates ticket, reward, message, and result-branch state. Why you would care: Useful if you want the deeper weekly result flow instead of only the visible weekly UI.
+DESC: What it is: A major Jumbo Cactpot weekly state and result builder. When it runs: When the weekly lottery event updates ticket, reward, message, and result-branch state. Why you would care: Useful if you want the deeper weekly result flow instead of only the visible weekly UI. Extra context: This is one of the earlier heavy weekly-state builders and is a good upstream hook before later claim and outcome-routing helpers split into narrower branches. Pairs with: LotteryWeeklyEventHandler_vf86, LotteryWeeklyEventHandler_vf88, LotteryWeeklyEventHandler_vf89
 ----------------------------------------
 NAME: LotteryWeeklyEventHandler_vf86
 SIG:  40 53 48 83 EC 20 83 B9 94 00 00 00 00 44 8B CA 48 8B D9 75 4E 48 8B 89 B8 01 00 00 48 85 C9 74 42 44 8B 81 80 00 00 00 41 83 E8 2E 74 12 41 83 E8 01 74 0C 41 83 E8 58 74 06 41 83 F8 01 75 23 8B 93 E4 02 00 00 33 C9 85 D2 74 17 41 B8 10 27 00 00 66 44 39 84 4B DC 02 00 00 72 1C FF C1 3B
-DESC: What it is: A Jumbo Cactpot follow-up handler that checks prize values and branches into reward-side handling. When it runs: After the weekly lottery state has been updated and the client needs to decide whether claim/result flow should continue. Why you would care: Useful for detecting meaningful weekly prize state instead of just the front-end screen change.
+DESC: What it is: A Jumbo Cactpot follow-up handler that checks prize values and branches into reward-side handling. When it runs: After the weekly lottery state has been updated and the client needs to decide whether claim/result flow should continue. Why you would care: Useful for detecting meaningful weekly prize state instead of just the front-end screen change. Extra context: This is the prize-check and continuation gate after the broader weekly state build has already happened, so it is useful when you care about whether a result actually advances into reward handling. Pairs with: LotteryWeeklyEventHandler_vf35, LotteryWeeklyEventHandler_vf88
 ----------------------------------------
 NAME: LotteryWeeklyEventHandler_vf88
 SIG:  40 53 48 83 EC 20 83 B9 94 00 00 00 00 44 8B CA 48 8B D9 0F 85 18 01 00 00 85 D2 0F 84 A5 00 00 00 83 FA 01 0F 85 07 01 00 00 48 8B 89 B8 01 00 00 48 85 C9 74 7B 81 B9 80 00 00 00 EA 01 00 00 75 6F E8 59 C6 7A FF 48 8B 05 92 FE BC 01 48 85 C0 74 05 8B 50 50 EB 02 33 D2 48 8B 8B B8 01 00
-DESC: What it is: A Jumbo Cactpot result and claim transition handler. When it runs: When the weekly flow advances between result, reward, and MGP-display branches. Why you would care: Useful for tracking how the weekly result state progresses after the initial outcome is known.
+DESC: What it is: A Jumbo Cactpot result and claim transition handler. When it runs: When the weekly flow advances between result, reward, and MGP-display branches. Why you would care: Useful for tracking how the weekly result state progresses after the initial outcome is known. Extra context: This sits on the branch-transition side of the weekly result flow and is a better hook than pure UI refreshes when you need the actual move into claim or reward presentation logic. Pairs with: LotteryWeeklyEventHandler_vf35, LotteryWeeklyEventHandler_vf89
 ----------------------------------------
 NAME: LotteryWeeklyEventHandler_vf89
 SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 83 B9 94 00 00 00 00 49 8B F0 8B FA 48 8B D9 0F 85 77 02 00 00 83 FE 03 0F 85 6E 02 00 00 85 D2 0F 88 59 02 00 00 F6 81 D8 02 00 00 01 8D 42 01 0F 44 C2 83 F8 05 0F 87 50 02 00 00 48 8D 15 7E 92 1E FF 48 98 8B 8C 82 E8 6F E1 00 48 03 CA FF E1
-DESC: What it is: Another deeper Jumbo Cactpot result-state router. When it runs: When the weekly lottery chooses among outcome-specific follow-up screens and message branches. Why you would care: Useful if you want a deeper hook for exact Jumbo result progression instead of only the outer addon flow.
+DESC: What it is: Another deeper Jumbo Cactpot result-state router. When it runs: When the weekly lottery chooses among outcome-specific follow-up screens and message branches. Why you would care: Useful if you want a deeper hook for exact Jumbo result progression instead of only the outer addon flow. Extra context: This is one of the later outcome-routing branches, so it is best when you care about which exact post-result path was chosen after the broader weekly state and prize checks have already completed. Pairs with: LotteryWeeklyEventHandler_vf35, LotteryWeeklyEventHandler_vf88
 ----------------------------------------
 
 CATEGORY: Fashion Report - Manager Anchors
@@ -3508,7 +3369,7 @@ DESC: What it is: A unique compare-and-clamp sequence inside unnamed function FU
 ----------------------------------------
 NAME: FashionCheckManager_HasInstance
 SIG:  48 83 3D 08 E5 EF 01 00 0F 95 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC
-DESC: What it is: The singleton-exists check for the Fashion Report manager. When it runs: When client code wants to know whether the Fashion Report manager has already been created. Why you would care: Useful as a direct guard before reading Fashion Report manager state.
+DESC: What it is: The singleton-exists check for the Fashion Report manager. When it runs: When client code wants to know whether the Fashion Report manager has already been created. Why you would care: Useful as a direct guard before reading Fashion Report manager state. Extra context: This is the lightest read-side existence gate and is most useful before calling the manager getter from code that may run outside active Fashion Report flow. Pairs with: FashionCheckManager_GetInstance, FashionCheckManager_Initialize
 ----------------------------------------
 
 CATEGORY: Fashion Report - Core UI and Scoring
@@ -3535,7 +3396,7 @@ DESC: What it is: The main input handler for the Fashion Report agent window. Wh
 ----------------------------------------
 NAME: FashionCheckManager_Initialize
 SIG:  48 83 EC 28 48 83 3D 04 E6 EF 01 00 0F 85 A7 00 00 00 45 33 C0 33 D2 B9 A8 00 00 00 E8 BF 2A 5C FF 48 85 C0 0F 84 84 00 00 00 66 C7 00 00 00 0F 57 C0 66 C7 80 A0 00 00 00 00 00 33 C9 C6 80 A2 00 00 00 00 0F 11 40 08 48 89 48 18 0F 11 40 20 C7 40 21 05 05 05 05 C7 40 25 05 05 05 05 66 C7
-DESC: What it is: The setup routine that allocates and initializes the Fashion Report manager singleton. When it runs: During client setup when the Fashion Report system is first brought online. Why you would care: Useful as the earliest clean hook for manager creation and default Fashion Report state.
+DESC: What it is: The setup routine that allocates and initializes the Fashion Report manager singleton. When it runs: During client setup when the Fashion Report system is first brought online. Why you would care: Useful as the earliest clean hook for manager creation and default Fashion Report state. Extra context: This is the manager-side initialization edge and is the natural place to anchor default Fashion Report state before later packet, scoring, or UI reads occur. Pairs with: FashionCheckManager_GetInstance, FashionCheckManager_HasInstance
 ----------------------------------------
 
 CATEGORY: Fashion Report - Packet and Server-Fed State
@@ -3546,7 +3407,7 @@ DESC: What it is: The internal callback that reads per-slot Fashion Report equip
 ----------------------------------------
 NAME: FashionCheckManager_GetInstance
 SIG:  48 8B 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 40 53 48 83 EC 20 BB 09 0C 00 00
-DESC: What it is: The getter for the Fashion Report manager singleton. When it runs: When the client needs the live Fashion Report manager object from gameplay, UI, or server-fed handlers. Why you would care: This is the best direct manager anchor if you want to read Fashion Report state without relying only on UI timing.
+DESC: What it is: The getter for the Fashion Report manager singleton. When it runs: When the client needs the live Fashion Report manager object from gameplay, UI, or server-fed handlers. Why you would care: This is the best direct manager anchor if you want to read Fashion Report state without relying only on UI timing. Extra context: This is the main accessor layer between the existence check and the deeper evaluation helpers, so it is the cleanest anchor for read-side tooling. Pairs with: FashionCheckManager_HasInstance, FashionCheckManager_Initialize
 ----------------------------------------
 NAME: PacketDispatcher_HandleActorControlPacket_FashionCheck
 SIG:  40 55 53 57 41 54 41 56 48 8D AC 24 40 EE FF FF B8 C0 12 00 00 E8 ?? ?? ?? ?? 48 2B E0 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 85 60 11 00 00
@@ -3596,7 +3457,7 @@ CATEGORY: Cosmic Exploration - State and Director
 ----------------------------------------
 NAME: ContentInventoryManager_IsInCosmicExploration
 SIG:  48 83 EC 28 0F B7 0D D5 D3 0C 01 E8 60 47 58 FF 84 C0 0F 95 C0 48 83 C4 28 C3
-DESC: What it is: A direct check from the content inventory manager for whether the player is inside Cosmic Exploration. When it runs: When the client needs to branch inventory or content behavior based on Cosmic Exploration state. Why you would care: Use this if you want a live in-content check that is closer to active gameplay state than a simple territory test.
+DESC: What it is: A direct check from the content inventory manager for whether the player is inside Cosmic Exploration. When it runs: When the client needs to branch inventory or content behavior based on Cosmic Exploration state. Why you would care: Use this if you want a live in-content check that is closer to active gameplay state than a simple territory test. Extra context: This is a lightweight read-side gate used by systems that need to know whether Cosmic-specific behavior should be enabled, without first resolving the full director. Pairs with: MassivePcContentDirector_Update, MassivePcContentDirector_Synchronize
 ----------------------------------------
 NAME: EventFramework_GetMassivePcContentDirector
 SIG:  48 8B 81 00 01 00 00 4C 8B 81 08 01 00 00 49 3B C0 74 2C 41 B9 0E 80 00 00 0F 1F 80 00 00 00 00 48 8B 10 48 85 D2 74 0E 48 8B 8A D8 02 00 00 66 44 39 49 02 74 0C 48 83 C0 08 49 3B C0 75 E1 33
@@ -3616,23 +3477,23 @@ DESC: What it is: The setup function for the Cosmic Exploration-specific directo
 ----------------------------------------
 NAME: MassivePcContentDirector_Initialize
 SIG:  40 53 48 83 EC 20 48 8B D9 E8 22 01 31 FF 48 8B 0D AB FE 03 01 48 85 C9 74 20 48 8B 83 D8 02 00 00 8B 10 39 91 F4 00 00 00 75 0F 48 8B D3 48 8D 0D FB 49 07 01 E8 16 3E 20 FF 48 8B 03 48 8B CB
-DESC: What it is: The setup function for the shared massive-content director used by Cosmic Exploration. When it runs: When the game prepares the live director object before the feature starts doing real work. Why you would care: Use this if you want the earliest practical hook for Cosmic Exploration system setup.
+DESC: What it is: The setup function for the shared massive-content director used by Cosmic Exploration. When it runs: When the game prepares the live director object before the feature starts doing real work. Why you would care: Use this if you want the earliest practical hook for Cosmic Exploration system setup. Extra context: This is the director-side setup edge before steady-state sync and update work begin, so it is the best place to catch initial allocation and default feature-state wiring. Pairs with: MassivePcContentDirector_Synchronize, MassivePcContentDirector_Update
 ----------------------------------------
 NAME: MassivePcContentDirector_Synchronize
 SIG:  48 83 EC 28 E8 87 FE 30 FF 48 8D 0D E0 4A 07 01 E8 7B 42 20 FF 84 C0 74 10 48 8D 0D D0 4A 07 01 48 83 C4 28 E9 17 42 20 FF 48 83 C4 28 C3
-DESC: What it is: The function that synchronizes the massive content director with current state. When it runs: When the game needs to apply fresh server or local state to the live Cosmic Exploration director. Why you would care: Use this if you want a high-signal hook for real Cosmic Exploration state refreshes.
+DESC: What it is: The function that synchronizes the massive content director with current state. When it runs: When the game needs to apply fresh server or local state to the live Cosmic Exploration director. Why you would care: Use this if you want a high-signal hook for real Cosmic Exploration state refreshes. Extra context: This is the applied-state refresh layer for the director and usually fires at more meaningful state boundaries than the noisier per-frame update paths. Pairs with: MassivePcContentDirector_Update, MassivePcContentDirector_Update2
 ----------------------------------------
 NAME: MassivePcContentDirector_Update
 SIG:  40 53 48 83 EC 50 80 B9 10 09 00 00 00 48 8B D9 0F 84 18 03 00 00 48 8B 05 13 6C E9 00 48 89 74 24 68 48 8B B0 40 2B 00 00 48 8B 4E 20 48 8B 01 FF 50 70 84 C0 0F 85 EE 02 00 00 48 89 6C 24 60
-DESC: What it is: The main live update loop for the shared massive content director. When it runs: Repeatedly while Cosmic Exploration is active and the client is updating its core content state. Why you would care: Use this if you want one broad hook that sees ongoing Cosmic Exploration changes as they happen.
+DESC: What it is: The main live update loop for the shared massive content director. When it runs: Repeatedly while Cosmic Exploration is active and the client is updating its core content state. Why you would care: Use this if you want one broad hook that sees ongoing Cosmic Exploration changes as they happen. Extra context: This is the broad per-frame director tick for the feature and is the right anchor when you want ongoing live-state churn rather than only refresh edges. Pairs with: MassivePcContentDirector_Synchronize, MassivePcContentDirector_Update2
 ----------------------------------------
 NAME: MassivePcContentDirector_Update2
 SIG:  4C 8B DC 57 48 81 EC D0 00 00 00 48 8B 05 C6 38 E7 00 48 33 C4 48 89 84 24 B0 00 00 00 80 B9 10 09 00 00 00 48 8B F9 0F 84 9D 03 00 00 49 89 5B 10 49 89 6B 18 49 89 73 F0 4D 89 73 E8 E8 9E 2A
-DESC: What it is: A second deeper update path for the shared massive content director. When it runs: During heavier Cosmic Exploration update work that does not stay inside the simpler update function. Why you would care: Use this if the main update hook is too broad and you need a second deeper signal for state changes.
+DESC: What it is: A second deeper update path for the shared massive content director. When it runs: During heavier Cosmic Exploration update work that does not stay inside the simpler update function. Why you would care: Use this if the main update hook is too broad and you need a second deeper signal for state changes. Extra context: This is the later deeper maintenance pass inside the same live director flow, so it is often a better timing point for timers, UI-facing state, or resolved mission progress than the broad top-level update. Pairs with: MassivePcContentDirector_Update, MassivePcContentDirector_Synchronize
 ----------------------------------------
 NAME: QuestRedoMapMarkerManager_Initialize
 SIG:  48 83 EC 28 48 83 3D 4C 08 14 01 00 0F 85 D3 00 00 00 48 89 5C 24 30 45 33 C0 33 D2 48 89 7C 24
-DESC: What it is: The setup path for the quest redo map-marker manager. When it runs: When the quest redo subsystem prepares its marker state for replayed quest content. Why you would care: Use this if you want redo-specific marker tracking rather than normal quest markers only.
+DESC: What it is: The setup path for the quest redo map-marker manager. When it runs: When the quest redo subsystem prepares its marker state for replayed quest content. Why you would care: Use this if you want redo-specific marker tracking rather than normal quest markers only. Extra context: This is a manager-side initialization anchor for the replayed-quest marker layer, which is separate from the standard live-quest marker path.
 ----------------------------------------
 
 CATEGORY: Cosmic Exploration - Secondary Director Layer
@@ -3673,7 +3534,7 @@ DESC: What it is: The agent-side entry point for starting a Cosmic mission from 
 ----------------------------------------
 NAME: WKSManager_IsFunctionUnlocked
 SIG:  48 89 5C 24 10 48 89 74 24 18 57 48 83 EC 20 80 79 1A 00 48 8B F9 74 53 48 8B 05 91 91 9A 01 44 0F B6 C2 BA D5 04 00 00 48 8B 88 40 2B 00 00 E8 2C 45 78 FF 48 85 C0 74 32 48 8B 18 48 85 DB 74 2A
-DESC: What it is: The main unlock check for WKS features used by Cosmic Exploration. When it runs: When the game decides whether a Cosmic system or screen should be available to the player. Why you would care: Use this as the cleanest progression gate for features that only open after specific Cosmic unlocks.
+DESC: What it is: The main unlock check for WKS features used by Cosmic Exploration. When it runs: When the game decides whether a Cosmic system or screen should be available to the player. Why you would care: Use this as the cleanest progression gate for features that only open after specific Cosmic unlocks. Extra context: This is a read-side progression gate used by feature and UI logic, so it is more useful for availability checks than for live mission-state tracking.
 ----------------------------------------
 NAME: WKSMissionModule_AbandonMission
 SIG:  48 83 EC 38 E8 17 23 00 00 84 C0 74 1A 45 33 C9 C7 44 24 20 00 00 00 00 45 33 C0 33 D2 B9 72 0D 00 00 E8 99 8B 1D FF 48 83 C4 38 C3
@@ -3767,7 +3628,7 @@ DESC: What it is: The Cosmic Exploration helper that writes time-remaining text 
 ----------------------------------------
 NAME: MassivePcContentDirector_IsPlayCutscene
 SIG:  48 89 5C 24 08 57 48 83 EC 50 48 8B D1 48 8D 4C 24 20 E8 79 55 C6 FE 48 8B 4C 24 28 BA 02 00 00 00 B3 01 E8 E8 1D ED FF BA 01 00 00 00 48 8D 4C 24 20 48 8B F8 E8 D6 5F C6 FE 48 8B 4C 24 28 4C
-DESC: What it is: A deeper state check for whether the massive-content director wants to play a cutscene. When it runs: When Cosmic Exploration is deciding whether it should move into a cutscene or similar locked presentation step. Why you would care: Use this if you need to track feature flow around cutscene-driven state changes.
+DESC: What it is: A deeper state check for whether the massive-content director wants to play a cutscene. When it runs: When Cosmic Exploration is deciding whether it should move into a cutscene or similar locked presentation step. Why you would care: Use this if you need to track feature flow around cutscene-driven state changes. Extra context: This is a director-side gating check for presentation-state transitions, so it is most useful when you need to distinguish normal live updates from cutscene-driven pauses or mode changes. Pairs with: MassivePcContentDirector_Update, MassivePcContentDirector_Update2
 ----------------------------------------
 NAME: MassivePcContentTodo_GetObjective
 SIG:  40 53 48 83 EC 20 4C 8B 49 08 48 8D 59 78 48 8B D3 49 8B C9 4D 8B 01 41 FF 90 08 08 00 00 48 8B C3 48 83 C4 20 5B C3
