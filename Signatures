@@ -3729,3 +3729,4 @@ SIG:  48 85 D2 0F 84 C6 02 00 00 55 56 57 41 54 41 56 41 57 48 8D 6C 24 E1 48 81
 DESC: What it is: A deeper mission-module function that builds the text shown in the Cosmic todo panel. When it runs: When the client formats mission text and writes it into the visible Cosmic objective area. Why you would care: Use this if you want a deeper hook for mission text changes after the client has already picked the active mission.
 ---------------------------------------
 
+
