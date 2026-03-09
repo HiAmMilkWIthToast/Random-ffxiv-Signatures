@@ -978,6 +978,13 @@ NAME: EventObjectManager_CreateEventObject_Deep
 SIG:  48 89 5C 24 18 48 89 6C 24 20 57 41 54 41 57 48 83 EC 40 8B 9C 24 90 00 00 00 45 0F B7 F9 41 8B E8 44 8B E2 48 8B F9
 DESC: What it is: The local creation path for a normal EventObject entry. When it runs: Right after spawn logic decides that a new event object should be inserted into the event-object table. Why you would care: Use this to catch the local birth of pickup-style objects after the network layer but before later state changes.
 ----------------------------------------
+
+----------------------------------------
+NAME: PacketDispatcher_HandleSpawnTreasurePacket
+SIG:  48 89 74 24 18 57 48 83 EC 40 0F B6 42 0E 48 8D 0D 9B 9B E4 01 44 8B 02 48 8B FA 89 44 24 28 45 33 C9 8B 42 08 8B 52 04 89 44 24 20 E8 DF EA AE 00 0F B6 57 0E 48 8D 0D 74 9B E4 01 E8 4F EA AE 00 48 8B F0 48 85 C0 0F 84 C6 01 00 00
+DESC: What it is: The server packet path that spawns treasure-style event objects and their attached state. When it runs: When the client receives treasure or reward-object spawn data and creates the live object with its event and visibility state. Why you would care: Use this for encounters or content flows that signal mechanic progression, loot appearance, or special interactable availability through treasure-style objects.
+----------------------------------------
+
 NAME: EventObject_InitFromDataRow_Deep
 SIG:  48 89 5C 24 08 57 48 83 EC 20 0F B6 44 24 58 48 8B D9 88 81 B9 01 00 00 8B FA 0F B6 44 24 60 88 81 BA 01 00 00 66 C7 81 90 00 00 00 07 00 0F B6 81 91 00 00 00 66 44 89 81 B0 01 00 00 89 91 84 00 00 00
 DESC: What it is: The setup function that turns an event-object data row into a live type-7 EventObject with defaults and flags. When it runs: During local object creation while the client is assigning identity and initial state. Why you would care: Use this if you want the closest static hook to what kind of pickup or interactable object the game just created.
@@ -1334,10 +1341,6 @@ DESC: What it is: The function that changes the active sequence inside a quest b
 NAME: QuestBattleDirector_Update
 SIG:  40 53 48 83 EC 20 48 8B D9 E8 C2 60 EB FF 84 C0 0F 85 8D 00 00 00 38 83 70 04 00 00 0F 84 81 00
 DESC: What it is: The main update function for quest battle flow. When it runs: Repeatedly while a quest battle is active. Why you would care: Use it for a broad hook over ongoing quest battle state changes.
-----------------------------------------
-NAME: QuestBattleDirector_Update2
-SIG:  48 89 5C 24 10 48 89 74 24 18 55 57 41 56 48 8B EC 48 81 EC 80 00 00 00 48 8B 05 C9 17 A3 01 48
-DESC: What it is: A second update function used by quest battle flow. When it runs: During live quest battle processing when extra state work is needed. Why you would care: Use it for a deeper quest battle hook that may see work the main update does not.
 ----------------------------------------
 NAME: InstanceContentQuestBattle_vf378
 SIG:  40 55 53 57 48 8D 6C 24 C9 48 81 EC A0 00 00 00 48 8B 05 11 CD EC 00 48 33 C4 48 89 45 17 8B C2 41 8B F9 48 8B D9 2D 01 00 00 10 74 71 83 E8 01 74 3C 83 F8 01 74 1D 8B 45 7F 4C 8B 11 89 44 24
@@ -2891,6 +2894,13 @@ NAME: MarkingController_SetObjectMarker
 SIG:  40 55 41 54 41 55 41 56 48 8D AC 24 A8 F9 FF FF 48 81 EC 58 07 00 00 48 8B 05 CA 5F DD 01 48 33 C4 48 89 85 30 06 00 00 4D 8B E8 4C 8B F1 E8 BD E4 FF FF 4C 8B E0 48 89 44 24 20 80 78 04 09 0F 85 2E 04 00 00 48 89 9C 24 90 07 00 00 48 8D 4C 24 30 48 89 B4 24 50 07 00 00 48 89 BC 24 48 07
 DESC: What it is: The core marking-controller path that applies or updates object markers on live targets. When it runs: When the client commits a head marker, target-designation marker, or other object-bound marker state to its live marking system. Why you would care: Use this as a strong applied-state hook for mechanic markers after packet receipt, especially when you want the final marker assignment instead of only a short packet wrapper.
 ----------------------------------------
+
+----------------------------------------
+NAME: PacketDispatcher_HandleDespawnObjectPacket
+SIG:  40 53 48 83 EC 20 48 8B DA 48 8D 0D 70 99 E4 01 0F B6 12 E8 48 E8 AE 00 48 85 C0 74 14 0F B6 13 48 8D 0D 59 99 E4 01 48 83 C4 20 5B E9 4F E6 AE 00
+DESC: What it is: The server packet path that removes event objects and other non-character encounter objects from live state. When it runs: When the client receives object-despawn data for a world or mechanic object and deletes it from the event-object manager. Why you would care: Use this for mechanics that end when an interactable, tower, helper object, or temporary encounter prop disappears.
+----------------------------------------
+
 NAME: MarkingController_PlaceFieldMarker
 SIG:  48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 30 8B F2 49 8B E8 48 8B F9 83 FA 08 72 12 B0 01 48 8B 6C 24 48 48 8B 74 24 50 48 83 C4 30 5F C3 E8 1D 82 F8 FF 84 C0 74 12 B0 05 48 8B 6C 24 48 48 8B 74 24 50 48 83 C4 30 5F C3 48 8B 05 30 35 E7 01 48 89 5C 24 40 BB 6F 00 00 00 48 85 C0 74 08 F6 40 09 10 8B D3 75 05 BA A2 00 00 00 45 33 C9 48
 DESC: What it is: The field-marker placement path that validates and commits a world marker position. When it runs: When the client places a numbered field marker in the arena and pushes the action through the local marking system. Why you would care: Use this for encounter tooling that wants final field-marker placement state instead of only downstream map or UI changes.
@@ -2901,6 +2911,13 @@ NAME: PacketDispatcher_HandleSpawnPlayerPacket
 SIG:  48 89 5C 24 08 57 48 81 EC 30 04 00 00 48 8B DA 8B F9 0F B6 92 8E 00 00 00 48 8D 0D 20 12 C2 01 E8 3B FE F1 FF 0F B6 93 8E 00 00 00 48 8D 0D 7D 65 C2 01 E8 68 8F 01 00 48 8D 54 24 28 C7 44 24 20 01 00 00 00 B8 05 00 00 00 66 0F 1F 44 00 00 48 8D 92 80 00 00 00 0F 10 03 0F 10 4B 10 48 8D
 DESC: What it is: The packet-dispatch path for spawning player characters into the live scene. When it runs: When the client receives a server-fed player spawn packet and begins materializing that actor and its attached state. Why you would care: Use this as a lifecycle hook for mechanics that depend on fresh actor presence, phase adds, or newly visible participants.
 ----------------------------------------
+
+----------------------------------------
+NAME: ReactionEventObjectManager_CreateObject *
+SIG:  48 89 6C 24 10 48 89 74 24 18 57 41 56 41 57 48 83 EC 20 49 8B E9 48 8D 41 08 45 8B F0 44 8B FA 48 8B F1 33 FF 48 83 38 00 74 15 FF C7 48 83 C0 08 83 FF 64 72 EF B8 FF FF FF FF E9 92 00 00 00 83 FF FF 75 07 8B C7 E9 86 00 00 00 8D 0C FF 48 89 5C 24 40 C1 E1 06 48 03 0E E8 41 32 2B 00
+DESC: What it is: The reaction-event-object manager creation path that allocates and initializes a live reaction event object. When it runs: When the client materializes a reaction object with position and rotation into the active object manager. Why you would care: Use this as a lower-level event-object mechanics hook when you want the actual creation of reaction objects rather than only later interaction attempts.
+----------------------------------------
+
 NAME: PacketDispatcher_HandleSpawnNPCPacket
 SIG:  48 89 5C 24 08 57 48 81 EC 30 04 00 00 48 8B DA 8B F9 E8 A9 41 F2 FF 3C 01 75 21 E8 C0 41 F2 FF 3C 01 75 18 80 BB 82 00 00 00 02 75 0F 8B 05 95 6B E1 01 39 43 54 0F 85 A0 00 00 00 0F B6 53 7E 48 8D 0D F9 10 C2 01 E8 14 FD F1 FF 0F B6 53 7E 48 8D 0D 59 64 C2 01 E8 44 8E 01 00 48 8D 44 24
 DESC: What it is: The packet-dispatch path for spawning NPC and encounter-owned non-player actors. When it runs: When the client receives a server-fed NPC spawn packet for an enemy, helper, event actor, or mechanic-owned object. Why you would care: Use this for boss fights and event content that create mechanic actors, adds, or encounter objects through spawn flow.
@@ -2965,6 +2982,7 @@ NAME: DutyActionManager_HandleActorControlSubtypes
 SIG:  48 89 5C 24 10 57 48 83 EC 50 48 8B 05 57 F7 EF 01 48 33 C4 48 89 44 24 48 81 C2 18 FA FF FF 41 8B F9 48 8B D9 83 FA 05 0F 87 8F 01 00 00 48 8D 0D 4B 8D 72 FF 8B 94 91 58 74 8D 00 48 03 D1 FF E2 44 38 43 01 0F 84 36 01 00 00 41 80 F8 18 44 88 03 48 8B CB 0F 94 C0 88 43 19 E8 A0 FB FF FF B0 01 E9 58 01 00 00 8B 84 24 80 00 00 00 48 8D 54 24 40 44 89 44 24 40 48 8B CB 41 B8 02 00 00
 DESC: What it is: The duty-action manager branch handler for specialized actor-control subtype updates. When it runs: After generic actor-control parsing, when the client dispatches subtype-specific duty-action state such as action availability, active flags, or related encounter-side control state. Why you would care: Use this when you want a deeper actor-control hook than the generic packet path and need the actual subtype-driven state changes that content can consume.
 ----------------------------------------
+
 
 
 
