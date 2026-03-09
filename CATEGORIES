@@ -129,3 +129,15 @@ Gil - Non-Core and Interaction Hooks
 Navigation - Path Layout Hooks
 Navigation - Client Path State Hooks
 Navigation - Non-Core Support Hooks
+Network - Core Packet Dispatcher Hooks
+Network - Actor and Status Packet Hooks
+Network - Non-Core and UI Packet Support
+Network - Deep Packet Ingress and Dispatch
+Network - UI Packet Bridge Hooks
+Network - Chat and Protocol Receive Hooks
+Network - Send and Request Hooks
+Network - Content Packet Hooks - Combat and Actor Control
+Network - Content Packet Hooks - Party, Alliance, and Social State
+Network - Content Packet Hooks - Markers, Map, and World State
+Network - Content Packet Hooks - Player, Inventory, and UI Readers
+Network - Non-Core Content Packet Support
