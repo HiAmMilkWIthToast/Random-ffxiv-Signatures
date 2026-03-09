@@ -3165,3 +3165,65 @@ SIG:  46 8D 04 C5 00 00 00 00 E9 03 FE FF FF CC CC CC CC CC CC CC CC CC CC CC CC
 DESC: What it is: The daytime helper that converts a daytime bucket into the hour-based weather resolver path. When it runs: When the client resolves weather from a daytime slot instead of a direct hour value. Why you would care: Use this as a lightweight support hook if your plugin works with daytime weather buckets rather than raw hourly resolution.
 ----------------------------------------
 
+CATEGORY: The Firmament - Core UI and State Hooks
+----------------------------------------
+NAME: AgentReconstructionBox_Show
+SIG:  40 53 48 83 EC 20 48 8B D9 E8 82 30 F8 FF C7 83 30 02 00 00 01 00 00 00 48 83 C4 20 5B C3
+DESC: What it is: The main agent show path for the Firmament reconstruction submission box. When it runs: When the reconstruction hand-in box is opened and the agent flips itself into its active visible state. Why you would care: Use this as the clean open hook for Firmament contribution UI instead of inferring box visibility from later addon refreshes.
+----------------------------------------
+NAME: AgentReconstructionBox_ReceiveEvent
+SIG:  48 89 74 24 18 57 48 83 EC 20 8B 44 24 50 48 8B F2 48 8B F9 83 F8 01 0F 85 C2 00 00 00 32 C0 45 85 C9 0F 8E 92 00 00 00 48 89 5C 24 30 49 8B C8 4C 89 74 24 38 E8 66 1F 91 FF 4C 8B B7 40 01 00 00 85 C0 75 20 49 8B D6 48 8B CF E8 F0 1F 00 00 48 8B CF 85 C0 74 7A 8B D0 E8 22 23 00 00 4C 8B B7 40 01 00 00 BA E8 03 00 00 48 8D 0D BF E3 CB
+DESC: What it is: The main reconstruction-box event handler that processes submission flow and item-selection results. When it runs: When the Firmament hand-in box receives interaction events, including the path that touches inventory container `1000` and unblocks the selected slot. Why you would care: Use this as one of the strongest Firmament hooks for hand-in interaction flow and selected-item state.
+----------------------------------------
+NAME: AddonReconstructionBox_ReceiveEvent
+SIG:  40 55 41 56 41 57 48 8B EC 48 81 EC 80 00 00 00 48 8B 05 91 C9 47 01 48 33 C4 48 89 45 D0 0F B7 C2 4D 8B F1 83 C0 FA 45 8B C8 4C 8B 45 40 4C 8B F9 83 F8 2F 0F 87 6B 02 00 00 48 89 5C 24 78 48 8D 15 7A 5F CA FE 48 89 74 24 70 48 89 7C 24 68 4C 89 64 24 60 48 98 0F B6 84 02 1C A3 35 01 8B 8C 82 00 A3 35 01 48 03 CA FF E1 45 8B 60 10 48
+DESC: What it is: The addon-side event router for the reconstruction submission box. When it runs: When the Firmament reconstruction box receives Atk event traffic such as selection, hover, and callback-driven interaction flow. Why you would care: Use this if you want richer UI-side visibility into the reconstruction box than the higher-level agent alone provides.
+----------------------------------------
+NAME: AgentReconstructionBuyback_Show
+SIG:  40 56 48 83 EC 20 48 89 5C 24 30 48 8B F1 4C 89 74 24 48 E8 88 6A F8 FF 48 83 7E 38 00 44 8B F0 74 08 48 8B CE E8 16 6D F8 FF 48 C7 C1 FF FF FF
+DESC: What it is: The agent show path for the Firmament reconstruction buyback window. When it runs: When the reconstruction buyback interface is opened and the agent prepares its current state before handing off to the UI. Why you would care: Use this to detect the buyback window opening or to anchor plugin state to explicit Firmament buyback access.
+----------------------------------------
+NAME: AgentReconstructionBuyback_ReceiveEvent
+SIG:  48 89 5C 24 20 48 89 54 24 10 55 56 57 41 55 41 56 48 81 EC E0 00 00 00 83 BC 24 30 01 00 00 01 41 8B E9 4D 8B F0 48 8B F2 48 8B D9 0F 85 43 01 00 00 32 C0 45 85 C9 0F 8E 33 01 00 00 49 8B C8 E8 0B EF 90 FF 45 33 ED 85 C0 0F 85 1A 01 00 00 48 63 43 30 48 8D 3C 80 48 C1 E7 04 48 03 7B 38 48 8B CF 48 8B 07 FF 50 30 89 83 A8 00 00 00 48 8B CF 48 8B 07 FF 50 60 48 8B D7 48 8B CB 89 83
+DESC: What it is: The main event handler for the Firmament reconstruction buyback agent. When it runs: When the buyback agent processes entry selection, callback responses, and confirmation flow for reconstruction buyback items. Why you would care: Use this as the highest-value hook for Firmament buyback interaction and selected-entry state.
+----------------------------------------
+NAME: AgentReconstructionBuyback_Update
+SIG:  40 53 48 83 EC 20 80 79 28 00 48 8B D9 74 1F E8 8C 04 00 00 84 C0 0F 84 A6 00 00 00 48 8B CB E8 9C 0A 00 00 C6 43 28 00 48 83 C4 20 5B C3 80 79 58 00 0F 84 8A 00 00 00 E8 A3 06 00 00 3B 43 48 0F 83 7C 00 00 00 48 8B CB 48 89 74 24 30 E8 8D 06 00 00 8B 4B 48 8B F0 3B C1 73 55 48 89 7C 24 38 33 FF 85 C9 74 22 66 0F 1F 84 00 00 00 00 00 48 8D 0C BF 48 C1 E1 04 48 03 4B 38 48 8B 01 FF 50 20 FF C7 3B 7B 48 72 E7 48 8B CB 89 73 48 E8 EC 06 00 00 33 D2 45 33 C9 45 33 C0 8D 4A 14 E8
+DESC: What it is: The live update loop for the Firmament reconstruction buyback agent. When it runs: While the buyback interface is open and the agent refreshes or rebuilds its current buyback list state. Why you would care: Use this for ongoing Firmament buyback state tracking instead of relying only on one-shot show or receive-event hooks.
+----------------------------------------
+NAME: AddonReconstructionBuyback_ReceiveEvent
+SIG:  48 89 6C 24 20 56 48 83 EC 40 44 0F B7 C2 49 8B F1 48 8B E9 41 83 E8 21 0F 84 FF 00 00 00 41 83 E8 01 0F 84 DC 00 00 00 41 83 F8 01 0F 85 AB 00 00 00 48 8B 44 24 70 45 33 C0 48 89 5C 24 50 BB 02 00 00 00 48 89 7C 24 58 8B CB 4C 89 74 24 60 0F B6 50 18 44 8B 70 10 48 8D 44 24 20 0F 1F 00 44 89 00 44 89 40 08 48 8D 40 10 48 83 E9 01 75 EF 48 8D 7C 24 40 84 D2 75 76 8D 51 03 48 8D 4C 24 20 E8 69 CA 2B FF BA 03 00 00 00 C7 44 24 28 01 00 00 00 48 8D 4C 24 30 E8 52 CA 2B FF 4C 8D 44 24 20 44 89 74 24 38 8B D3 48 8B CD E8 DE 48
+DESC: What it is: The addon-side event router for the reconstruction buyback UI. When it runs: When the Firmament buyback addon processes selection, confirmation, and callback traffic from the visible buyback list. Why you would care: Use this when you want the UI-side layer of Firmament buyback interaction in addition to the higher-level agent flow.
+----------------------------------------
+CATEGORY: The Firmament - Buyback and Server-Fed Support
+----------------------------------------
+NAME: ShopEventHandler_RequestBuybackUpdate
+SIG:  48 83 EC 58 48 8B 05 6D 05 14 01 48 33 C4 48 89 44 24 48 45 33 C0 0F 57 C0 33 C0 44 89 81 58 32 00 00 0F 11 44 24 20 48 89 44 24 40 32 D2 0F 11 44 24 30 4C 8B D1 0F B6 CA 4C 69 C9 B8 00 00 00 43 8B 84 11 28 2B 00 00 85 C0 74 19 43 83 BC 11
+DESC: What it is: The shared shop-event handler path that rebuilds or requests the buyback update set used by Reconstruction buyback. When it runs: When the underlying buyback state is refreshed and the active entries are collected for the addon/agent layer. Why you would care: Use this as the closest named server-fed support hook behind Firmament buyback population.
+----------------------------------------
+NAME: ShopEventHandler_SetBuyback
+SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 49 8B D9 48 8D B1 2C 2B 00 00 48 8B FA BD 0A 00 00 00 66 66 0F 1F 84 00 00 00 00 00 8B 03 48 8D 15 49 38 B3 00 8B 0C 87 FF C0 89 03 89 4E FC 8B 03 8B 0C 87 FF C0 89 03 89 0E 8B 03 8B 0C 87 FF C0 89 03 89 4E 04 8B 03 0F B6 0C 87 FF C0 89 03 88 4E 0C 48 8D 4E 14 E8 80 22 9F FE
+DESC: What it is: The shared buyback-state parser that loads the buyback entry data structure used by Reconstruction buyback. When it runs: When buyback item data is unpacked and stored into the live handler state before the Firmament buyback UI is refreshed. Why you would care: Use this as the deeper support hook when you want the actual parsed Reconstruction buyback entry data, not only later UI events.
+----------------------------------------
+NAME: ShopEventHandler_OpenOrRefreshAddonBuyback
+SIG:  40 55 41 57 48 8D AC 24 28 D8 FF FF B8 D8 28 00 00 E8 CA C5 63 00 48 2B E0 48 8B 05 38 25 14 01 48 33 C4 48 89 85 B0 27 00 00 4C 8B F9 48 89 0D FC F2 12 01 48 8B 0D 35 55 16 01 E8 60 D8 A3 FE 48 85 C0 0F 84 49 04 00 00 48 89 9C 24 F8 28 00 00 48 8D 85 A0 00 00 00 48 89 B4 24 00 29 00 00 48 89 BC 24 08 29 00 00 33 FF 4C 89 B4 24 C0 28 00 00 41 BE 71 02 00 00 41 8B CE
+DESC: What it is: The shared handler path that opens or refreshes the buyback addon used by Reconstruction buyback. When it runs: After buyback data is prepared and the active addon is opened or repopulated with the current buyback rows. Why you would care: Use this as the strongest shared support hook for the point where parsed buyback data becomes visible in the Firmament buyback UI.
+----------------------------------------
+CATEGORY: The Firmament - Non-Core and Interaction Hooks
+----------------------------------------
+NAME: AgentReconstructionBox_Hide
+SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 56 48 83 EC 50 48 8B F9 48 8D 71 50 BD 0A 00 00 00 66 66 0F 1F 84 00 00 00 00 00
+DESC: What it is: The hide/close path for the Firmament reconstruction submission agent. When it runs: When the reconstruction box is being torn down and its live item-entry state is cleaned up. Why you would care: Use this as a non-core lifecycle hook to detect when the reconstruction hand-in flow closes.
+----------------------------------------
+NAME: AgentReconstructionBuyback_Hide
+SIG:  48 89 6C 24 20 57 48 83 EC 50 48 8B 41 40 33 ED C6 41 58 00 48 8B F9 48 85 C0 74 5F 48 89 5C 24 60 48 8B 58 F8 48 89 74 24 68 48 6B F3 78 4C 89
+DESC: What it is: The hide/close path for the Firmament reconstruction buyback agent. When it runs: When the buyback window is closing and its live row state begins shutting down. Why you would care: Use this as a non-core lifecycle hook when you need to detect the end of a Reconstruction buyback session.
+----------------------------------------
+NAME: AddonReconstructionBox_HandleCustomInput
+SIG:  48 83 EC 28 83 3A 05 75 17 80 7A 04 00 75 11 BA 01 00 00 00 E8 F7 0D 00 00 B0 01 48 83 C4 28 C3 32 C0 48 83 C4 28 C3
+DESC: What it is: The custom-input handler for the reconstruction submission box. When it runs: When the Firmament reconstruction box processes its specific custom input path rather than ordinary receive-event flow. Why you would care: Use this as a non-core interaction hook for extra input handling around the reconstruction hand-in UI.
+----------------------------------------
+NAME: AddonReconstructionBuyback_Hide2
+SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 40 BB 02 00 00 00 48 8D 44 24 20 8B D3 48 8B F9 33 F6 89 30 89 70 08 48 8D 40 10 48 83 EA 01 75 F1 BA 03 00 00 00 48 8D 4C 24 20 E8 42 CB 2B FF 4C 8D 44 24 20 89 74 24 28 8B D3 48 8B CF E8 CF 49 2F FF 48 8D 7C 24 40 66 66 0F 1F 84 00 00 00 00 00
+DESC: What it is: The secondary hide/close path for the reconstruction buyback addon. When it runs: When the buyback addon performs its explicit close-and-callback cleanup path rather than only disappearing from higher-level state changes. Why you would care: Use this as a non-core UI lifecycle hook if you need the addon-side close event for Firmament buyback.
+----------------------------------------
