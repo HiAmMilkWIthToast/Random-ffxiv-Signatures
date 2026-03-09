@@ -113,3 +113,7 @@ Content Directors - Treasure Hunt and Special Encounter Mechanics
 Armoury Chest - UI and State Hooks
 Armoury Chest - Packet and Server-Fed Hooks
 Armoury Chest - Support and Context Hooks
+Weather - Core Control Hooks
+Weather - UI and State Hooks
+Weather - Packet and Server-Fed Hooks
+Weather - Support and Environment Hooks
