@@ -3092,3 +3092,76 @@ SIG:  4C 8B DC 55 53 41 54 41 56 41 57 49 8D 6B A9 48 81 EC C0 00 00 00 48 8B 05
 DESC: What it is: The lower-level addon event handler for the visible armoury board widget tree. When it runs: When button clicks, tab events, item interactions, or UI-driven refresh events are handled directly by the addon layer before or alongside agent routing. Why you would care: Use this when you need the raw visible armoury-board interaction flow instead of only the higher-level agent event layer.
 ----------------------------------------
 
+CATEGORY: Weather - Core Control Hooks
+----------------------------------------
+NAME: WeatherManager_GetCurrentWeather
+SIG:  40 53 48 83 EC 20 80 79 65 00 48 8B D9 74 19 48 8B 41 48 48 83 C1 48 FF 50 38 84 C0 75 0A 0F B6 43 65 48 83 C4 20 5B C3 48 8B 43 48 48 8D 4B 48 48 83 C4 20 5B 48 FF 60 10
+DESC: What it is: The main runtime weather lookup used by the weather manager to resolve the current active weather. When it runs: When the client needs the current weather id for world state, UI, or downstream environment logic. Why you would care: Use this as the primary read-side hook for the live weather state instead of inferring weather from later UI or effect layers.
+----------------------------------------
+NAME: WeatherManager_GetIndividualWeather
+SIG:  40 53 48 83 EC 20 48 8B D9 0F B7 CA E8 9F 03 A6 FF 48 85 C0 74 17 0F B6 40 39 84 C0 74 0F 8B D0 48 8B CB 48 83 C4 20 5B E9 53 F5 FF FF 32 C0 48 83 C4 20 5B C3
+DESC: What it is: The weather-manager path that resolves the individual or territory-specific weather override for a supplied territory or row id. When it runs: When the game checks whether a specific location has its own weather assignment instead of using the generic current weather. Why you would care: Use this when you need per-territory weather resolution for plugins that compare local weather rules instead of only reading the active global weather.
+----------------------------------------
+NAME: WeatherManager_HasIndividualWeather
+SIG:  40 53 48 83 EC 20 48 8B D9 0F B7 CA E8 1F 03 A6 FF 48 85 C0 75 08 B0 00 48 83 C4 20 5B C3 0F B6 40 39 84 C0 74 F0 8B D0 48 8B CB E8 D0 F4 FF FF 84 C0 0F 95 C0 48 83 C4 20 5B C3
+DESC: What it is: The weather-manager check that reports whether a location uses an individual weather rule. When it runs: When the client decides whether to resolve a specific territory weather override before falling back to broader weather state. Why you would care: Use this as a support read for plugins that need to branch between normal weather handling and territory-specific weather logic.
+----------------------------------------
+NAME: WeatherManager_GetWeatherForHour
+SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 0F B7 CA 41 8B F0 E8 36 02 A6 FF 48 85 C0 0F 84 75 01 00 00 44 0F B6 48 32 33 DB F6 40 3B 02 74 67 48 8D 05 31 C1 BE 01 48 8D 0D 4A C1 BE 01 66 90 66 39 18 75 0B 48 83 C0 04 48 3B C1 75 F2 EB 47 44 0F B6 05 B0 C1 BE 01 48 8D 05 29 C1 BE 01 41
+DESC: What it is: The core weather-selection routine that resolves the weather result for a territory and hour value. When it runs: When the client calculates which weather should apply at a specific in-game hour, including weighted weather tables and individual territory handling. Why you would care: Use this if you want deterministic weather prediction, forecasting, or timeline tooling rather than only reading the already-applied current weather.
+----------------------------------------
+NAME: EventScene_GetWeather
+SIG:  48 83 EC 58 48 8D 4C 24 20 E8 C2 89 ED FE 48 8D 0D 8B B8 0B 01 E8 16 3A 6B FF 48 8B 4C 24 28 0F B6 D0 E8 49 F9 13 00 48 8D 4C 24 20 E8 CF 89 ED FE B8 01 00 00 00 48 83 C4 58 C3
+DESC: What it is: The event-scene script binding that reads the current weather for scripted content. When it runs: When a quest, cutscene, or event script asks the engine for the live weather id. Why you would care: Use this as a script-facing weather accessor when you want to monitor or emulate weather-aware event logic.
+----------------------------------------
+NAME: EventScene_ChangeWeather
+SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 60 48 8B F9 0F 29 74 24 50 48 8D 4C 24 20 E8 5F 89 ED FE 48 8D 4C 24 20 E8 B5 56 ED FE 48 8B 4C 24 28 BA 02 00 00 00 8B D8 E8 A4 1B 14 00 F3 0F 10 35 8C B9 AE 00 48 8B F0 83 FB 03 7C 25 BA 03 00 00 00 48 8D 4C 24 20 E8 65 84 ED FE 84 C0 74 12 BA
+DESC: What it is: The event-scene script path that requests a weather change, including transition timing. When it runs: When scripted content explicitly changes the weather during an event, cutscene, or other controlled scene flow. Why you would care: Use this as the strongest high-level runtime weather-control hook if you want to catch or study scripted weather changes instead of passive weather reads.
+----------------------------------------
+NAME: EventScene_WaitForChangeWeather
+SIG:  40 53 48 83 EC 50 48 8B D9 48 8D 4C 24 20 E8 5D 88 ED FE 4C 8B 43 08 0F 57 C0 49 8B 90 D0 39 00 00 49 2B 90 C8 39 00 00 78 07 F2 48 0F 2A C2 EB 18 48 8B C2 48 8B CA 48 D1 E9 83 E0 01 48 0B C8 F2 48 0F 2A C1 F2 0F 58 C0 F2 0F 5E 05 E7 02 AD
+DESC: What it is: The event-scene task path that waits for a weather transition to complete before resuming script flow. When it runs: After scripted weather change logic starts a transition and the scene system yields until the transition delay expires. Why you would care: Use this to track weather-transition timing or to hook the exact point where scripted content blocks on weather completion.
+----------------------------------------
+NAME: EventScene_Weather
+SIG:  48 83 EC 58 48 8D 4C 24 20 E8 22 8A ED FE 48 8B 4C 24 28 BA 02 00 00 00 E8 73 1C 14 00 F3 0F 10 1D AF B5 95 00 48 8D 0D D4 B8 0B 01 44 0F B6 C0 BA 01 00 00 00 E8 76 3A 6B FF 48 8D 4C 24 20 E8
+DESC: What it is: The script-side convenience weather setter that applies a supplied weather id using the default event-scene transition timing. When it runs: When scripted content uses the simpler weather command instead of the fuller change-weather path with explicit timing input. Why you would care: Use this if you want coverage for weather-changing event scripts that rely on the convenience path rather than the more explicit transition API.
+----------------------------------------
+CATEGORY: Weather - UI and State Hooks
+----------------------------------------
+NAME: AgentWeatherReport_Show
+SIG:  40 53 48 83 EC 20 48 8B 01 48 8B D9 FF 50 30 48 8B CB 84 C0 74 0C 48 8B 03 48 83 C4 20 5B 48 FF 60 28 33 C0 48 C7 43 30 FF FF FF FF 48 89 43 28 89 43 38 48 83 C4 20 5B E9 D3 00 00 00
+DESC: What it is: The agent-level show/open path for the weather report UI. When it runs: When the player opens the weather report and the agent resets its active state before building or refreshing the visible report. Why you would care: Use this to detect the weather report opening or to tie plugin behavior to explicit user-driven weather UI access.
+----------------------------------------
+NAME: AgentWeatherReport_ReceiveEvent
+SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 40 48 8B F9 C7 41 20 00 00 00 00 49 8B C8 41 8B E9 49 8B F0 48 8B DA E8 B1 FA 9D FF 85 C0 75 24 48 8D 4E 10 E8 A4 FA 9D FF 48 8D 4E 20 89 47 30 E8 98 FA 9D FF 48 8D 4E 30 89 47 34 E8
+DESC: What it is: The weather-report agent event handler that accepts selection and response values from the UI layer. When it runs: When the weather report agent receives an interaction result and updates its internal state fields from Atk values. Why you would care: Use this as a clean UI-side hook for player interaction with weather-report data rather than scraping later widget state.
+----------------------------------------
+NAME: AddonWeatherReport_OnRefresh
+SIG:  40 53 48 83 EC 20 48 8B D9 C6 81 18 03 00 00 01 E8 1B 00 00 00 B0 01 C6 83 18 03 00 00 00 48 83 C4 20 5B C3
+DESC: What it is: The main weather-report addon refresh wrapper that marks the addon as refreshing while it rebuilds visible weather content. When it runs: When the weather report requests a refresh of its visible state, forecast data, or displayed rows. Why you would care: Use this as the clearest UI refresh hook for plugins that want to react to the weather report repopulating its visible state.
+----------------------------------------
+NAME: AddonWeatherReport_Update
+SIG:  40 53 48 83 EC 30 80 B9 19 03 00 00 00 48 8B D9 0F 29 74 24 20 0F 28 F1 74 18 48 8B 89 F8 02 00 00 48 85 C9 74 0C E8 95 AD 37 FF 66 89 83 20 03 00 00 0F 28 CE 48 8B CB E8 B3 E7 38 FF 80 BB 22
+DESC: What it is: The per-frame weather-report update path that advances visible report state and animation-dependent values. When it runs: While the weather report is open and the addon is updating active timeline or refresh-dependent state each frame. Why you would care: Use this for live weather-report UI observation when you need more than one-shot refresh events.
+----------------------------------------
+NAME: AddonWeatherReport_ReceiveEvent
+SIG:  4C 8B DC 53 56 41 56 48 81 EC D0 00 00 00 48 8B 05 73 1C 51 01 48 33 C4 48 89 84 24 B0 00 00 00 0F B7 C2 48 8B D9 48 8B 8C 24 10 01 00 00 83 C0 FA 4D 8B F1 41 8B F0 83 F8 44 0F 87 3F 04 00 00 49 89 6B 10 4C 8D 05 55 B2 D3 FE 49 89 7B E0 4D 89 7B D8 48 98 41 0F B6 84 00 1C 52 2C 01 41 8B
+DESC: What it is: The main weather-report addon event router that handles row hover, selection, tooltip, and report interaction traffic. When it runs: When the player interacts with the weather report UI and the addon processes the incoming Atk event ids and arguments. Why you would care: Use this as the richest UI-side hook for weather-report interaction flow, including selection changes and tooltip-driven weather browsing.
+----------------------------------------
+NAME: AddonWeatherReport_HandleBackButtonInput
+SIG:  40 53 48 83 EC 30 45 33 C9 48 8B D9 8B 89 00 03 00 00 83 FA 10 75 25 8B 83 04 03 00 00 FF C8 3B C8 73 05 8D 41 01 EB 33 48 8B C1 45 84 C0 75 31 44 89 8B 00 03 00 00 41 8B C1 EB 25 83 FA 11 0F 85 89 00 00 00 85 C9 74 05 8D 41 FF EB 0D 45 84 C0 75 7B 8B 83 04 03 00 00 FF C8 89 83 00 03 00
+DESC: What it is: The weather-report back-button and page-navigation handler that flips between forecast pages and triggers a UI refresh when the active page changes. When it runs: When the player uses back-button style input or shoulder-style page navigation inside the weather report. Why you would care: Use this to observe weather-report navigation flow and page changes instead of only catching broader refresh or receive-event traffic.
+----------------------------------------
+CATEGORY: Weather - Packet and Server-Fed Hooks
+----------------------------------------
+NAME: WeatherManager_ApplyServerWeatherChange
+SIG:  44 0F B6 4A 01 48 8D 0D 1C 81 A0 01 F3 0F 10 52 04 41 80 E1 01 48 8B 05 0C 81 A0 01 0F B6 12 48 FF 60 18
+DESC: What it is: The deeper server-weather apply path that consumes packet-delivered weather values and forwards them into the live weather manager interface. When it runs: When the client receives a weather update from the server and applies the new weather id, transition state, and timing flags to runtime weather state. Why you would care: Use this as the strongest server-fed weather hook instead of the thinner packet-dispatch wrapper when you want the real apply layer.
+----------------------------------------
+CATEGORY: Weather - Support and Environment Hooks
+----------------------------------------
+NAME: WeatherManager_GetWeatherForDaytime
+SIG:  46 8D 04 C5 00 00 00 00 E9 03 FE FF FF CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC
+DESC: What it is: The daytime helper that converts a daytime bucket into the hour-based weather resolver path. When it runs: When the client resolves weather from a daytime slot instead of a direct hour value. Why you would care: Use this as a lightweight support hook if your plugin works with daytime weather buckets rather than raw hourly resolution.
+----------------------------------------
+
