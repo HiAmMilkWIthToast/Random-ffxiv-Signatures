@@ -5,6 +5,7 @@ How To Search
 Search broad topics with:
 CATEGORY: Network
 CATEGORY: Shared Boss Mechanics
+CATEGORY: Content Directors
 CATEGORY: Quest
 CATEGORY: Treasure Maps
 CATEGORY: Variant and Criterion
@@ -20,6 +21,8 @@ CATEGORY: Crystalline Conflict
 CATEGORY: Gold Saucer
 CATEGORY: Fashion Report
 CATEGORY: Cosmic Exploration
+CATEGORY: Local Character
+CATEGORY: Animation Lock
 
 Search one exact section with:
 CATEGORY: Network - Core Packet Dispatcher Hooks
@@ -32,6 +35,8 @@ CATEGORY: The Firmament - Core UI and State Hooks
 CATEGORY: Armoury Chest - UI and State Hooks
 CATEGORY: Gil - Core State Hooks
 CATEGORY: Party Finder - Network and Listing Hooks
+CATEGORY: Local Character - Core PlayerState Hooks
+CATEGORY: Animation Lock - Core State and Action Hooks
 
 Full Category List
 
@@ -158,7 +163,6 @@ CATEGORY: Cosmic Exploration - Research and Unlock Progression
 CATEGORY: Cosmic Exploration - Todo and HUD Flow
 CATEGORY: Cosmic Exploration - UI Windows and Interaction
 CATEGORY: Cosmic Exploration - Mecha Event and Stage Flow
-CATEGORY: Local Character
 CATEGORY: Local Character - Core PlayerState Hooks
 CATEGORY: Local Character - Identity and Access Hooks
 CATEGORY: Local Character - Packet and Server-Fed Hooks
@@ -166,9 +170,6 @@ CATEGORY: Local Character - Party, Instance, and Social State
 CATEGORY: Local Character - Job Change and UI Hooks
 CATEGORY: Local Character - Non-Core PlayerState Support
 CATEGORY: Local Character - Conditions and Permission Support
-CATEGORY: Animation Lock
-CATEGORY: Animation Lock
-CATEGORY: Content Directors
 CATEGORY: Animation Lock - Core State and Action Hooks
 CATEGORY: Animation Lock - Cast, Forced-Cast, and Reset Hooks
 CATEGORY: Animation Lock - Non-Core Timing and Support
