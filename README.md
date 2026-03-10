@@ -23,5 +23,21 @@ Then jump to the exact section you want in `Signatures`.
 - Some sections are deeper than others depending on what was worth keeping.
 - Always validate against the current client if you plan to use them in a plugin.
 
+## Notes on Duplicates
+
+This repo aims to keep each signature in one canonical category only.
+
+If you spot:
+- duplicate names
+- duplicate signatures
+- the same hook mirrored across multiple categories
+
+it is usually accidental carry-over from older revisions, not intentional multi-placement.
+
+Preferred rule:
+- generic hooks live in their single best home
+- subsystem-specific hooks stay in their subsystem
+- packet handlers usually belong under `Network - ...` unless the subsystem placement is clearly better
+
 ## Credit
 Created by jungle.
