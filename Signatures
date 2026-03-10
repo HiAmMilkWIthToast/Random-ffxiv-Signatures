@@ -13,9 +13,13 @@ NAME: AtkUnitBase_ReceiveEvent
 SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 0F B7 FA 48 8B D9 B9 FD FF 00 00 49 8B F1 8D 47 E9 66 85 C1 0F 85 DF 00 00 00 80 BB D0 02 00 00 00 0F 84 D2 00 00 00 80 BB D1 02 00 00 00 0F 85 C5 00 00 00 45 85 C0 0F 85 BC 00 00 00 48 8B 83 38 02 00 00 48 85 C0 0F 84 AC 00 00 00
 DESC: What it is: The main input handler for game UI windows built on AtkUnitBase. When it runs: When the player clicks, presses keys, changes focus, or otherwise interacts with a supported UI window. Why you would care: Use this if you want a broad hook for UI interaction without targeting one specific addon first.
 ----------------------------------------
+NAME: Blacklist_Proxy_AddData
+SIG:  40 53 41 54 41 55 41 57 48 81 EC 88 00 00 00 48 8B D9 45 8B F8 48 8B 49 08 4C 8B EA 48 8B 01 FF 50 40 BA 11 00 00 00 48 8B C8 4C 8B 08 41 FF 51 48 4C 8B E0 48 85 C0 0F 84 ?? ?? ?? ?? 48 89 B4 24 B8 00 00 00 33 F6 45 85 FF 0F 84 ?? ?? ?? ??
+DESC: What it is: The blacklist proxy population path that copies incoming blacklist rows into the client-side result records. When it runs: When the blacklist info proxy ingests a page of blacklist data and writes each entry into its local storage array. Why you would care: Use this as the real AoB-backed anchor for the fields that older notes exposed as raw offsets, including the name pointer at `+0x00` and the stable identifier at `+0x10` inside each populated result entry. Extra context: This is the write-side entry builder, while `Blacklist_Proxy_GetBlockResult` is the read-side lookup helper that later hands one of those populated records back to callers. Parameters: first arg is the blacklist info proxy, second arg is the incoming page payload, third arg is the number of rows to copy from that payload. Pairs with: Blacklist_Proxy_GetBlockResult
+----------------------------------------
 NAME: Blacklist_Proxy_GetBlockResult
 SIG:  4C 8B 91 F8 19 00 00 33 C0 48 89 42 08 4C 8B D9 89 42 10 49 8B CA C7 02 01 00 00 00 49 8B 42 08 80 78 19 00 75 18
-DESC: What it is: The blacklist proxy helper that resolves a blacklist entry result record for the requested key. When it runs: When the client looks up a blacklist entry by account/content id or by the alternate key path and returns the matching result structure. Why you would care: Use this as the real AoB-backed anchor for blacklist entries; the returned entry record still carries the stable identifier field at `+0x10` rather than exposing it as a raw non-AoB offset marker.
+DESC: What it is: The blacklist proxy helper that resolves a blacklist entry result record for the requested key. When it runs: When the client looks up a blacklist entry by account/content id or by the alternate key path and returns the matching result structure. Why you would care: Use this as the read-side AoB-backed anchor for blacklist entries instead of relying on raw offset markers; the returned entry record exposes the name pointer at `+0x00` and the stable identifier at `+0x10` after the row has already been populated. Extra context: This is the lookup layer over the proxy's internal result tables and usually sits downstream of the data-ingest path that built those records earlier. Parameters: first arg is the blacklist info proxy, second arg is the output result buffer, third and fourth args are the two lookup keys used for the primary and alternate search paths. Pairs with: Blacklist_Proxy_AddData
 ----------------------------------------
 NAME: Cutscene_SkipCondition
 SIG:  75 11 BA 03 00 00 00 48 8B CF E8 ?? ?? ?? ?? 84 C0 74 4C 48 8B 53 38 48 85 D2 75 20 48 8B 4B 08 48 8B 01 FF 50 58 48 8B C8 BA 91 03 00 00 E8 ?? ?? ?? ?? 80 7B 2B 00 0F 94 C0 EB 2E 48 8B CE
@@ -124,7 +128,7 @@ CATEGORY: Local Character - Packet and Server-Fed Hooks
 ----------------------------------------
 NAME: Conditions_ReadPacket
 SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 54 41 56 41 57 48 83 EC 20 4C 8B FA 4C 8B E1 E8 ?? ?? ?? ?? 48 8B C8 48 8B D8 E8 ?? ?? ?? ?? 48 8B CB 0F B6 E8 E8 ?? ?? ?? ?? 33 F6 44 8B F0 8B DE 40 B7 01
-DESC: What it is: The deeper conditions packet reader that decodes the local player's server-fed condition bitfield into the live client conditions table. When it runs: When the client receives a condition-state update packet and expands its bits into local player condition flags. Why you would care: Use this as the stronger local-character packet hook for duty, movement, interaction, and permission-style state that would be too thin to catch at the wrapper level.
+DESC: What it is: The deeper conditions packet reader that decodes the local player's server-fed condition bitfield into the live client conditions table. When it runs: When the client receives a condition-state update packet and expands its bits into local player condition flags. Why you would care: Use this as the stronger local-character packet hook for duty, movement, interaction, and permission-style state that would be too thin to catch at the wrapper level. Extra context: This is the live apply layer for local-player conditions and expands the packed condition bits into the condition table through repeated condition writes rather than staying at the packet wrapper layer. Parameters: first arg is the live Conditions state object; second arg is the raw packed condition bitfield from the decoded packet. Pairs with: Conditions_HasPermission, Conditions_HasPermissionCondition, PlayerState_ReadPacket
 ----------------------------------------
 
 CATEGORY: Local Character - Party, Instance, and Social State
@@ -252,7 +256,7 @@ CATEGORY: Local Character - Territory, Targeting, and Instance Context
 ----------------------------------------
 NAME: TargetSystem_GetMouseOverObject
 SIG:  48 89 5C 24 10 48 89 6C 24 18 56 57 41 54 41 55 41 57 48 81 EC 90 00 00 00 49 63 19 49 8B F9 4C 8B AC 24 E0 00 00 00 45 8B C8 48 8B E9 0F 29 7C 24 70
-DESC: What it is: The local targeting helper that resolves the object currently under the mouse cursor. When it runs: When the client performs a mouseover target query using the current cursor position, active camera, and filtered target arrays. Why you would care: Use this for local-player mouseover tools, hover-aware overlays, or interaction helpers that need real mouseover object context.
+DESC: What it is: The local targeting helper that resolves the object currently under the mouse cursor. When it runs: When the client performs a mouseover target query using the current cursor position, active camera, and filtered target arrays. Why you would care: Use this for local-player mouseover tools, hover-aware overlays, or interaction helpers that need real mouseover object context. Extra context: This is a real hover-resolution path, not just a cached getter, and it ray-tests candidate objects against the active camera and scene filters before returning the final mouseover object. Parameters: first arg is the target system; second and third args are screen coordinates; fourth arg is the candidate-list context; fifth arg is the active camera or scene context. Pairs with: EventFramework_CheckInteractRangeEx, TargetSystem_InteractWithObject
 ----------------------------------------
 NAME: InfoModule_IsInCrossWorldDuty
 SIG:  40 53 48 83 EC 20 48 8B D9 48 8B 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 85 C0 74 0D 48 8B C8 48 83 C4 20 5B
@@ -263,7 +267,7 @@ CATEGORY: Local Character - Cooldown, Combo, Duty Action, and Limit Break
 ----------------------------------------
 NAME: DutyActionManager_GetInstanceIfReady
 SIG:  40 53 48 83 EC 20 E8 ?? ?? ?? ?? 48 8B C8 E8 ?? ?? ?? ?? 48 8B D8 E8 ?? ?? ?? ?? 48 8B C8 E8 ?? ?? ?? ?? 48 85 DB 74 13 48 8D 83 28 05 00 00 80 78 01 00 74 17 48 83 C4 20 5B C3
-DESC: What it is: The local duty-action accessor that returns the duty action manager only when it is ready to be used. When it runs: When client code wants to read local duty-action state after the manager has finished initializing. Why you would care: Use this as the safest local-player access point before reading duty-action slots or availability.
+DESC: What it is: The local duty-action accessor that returns the duty action manager only when it is ready to be used. When it runs: When client code wants to read local duty-action state after the manager has finished initializing. Why you would care: Use this as the safest local-player access point before reading duty-action slots or availability. Extra context: This is a readiness gate over the duty-action storage embedded in the current content or massive-content director, so it only returns a pointer once the owning director has finished exposing duty-action state. Pairs with: DutyActionManager_GetDutyActionId, EventFramework_GetCurrentContentId
 ----------------------------------------
 NAME: DutyActionManager_GetDutyActionId
 SIG:  48 89 5C 24 08 57 48 83 EC 20 0F B6 F9 E8 ?? ?? ?? ?? 48 8B C8 E8 ?? ?? ?? ?? 48 8B D8 E8 ?? ?? ?? ?? 48 8B C8 E8 ?? ?? ?? ?? 48 85 DB 74 09 48 8D 8B 28 05 00 00 EB 0C
@@ -376,7 +380,7 @@ DESC: What it is: The dispatcher-side send helper for the generic event-complete
 ----------------------------------------
 NAME: ChatClient_SendPacket
 SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 60 48 8B D9 48 8B FA 8B 89 10 01 00 00 83 E9 01 0F 84 8B 00 00 00 83 E9 01 0F 84 82 00 00 00 83 F9 01 0F 85 0E 02 00 00 8B 93 08 01 00 00 85 D2 0F 84 00 02 00 00
-DESC: What it is: The deeper chat-client send path that validates connection state and forwards an outgoing chat packet. When it runs: When the client is about to transmit a chat packet after passing the active chat-connection checks. Why you would care: Use this for broad chat send tracing at the real send layer instead of only a tiny wrapper.
+DESC: What it is: The deeper chat-client send path that validates connection state and forwards an outgoing chat packet. When it runs: When the client is about to transmit a chat packet after passing the active chat-connection checks. Why you would care: Use this for broad chat send tracing at the real send layer instead of only a tiny wrapper. Extra context: This is the chat-side send path after the client has already built the outgoing packet buffer and selected the active chat connection. Parameters: first arg is the chat client; second arg is the outgoing packet descriptor or buffer. Pairs with: ServerRequestCallbackManager_Request, ZoneClient_SendPacket
 ----------------------------------------
 NAME: ServerRequestCallbackManager_Request
 SIG:  48 89 5C 24 08 57 48 83 EC 30 41 8B D9 41 8B F8 E8 ?? ?? ?? ?? 44 8B CB 44 8B C7 B9 2B 23 00 00 8B D0 48 8B 5C 24 40 48 83 C4 30 5F E9 ?? ?? ?? ??
@@ -384,7 +388,7 @@ DESC: What it is: The generic server-request dispatch path that turns a request 
 ----------------------------------------
 NAME: ZoneClient_SendPacket
 SIG:  48 83 EC 28 48 8B 89 98 00 00 00 48 85 C9 74 1F 44 89 44 24 30 4C 8D 44 24 30 44 89 4C 24 34 44 0F B6 4C 24 50 E8 ?? ?? ?? ?? 48 83 C4 28 C3 32 C0
-DESC: What it is: The generic zone-client send path used to transmit an outbound packet through the active zone connection. When it runs: When client code has already built a zone packet and is handing it off to the live zone-network client for transmission. Why you would care: Use this as the clearest generic send hook if you need to observe or audit outbound zone-side packet traffic.
+DESC: What it is: The generic zone-client send path used to transmit an outbound packet through the active zone connection. When it runs: When client code has already built a zone packet and is handing it off to the live zone-network client for transmission. Why you would care: Use this as the clearest generic send hook if you need to observe or audit outbound zone-side packet traffic. Extra context: This is the thin zone-session send wrapper that forwards an already-built outgoing buffer into the active zone connection object if one exists. Parameters: first arg is the zone client; second arg is the outgoing packet descriptor or buffer; later args are auxiliary routing or mode values passed through to the deeper send helper. Pairs with: ChatClient_SendPacket, ServerRequestCallbackManager_Request
 ----------------------------------------
 
 CATEGORY: Network - Network State and Update Hooks
@@ -518,6 +522,11 @@ SIG:  48 89 5C 24 08 57 48 83 EC 30 48 8B 05 ?? ?? ?? ?? 48 8B D9 41 0F B6 50 04
 DESC: What it is: The inventory action acknowledgement handler implementation that routes a confirmed inventory action based on the ack subtype. When it runs: When the client receives a server acknowledgement for an inventory operation such as move, split, or related item actions. Why you would care: Use this for server-confirmed inventory state tracking instead of guessing from UI flow alone.
 ----------------------------------------
 
+NAME: PacketDispatcher_HandleInventoryItemCurrencyPacket
+SIG:  48 89 5C 24 08 57 48 83 EC 20 0F B7 5A 04 48 8B FA 8B CB E8 ?? ?? ?? ?? 84 C0 B9 DA 07 00 00 0F 45 D9 48 8D 0D ?? ?? ?? ?? 8B D3 E8 ?? ?? ?? ?? 48 85 C0 74 47
+DESC: What it is: The packet-dispatch handler for inventory currency item packets. When it runs: When the server sends a currency-style inventory payload and the client begins routing it into the inventory container layer. Why you would care: Use this as the clearest packet-level hook for gil-like and currency-like inventory changes without widening into every special-currency system.
+----------------------------------------
+
 CATEGORY: Network - Non-Core and UI Packet Support
 ----------------------------------------
 NAME: UIModule_HandlePacket
@@ -533,7 +542,7 @@ DESC: What it is: The non-core read-side buddy packet reader that copies decoded
 ----------------------------------------
 NAME: PlayerState_ReadPacket
 SIG:  48 89 5C 24 18 55 56 57 41 54 41 55 41 56 41 57 48 81 EC A0 00 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 90 00 00 00 48 8B FA 48 8B F1 E8 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? 4C 8B F0 E8 ?? ?? ?? ?? C6 06 01
-DESC: What it is: The non-core read-side player-state packet reader that copies network packet data into the live PlayerState structures. When it runs: When the client is already inside the player-state packet read path and is consuming decoded packet data into UI-facing state. Why you would care: Use this as a support hook when the packet handler alone is too early and you want the post-decode player-state copy stage.
+DESC: What it is: The non-core read-side player-state packet reader that copies network packet data into the live PlayerState structures. When it runs: When the client is already inside the player-state packet read path and is consuming decoded packet data into UI-facing state. Why you would care: Use this as a support hook when the packet handler alone is too early and you want the post-decode player-state copy stage. Extra context: This is the deeper applied-state layer after packet decode, and it fans a large local-player state block into PlayerState, unlock tables, UI text parameters, and several related client caches. Parameters: first arg is the live PlayerState destination; second arg is the decoded player-state packet data block being copied into local state. Pairs with: Conditions_ReadPacket, PacketDispatcher_HandlePlayerStatsPacket, PacketDispatcher_HandlePlayerGearsetDataPacket
 ----------------------------------------
 
 CATEGORY: Shared Boss Mechanics - Core Combat Delivery
@@ -607,6 +616,10 @@ DESC: What it is: The character VFX path that sets or refreshes a tether-style v
 
 CATEGORY: Shared Boss Mechanics - Director and Phase Flow
 ----------------------------------------
+NAME: ProcessMapEffectEx
+SIG:  40 55 41 57 48 83 EC ?? 48 83 B9
+DESC: What it is: A more detailed map-effect handler used for map-driven effect processing. When it runs: When the client applies a more complex map effect or related update. Why you would care: Use this if the simpler map effect hook is not enough for the behavior you are tracking. Extra context: This sits deeper than the initial routing layer and is useful when you need the richer applied map-effect path instead of the first packet or framework ingress. Pairs with: EventFramework_ProcessMapEffect, ContentDirector_ApplyMapEffect
+----------------------------------------
 NAME: ContentDirector_ApplyMapEffect
 SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 8B FA 41 0F B7 E8 48 8B F1 B3 01 66 45 85 C9 74 47 F7 05 BD 13 D2 01 FD FF FF FF 75 3D 48 8B 81 90 0C 00 00 4C 8D 14 7F 42 83 3C 90
 DESC: What it is: The content-director path that applies a routed map-effect update to live encounter state. When it runs: After the event framework has accepted a map effect and the active director is actually handling it for the current content. Why you would care: Use this as the deeper shared boss-mechanics hook when you care about map-effect mechanics after they have already been associated with the live encounter controller. Extra context: This is the applied-state layer that writes into the director's map-effect table and dirty flags after the event framework has already validated the update. Parameters: second arg is the map-effect slot or index; the two ushort args are the packed state values being applied. Pairs with: EventFramework_ProcessMapEffect
@@ -667,10 +680,6 @@ DESC: What it is: The character VFX path that applies or updates a lockon-style 
 ----------------------------------------
 
 CATEGORY: Shared Boss Mechanics - Actor-Control Subtypes and Specialized Packets
-----------------------------------------
-NAME: AutoAttackState_OnActorControl
-SIG:  88 11 80 FA 01 75 29 48 8B 0D 22 AD EA 01 48 85 C9 74 1D 38 15 97 3A ED 01 74 15 48 81 C1 30 0A 00 00 88 15 88 3A ED 01 45 33 C0 E9 60 D9 D9 FF
-DESC: What it is: The actor-control-driven auto-attack state updater. When it runs: When actor-control data toggles the live auto-attack state rather than relying on visible combat UI alone. Why you would care: Use this as a specialized actor-control hook for encounter logic that needs weapon-drawn or attack-state changes sourced from server control flow.
 ----------------------------------------
 NAME: DutyActionManager_HandleActorControlSubtypes
 SIG:  48 89 5C 24 10 57 48 83 EC 50 48 8B 05 57 F7 EF 01 48 33 C4 48 89 44 24 48 81 C2 18 FA FF FF 41 8B F9 48 8B D9 83 FA 05 0F 87 8F 01 00 00 48 8D 0D 4B 8D 72 FF 8B 94 91 58 74 8D 00 48 03 D1 FF E2 44 38 43 01 0F 84 36 01 00 00 41 80 F8 18 44 88 03 48 8B CB 0F 94 C0 88 43 19 E8 A0 FB FF FF B0 01 E9 58 01 00 00 8B 84 24 80 00 00 00 48 8D 54 24 40 44 89 44 24 40 48 8B CB 41 B8 02 00 00
@@ -1280,11 +1289,11 @@ DESC: What it is: The event-scene script binding that reads the current weather 
 ----------------------------------------
 NAME: EventScene_WaitForChangeWeather
 SIG:  40 53 48 83 EC 50 48 8B D9 48 8D 4C 24 20 E8 5D 88 ED FE 4C 8B 43 08 0F 57 C0 49 8B 90 D0 39 00 00 49 2B 90 C8 39 00 00 78 07 F2 48 0F 2A C2 EB 18 48 8B C2 48 8B CA 48 D1 E9 83 E0 01 48 0B C8 F2 48 0F 2A C1 F2 0F 58 C0 F2 0F 5E 05 E7 02 AD
-DESC: What it is: The event-scene task path that waits for a weather transition to complete before resuming script flow. When it runs: After scripted weather change logic starts a transition and the scene system yields until the transition delay expires. Why you would care: Use this to track weather-transition timing or to hook the exact point where scripted content blocks on weather completion.
+DESC: What it is: The event-scene task path that waits for a weather transition to complete before resuming script flow. When it runs: After scripted weather change logic starts a transition and the scene system yields until the transition delay expires. Why you would care: Use this to track weather-transition timing or to hook the exact point where scripted content blocks on weather completion. Extra context: This is the blocking script-side wait layer after a weather change has already been requested, so it is useful for timing and sequencing rather than for catching the original weather-change request. Pairs with: EventScene_Weather, WeatherManager_ApplyServerWeatherChange
 ----------------------------------------
 NAME: EventScene_Weather
 SIG:  48 83 EC 58 48 8D 4C 24 20 E8 22 8A ED FE 48 8B 4C 24 28 BA 02 00 00 00 E8 73 1C 14 00 F3 0F 10 1D AF B5 95 00 48 8D 0D D4 B8 0B 01 44 0F B6 C0 BA 01 00 00 00 E8 76 3A 6B FF 48 8D 4C 24 20 E8
-DESC: What it is: The script-side convenience weather setter that applies a supplied weather id using the default event-scene transition timing. When it runs: When scripted content uses the simpler weather command instead of the fuller change-weather path with explicit timing input. Why you would care: Use this if you want coverage for weather-changing event scripts that rely on the convenience path rather than the more explicit transition API.
+DESC: What it is: The script-side convenience weather setter that applies a supplied weather id using the default event-scene transition timing. When it runs: When scripted content uses the simpler weather command instead of the fuller change-weather path with explicit timing input. Why you would care: Use this if you want coverage for weather-changing event scripts that rely on the convenience path rather than the more explicit transition API. Extra context: This is the shorthand script path for weather changes, so it sits upstream of the later wait/apply stages and is most useful when you want to catch weather requests initiated by event scripts rather than server packets. Pairs with: EventScene_WaitForChangeWeather, WeatherManager_ApplyServerWeatherChange
 ----------------------------------------
 NAME: WeatherManager_GetCurrentWeather
 SIG:  40 53 48 83 EC 20 80 79 65 00 48 8B D9 74 19 48 8B 41 48 48 83 C1 48 FF 50 38 84 C0 75 0A 0F B6 43 65 48 83 C4 20 5B C3 48 8B 43 48 48 8D 4B 48 48 83 C4 20 5B 48 FF 60 10
@@ -1307,7 +1316,7 @@ CATEGORY: Weather - Packet and Server-Fed Hooks
 ----------------------------------------
 NAME: WeatherManager_ApplyServerWeatherChange
 SIG:  44 0F B6 4A 01 48 8D 0D 1C 81 A0 01 F3 0F 10 52 04 41 80 E1 01 48 8B 05 0C 81 A0 01 0F B6 12 48 FF 60 18
-DESC: What it is: The deeper server-weather apply path that consumes packet-delivered weather values and forwards them into the live weather manager interface. When it runs: When the client receives a weather update from the server and applies the new weather id, transition state, and timing flags to runtime weather state. Why you would care: Use this as the strongest server-fed weather hook instead of the thinner packet-dispatch wrapper when you want the real apply layer.
+DESC: What it is: The deeper server-weather apply path that consumes packet-delivered weather values and forwards them into the live weather manager interface. When it runs: When the client receives a weather update from the server and applies the new weather id, transition state, and timing flags to runtime weather state. Why you would care: Use this as the strongest server-fed weather hook instead of the thinner packet-dispatch wrapper when you want the real apply layer. Extra context: This is the applied-state layer after the dispatcher has already identified the weather packet, so it is the better hook when you care about the actual weather values entering runtime state rather than the generic packet ingress boundary. Parameters: arg points at the decoded weather payload carrying the new weather id, timing value, and transition flags. Pairs with: EventScene_Weather, EventScene_WaitForChangeWeather
 ----------------------------------------
 
 CATEGORY: Weather - UI and State Hooks
@@ -1379,7 +1388,7 @@ CATEGORY: The Firmament - Buyback and Server-Fed Support
 ----------------------------------------
 NAME: ShopEventHandler_OpenOrRefreshAddonBuyback
 SIG:  40 55 41 57 48 8D AC 24 28 D8 FF FF B8 D8 28 00 00 E8 CA C5 63 00 48 2B E0 48 8B 05 38 25 14 01 48 33 C4 48 89 85 B0 27 00 00 4C 8B F9 48 89 0D FC F2 12 01 48 8B 0D 35 55 16 01 E8 60 D8 A3 FE 48 85 C0 0F 84 49 04 00 00 48 89 9C 24 F8 28 00 00 48 8D 85 A0 00 00 00 48 89 B4 24 00 29 00 00 48 89 BC 24 08 29 00 00 33 FF 4C 89 B4 24 C0 28 00 00 41 BE 71 02 00 00 41 8B CE
-DESC: What it is: The shared handler path that opens or refreshes the buyback addon used by Reconstruction buyback. When it runs: After buyback data is prepared and the active addon is opened or repopulated with the current buyback rows. Why you would care: Use this as the strongest shared support hook for the point where parsed buyback data becomes visible in the Firmament buyback UI.
+DESC: What it is: The shared handler path that opens or refreshes the buyback addon used by Reconstruction buyback. When it runs: After buyback data is prepared and the active addon is opened or repopulated with the current buyback rows. Why you would care: Use this as the strongest shared support hook for the point where parsed buyback data becomes visible in the Firmament buyback UI. Extra context: This is the presentation-layer handoff after the buyback rows have already been parsed and filtered, so it is most useful for UI-bound overlays or inspection rather than raw row decoding. Pairs with: ShopEventHandler_RequestBuybackUpdate, ShopEventHandler_SetBuyback
 ----------------------------------------
 NAME: ShopEventHandler_RequestBuybackUpdate
 SIG:  48 83 EC 58 48 8B 05 6D 05 14 01 48 33 C4 48 89 44 24 48 45 33 C0 0F 57 C0 33 C0 44 89 81 58 32 00 00 0F 11 44 24 20 48 89 44 24 40 32 D2 0F 11 44 24 30 4C 8B D1 0F B6 CA 4C 69 C9 B8 00 00 00 43 8B 84 11 28 2B 00 00 85 C0 74 19 43 83 BC 11
@@ -1478,10 +1487,6 @@ NAME: InventoryManager_HandleActionAck
 SIG:  48 89 5C 24 08 57 48 83 EC 30 48 8B 05 ?? ?? ?? ?? 48 8B D9 41 0F B6 50
 DESC: What it is: The deeper inventory-manager handler that processes acknowledged inventory operations after the packet-dispatch wrapper forwards them. When it runs: When the client handles server acknowledgements for inventory operations and updates internal inventory state, UI dirty flags, or operation-specific follow-up logic. Why you would care: Use this instead of the tiny packet thunk when you want a stronger hook for acknowledged inventory actions that affect armoury or related inventory state. Extra context: This is the applied-state inventory-side layer after packet ingress, so it is usually a better hook than the dispatcher if you care about the actual accepted operation rather than raw packet arrival. Pairs with: PacketDispatcher_HandleInventoryActionAckPacket
 ----------------------------------------
-NAME: PacketDispatcher_HandleInventoryItemCurrencyPacket
-SIG:  48 89 5C 24 08 57 48 83 EC 20 0F B7 5A 04 48 8B FA 8B CB E8 ?? ?? ?? ?? 84 C0 B9 DA 07 00 00 0F 45 D9
-DESC: What it is: The packet-dispatch path for currency-style inventory entries and related special inventory containers. When it runs: When the client receives a currency-oriented inventory packet and applies it to the resolved live slot. Why you would care: Use this when a plugin needs packet-level visibility into currency and special inventory updates alongside normal armoury and bag item flows.
-----------------------------------------
 NAME: PacketDispatcher_HandleInventoryItemPacket
 SIG:  48 89 5C 24 08 57 48 83 EC 20 0F B7 5A 08 48 8B FA 8B CB E8 ?? ?? ?? ?? 84 C0 B9 DA 07 00 00 0F 45 D9
 DESC: What it is: The packet-dispatch path that materializes a standard inventory item payload into a live container slot. When it runs: When the client receives a regular inventory item packet for a container and slot, including armoury chest pages when they are addressed through item packet flow. Why you would care: Use this for direct packet-side visibility into server-fed item arrival and slot population.
@@ -1524,11 +1529,11 @@ CATEGORY: Gil - Shop and Server-Fed Support
 ----------------------------------------
 NAME: ShopEventHandler_OnGilShopItemRead
 SIG:  40 53 41 56 41 57 48 81 EC 30 01 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 20 01 00 00 4D 8B F0 4C 8B FA 48 8B D9 4D 85 C0 75 4D 48 8B 89 88 32 00 00 48 85 C9 74 10 48 8B 01 41 8D 50 01 FF 10 4C 89 B3 88 32 00 00 48 8B 03 45 33 C9 45 33 C0 33 D2 48 8B CB FF 90 78 01 00 00 48 8B 8C 24 20 01 00 00 48 33 CC E8 ?? ?? ?? ?? 48 81 C4 30 01 00 00 41 5F 41 5E 5B C3
-DESC: What it is: The gil-shop item parser that unpacks the incoming gil-shop row set into live handler state. When it runs: When gil-shop item rows are read and copied into the current shop handler before the list is finalized or displayed. Why you would care: Use this as the strongest gil-shop row hook when you want actual parsed gil-shop entry data rather than only UI refreshes.
+DESC: What it is: The gil-shop item parser that unpacks the incoming gil-shop row set into live handler state. When it runs: When gil-shop item rows are read and copied into the current shop handler before the list is finalized or displayed. Why you would care: Use this as the strongest gil-shop row hook when you want actual parsed gil-shop entry data rather than only UI refreshes. Extra context: This is the per-row population layer after the gil-shop header has already been accepted, so it is the best place to inspect parsed gil-shop item entries before later UI refresh code consumes them. Pairs with: ShopEventHandler_OnGilShopRead, ShopEventHandler_StartReadGilShopItems
 ----------------------------------------
 NAME: ShopEventHandler_OnGilShopRead
 SIG:  48 89 5C 24 08 57 48 83 EC 20 48 8B 02 48 8B D9 48 8B 38 48 85 FF 0F 84 ?? ?? ?? ?? 8B 47 04 89 81 30 02 00 00 48 8B CF E8 ?? ?? ?? ?? 48 8B D0 48 8D 8B C8 01 00 00 E8 ?? ?? ?? ?? 0F B7 47 14 66 89 83 34 02 00 00 0F B7 47 16 66 89 83 36 02 00 00 8B 47 08 89 83 38 02 00 00 0F B6 47 18 24 01 88 83 3C 02 00 00
-DESC: What it is: The gil-shop header parser that loads the main gil-shop metadata before item rows are read. When it runs: When the client receives or resolves the gil-shop definition and prepares the follow-up item-read phase. Why you would care: Use this as a server-fed gil-shop hook when you need the top-level shop identity and metadata before item rows arrive.
+DESC: What it is: The gil-shop header parser that loads the main gil-shop metadata before item rows are read. When it runs: When the client receives or resolves the gil-shop definition and prepares the follow-up item-read phase. Why you would care: Use this as a server-fed gil-shop hook when you need the top-level shop identity and metadata before item rows arrive. Extra context: This is the header-stage parse before the individual gil-shop rows are staged, so it is the right hook for top-level shop identity, row-count, and metadata changes rather than for item contents. Pairs with: ShopEventHandler_StartReadGilShopItems, ShopEventHandler_OnGilShopItemRead
 ----------------------------------------
 NAME: ShopEventHandler_StartReadGilShopItems
 SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 33 D2 48 8B F9 45 33 C0 8D 4A 60 E8 ?? ?? ?? ?? 33 DB 48 8B F0 48 85 C0 74 4E 48 8D 05 ?? ?? ?? ?? 89 5C 24 28 33 D2 48 89 44 24 20 48 8B CE E8 ?? ?? ?? ?? 0F 10 44 24 20 B8 FF FF FF FF 48 89 5C 24 20 89 5C 24 28 0F 11 46 40 48 89 46 30
@@ -1641,6 +1646,14 @@ DESC: What it is: The non-core path helper that derives min and max spatial exte
 
 CATEGORY: Status Effects
 ----------------------------------------
+NAME: StatusManager_EntryCount
+SIG:  45 33 D2 48 8D 41 10 45 8B CA 41 BB 00 00 00 E0 0F B7 48 F8 3B CA 75 0A 4D 3B C3 74 1B 4C 39 00 74 16 41 FF C2 49 FF C1 48 83 C0 10 49 83 F9 3C
+DESC: What it is: A scan path that exposes the fixed slot count used by the status manager. When it runs: When the client loops through status slots looking for a match. Why you would care: Use this if you need the real status slot limit used by the client.
+----------------------------------------
+NAME: StatusManager_HasStatus
+SIG:  45 33 D2 48 8D 41 10 45 8B CA 41 BB 00 00 00 E0 0F B7 48 F8 3B CA 75 0A 4D 3B C3 74 1B 4C 39 00
+DESC: What it is: A search function that checks whether an actor currently has a particular status. When it runs: When the client wants a yes-or-no answer for status presence, with an optional source filter. Why you would care: Use this if you want the same status lookup behavior the client already relies on.
+----------------------------------------
 NAME: LimitBreakController_SetValues
 SIG:  0F B6 44 24 28 88 41 0E 0F B6 44 24 30 88 41 0F 88 51 08 66 44 89 41 0A 66 44 89 49 0C C3
 DESC: What it is: The function that writes the current Limit Break controller values into its fields. When it runs: When the client updates Limit Break availability, flags, or stored action ids. Why you would care: Use this if you want to watch the Limit Break state being refreshed in one place.
@@ -1671,6 +1684,10 @@ DESC: What it is: A helper that returns the status id stored in a given status s
 ----------------------------------------
 
 CATEGORY: Limit Break
+----------------------------------------
+NAME: LimitBreakUI_Update
+SIG:  40 57 48 83 EC 50 F6 81 A1 01 00 00 01 48 8B F9 44 0F 29 44 24 20 44 0F 28 C1 0F 84 ?? ?? ?? ??
+DESC: What it is: The main update function for the Limit Break UI window. When it runs: While the Limit Break gauge is visible and the client is keeping the UI in sync. Why you would care: Use this if you want a UI-side hook for gauge changes, bar updates, or segment animation.
 ----------------------------------------
 NAME: LimitBreakController_GetActionId
 SIG:  48 89 5C 24 08 57 48 83 EC 20 41 0F B6 D8 48 8B F9 48 85 D2 74 33 80 FB 03 73 2E
@@ -1740,10 +1757,6 @@ DESC: What it is: The internal implementation that writes auto-attack state into
 NAME: PacketDispatcher_HandleFirstAttackPacket
 SIG:  8B 4B 14 0F 11 44 24 44 89 44 24 40 0F 10 43 4C 0F B6 43 1C 0F 11 4C 24 54 89 4C 24 34 8B CF 0F 10 4B 5C C6 44 24 3F 01 0F 11 44 24 64 88 44 24
 DESC: What it is: The packet handler for the first-attack state update. When it runs: When the client receives the server-side update that starts or refreshes auto-attack timing state. Why you would care: This is one of the best practical anchors for plugins that want to infer attack timing because the client does not expose a neat named attack-speed function.
-----------------------------------------
-NAME: PacketDispatcher_HandlePlayerStatsPacket
-SIG:  C0 74 45 4C 8B 00 48 8B C8 41 FF 50 68 33 C9 90 0F B6 13 48 8D 5B 01 44 0F B6 C1 FF C1 41 88 94 38 18 09 00 00 83 F9 1A 7C E6 F7 05 A8 CF E0 01
-DESC: What it is: The packet handler that applies the player stat update packet. When it runs: When the server sends a fresh block of player stat values to the client. Why you would care: This is the best stat-fed anchor for attack-speed-adjacent work because attack timing is usually exposed through the packeted stat layer rather than a single clean attack-speed function.
 ----------------------------------------
 
 CATEGORY: Speed and Mobility - Movement Speed
@@ -1859,6 +1872,18 @@ DESC: What it is: The LookingForGroup agent request path that asks the game to r
 
 CATEGORY: PvP Core Systems
 ----------------------------------------
+NAME: PvpSetModule_GetDataSize
+SIG:  B8 42 00 00 00 C3
+DESC: What it is: A helper that returns the size of the serialized PvP set data. When it runs: When the client prepares to read or write that data format. Why you would care: Use this if you need the exact saved data size for file work or validation.
+----------------------------------------
+NAME: PvpSetModule_GetFileType
+SIG:  B8 90 01 00 00 C3
+DESC: What it is: A helper that returns the file-type id used by saved PvP set data. When it runs: When the client checks or writes the saved file type. Why you would care: Use this if you need the same file-type id as the client for tooling or parsing.
+----------------------------------------
+NAME: PvpSetModule_GetFileVersion
+SIG:  B8 00 04 00 00 C3
+DESC: What it is: A helper that returns the file version used by saved PvP set data. When it runs: When the client checks or writes the saved format version. Why you would care: Use this if you need to validate or mirror the saved file format.
+----------------------------------------
 NAME: Frontline_IsInFrontlineArea
 SIG:  80 3D ?? ?? ?? ?? 12 0F 94 C0 C3 CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC
 DESC: What it is: A check that answers whether the current territory is a Frontline area. When it runs: When the client needs a yes-or-no answer for Frontline territory state. Why you would care: Use this if your plugin should only react in Frontline zones.
@@ -1904,11 +1929,25 @@ SIG:  48 8D 81 D8 65 09 00 C3 CC CC CC CC CC CC CC CC 48 8D 81 50 66 09 00 C3 CC
 DESC: What it is: A helper that returns the PvP set module from the main UI module. When it runs: When the client or plugin code needs the shared PvP set module pointer. Why you would care: Use this if you want an easy path to the module that stores PvP set data.
 ----------------------------------------
 
+NAME: Frontline_GetDirector
+SIG:  48 8B 81 58 01 00 00 48 85 C0 74 1B 48 8B 88 D8 02 00 00 BA 03 80 00 00 66 39 51 02 75 09
+DESC: What it is: The helper that resolves the active Frontline director from the event framework. When it runs: When the client needs the Frontline-specific director object for live match state. Why you would care: Use this if you want direct access to Frontline match control data.
+----------------------------------------
+
 CATEGORY: PvP State Checks
+----------------------------------------
+NAME: BuffStatusUI_Update
+SIG:  40 56 48 83 EC 30 48 8B F1 E8 ?? ?? ?? ?? F6 86 A1 01 00 00 01 0F 84 ?? ?? ?? ?? 8B 86 98 01 00 00
+DESC: What it is: The main update function for the HUD buff and status display. When it runs: While that HUD element is visible and the client is refreshing its state. Why you would care: Use this if you want a UI-side hook for ongoing buff bar changes.
 ----------------------------------------
 NAME: PvP_IsInPvP
 SIG:  48 89 5C 24 08 57 48 83 EC 20 8B 15 ?? ?? ?? ?? 48 8B F9 8B 1D ?? ?? ?? ?? 85 D2 0F 45 DA
 DESC: What it is: A check that answers whether the current character is in a PvP state. When it runs: When the client needs a yes-or-no answer for PvP rules on the current character. Why you would care: Use this if you want a simple character-level PvP gate for your plugin logic.
+----------------------------------------
+
+NAME: BuffStatusUI_OnSetup
+SIG:  48 89 5C 24 10 48 89 6C 24 18 48 89 74 24 20 57 41 54 41 55 41 56 41 57 48 81 EC 80 00 00 00
+DESC: What it is: The setup function for the HUD buff and status display. When it runs: When the game first builds that HUD element. Why you would care: Use this if you want a clean hook when the buff display is being created.
 ----------------------------------------
 
 CATEGORY: PvP Directors and Map Internals
@@ -1972,6 +2011,10 @@ DESC: What it is: The setup function for the Maneuvers header window. When it ru
 
 CATEGORY: PvP Map
 ----------------------------------------
+NAME: PvPMap_Update
+SIG:  40 53 48 83 EC 20 48 8B D9 E8 ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 89 03 33 C0 48 89 83 38 02 00 00
+DESC: What it is: The active update function for the PvP map window. When it runs: While the PvP map is open and the client is keeping it current. Why you would care: Use this if you want a live hook for ongoing map-state changes.
+----------------------------------------
 NAME: PvPMap_OnRequestedUpdate
 SIG:  4C 8B DC 53 56 57 41 57 48 81 EC E8 00 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 80 00 00 00
 DESC: What it is: A refresh function for the PvP map window. When it runs: When the game has new PvP map data and wants the window to redraw. Why you would care: Use this if you want a UI-side hook for map refreshes instead of just startup.
@@ -1979,6 +2022,10 @@ DESC: What it is: A refresh function for the PvP map window. When it runs: When 
 NAME: PvPMap_OnSetup
 SIG:  48 89 5C 24 10 48 89 6C 24 20 56 57 41 56 48 83 EC 50 0F 29 74 24 40 48 8B F9
 DESC: What it is: The setup function for the PvP map window. When it runs: When the game first builds the PvP map UI and binds its controls. Why you would care: Use this if you want a clean hook when the PvP map is being created.
+----------------------------------------
+NAME: PvPProfile_InstanceRef
+SIG:  48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 85 C0 B9 7E 71 00 00 0F 45 C8
+DESC: What it is: A reference path to the global PvP profile object. When it runs: When the client resolves the shared PvP profile state for rank and profile reads. Why you would care: Use this if you want the profile object itself instead of calling one helper at a time.
 ----------------------------------------
 NAME: PvPProfile_GetCurrentRankNeededExp
 SIG:  48 83 EC 28 0F B6 05 ?? ?? ?? ?? FE C8 3C 02 77 5D 48 89 5C 24 30 48 89 74 24 38
@@ -2035,7 +2082,16 @@ SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 49 8B D8 48 8B F1 83 FA 10 0F
 DESC: What it is: The setup path for the Crystalline Conflict rank and rating result window. When it runs: When the client opens the rating screen after a ranked match result is ready. Why you would care: Use this as a strong hook for ranked result flow, placement changes, and visible rating updates.
 ----------------------------------------
 
+NAME: PvPAgentGauge_ReceiveEvent
+SIG:  C7 02 02 00 00 00 48 8B C2 C6 42 08 00 C3
+DESC: What it is: A small receive-event handler for the PvP gauge agent. When it runs: When that agent receives a simple event and writes its updated state. Why you would care: Use this if you want a lightweight hook close to the gauge agent's own state handling.
+----------------------------------------
+
 CATEGORY: PvP Agent UI
+----------------------------------------
+NAME: PvpWelcome_OnSetup
+SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 54 41 56 41 57 48 83 EC 50
+DESC: What it is: The setup function for the PvP welcome or tutorial window. When it runs: When the game first builds that introductory UI. Why you would care: Use this if you want a clean hook when the welcome panel appears.
 ----------------------------------------
 NAME: AgentPvPDuelRequest_Show
 SIG:  40 53 48 83 EC 60 83 79 20 00 48 8B D9 0F 85 BA 00 00 00 48 8B 49 10 48 89 7C 24 70
@@ -2048,10 +2104,6 @@ DESC: What it is: The active update function for the PvP duel request agent. Whe
 NAME: AgentPvPHeader_ReceiveEvent
 SIG:  4C 8B DC 55 41 55 41 56 48 81 EC A0 00 00 00 48 8B 05 F2 B8 AD 01 48 33 C4 48 89 44 24 70
 DESC: What it is: The input handler for the PvP header agent. When it runs: When UI callbacks or interactions are routed through that agent. Why you would care: Use this if you want an agent-level hook for PvP header interaction.
-----------------------------------------
-NAME: AgentPvPHeader_Show
-SIG:  40 53 48 83 EC 20 48 8B D9 E8 82 30 F8 FF C7 83 30 02 00 00 01 00 00 00 48 83 C4 20 5B C3
-DESC: What it is: The function that shows the PvP header agent. When it runs: When the game opens the PvP header through the agent layer. Why you would care: Use this if you want an agent-level hook when the header flow starts.
 ----------------------------------------
 NAME: AgentPvPHeader_Update
 SIG:  40 53 48 83 EC 20 83 B9 A8 0A 00 00 00 48 8B D9 75 63 48 8B 89 A0 0A 00 00 48 89 7C 24 30
@@ -2092,6 +2144,10 @@ DESC: What it is: The input handler for the PvP welcome or tutorial window. When
 
 CATEGORY: PvP Status and Buff UI
 ----------------------------------------
+NAME: PvPTeamStatus_OnSetup
+SIG:  48 89 5C 24 20 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 70 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 44 24 60
+DESC: What it is: The setup function for the PvP team status window. When it runs: When the game first builds that UI window and binds its controls. Why you would care: Use this if you want a clean hook when the PvP status window is being created.
+----------------------------------------
 NAME: PvP_StatusEffectListPlayerDoublePacket
 SIG:  48 89 5C 24 08 57 48 83 EC 20 48 8B 1D ?? ?? ?? ?? 48 8B FA 48 85 DB 74 2F 48 8B 03 48 8B CB
 DESC: What it is: The larger player status packet handler used when more status entries need to be written. When it runs: When the client receives the double-length status-effect update packet. Why you would care: Use this if you need complete coverage for large status lists.
@@ -2116,14 +2172,6 @@ NAME: PvPTeamStatus_ReceiveEvent
 SIG:  66 83 FA 19 0F 85 ?? ?? ?? ?? 48 89 5C 24 08 57 48 83 EC 30 49 8B D9 48 8B F9 41 83 F8 01 75 57
 DESC: What it is: The input handler for the PvP team status window. When it runs: When the player clicks or confirms something in that window. Why you would care: Use this if you want to track or respond to direct interaction with the PvP status UI.
 ----------------------------------------
-NAME: StatusManager_GetParamForStatus
-SIG:  48 89 5C 24 08 48 89 7C 24 10 33 FF 4C 8D 49 10 44 8B DF 44 8B D7 BB 00 00 00 E0 0F 1F 44 00 00
-DESC: What it is: A helper that returns the extra parameter value tied to a matching status. When it runs: When the client wants the effect-specific value stored with that status and source pair. Why you would care: Use this if you need the extra status value that many plugins miss by only reading ids and timers.
-----------------------------------------
-NAME: StatusManager_GetSourceId
-SIG:  83 FA 3C 72 03 33 C0 C3 8B C2 48 FF C0 48 03 C0 48 8B 0C C1 48 B8 ?? ?? ?? ?? ?? ?? ?? ?? 48 85
-DESC: What it is: A helper that returns the source actor for a status slot. When it runs: When the client asks who applied the status stored in a given entry. Why you would care: Use this if you need the source of a status without reading the full entry manually.
-----------------------------------------
 NAME: StatusManager_GetStatusByIndex
 SIG:  83 FA 3C 72 08 48 8D 05 ?? ?? ?? ?? C3 8B C2 48 C1 E0 04 48 83 C0 08 48 03 C1 C3
 DESC: What it is: A helper that returns the raw status entry pointer for a slot index. When it runs: When the client needs direct access to the entry instead of just one field. Why you would care: Use this if you want the whole status record for a slot.
@@ -2131,9 +2179,22 @@ DESC: What it is: A helper that returns the raw status entry pointer for a slot 
 
 CATEGORY: PvP Character Window
 ----------------------------------------
+NAME: PvPCharacter_ReceiveEvent
+SIG:  40 55 53 56 57 41 56 48 8D 6C 24 D1 48 81 EC E0 00 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4
+DESC: What it is: The input handler for the PvP character window. When it runs: When the player clicks, changes tabs, or otherwise interacts with that window. Why you would care: Use this if you want to track direct interaction with the PvP character UI.
+----------------------------------------
+NAME: PvPFrontlineInfo_OnSetup
+SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 48 8B D9 49 8B F8 49 8B C8 8B F2
+DESC: What it is: The setup function for the Frontline info window. When it runs: When the game first builds that info panel. Why you would care: Use this if you want a clean hook when the Frontline info UI appears.
+----------------------------------------
 NAME: PvPFrontlineInfo_OnRefresh
 SIG:  48 83 EC 28 F6 81 A1 01 00 00 01 74 08 45 33 C9 E8 1B 00 00 00 B0 01 48 83 C4 28 C3
 DESC: What it is: A refresh function for the Frontline info window. When it runs: When the game has updated match data for that panel. Why you would care: Use this if you want a UI-side hook for Frontline info updates.
+----------------------------------------
+
+NAME: PvPCharacter_OnSetup
+SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 54 41 56 41 57 48 83 EC 30
+DESC: What it is: The setup function for the PvP character window. When it runs: When the game first builds that character UI and its PvP-specific panels. Why you would care: Use this if you want a clean hook when the PvP character window is created.
 ----------------------------------------
 
 CATEGORY: PvP Profile and Rank Data
@@ -2160,6 +2221,14 @@ DESC: What it is: The function that copies incoming PvP profile and rank data in
 ----------------------------------------
 
 CATEGORY: PvP Profile UI
+----------------------------------------
+NAME: PvpProfileAction_OnSetup
+SIG:  48 8B C4 48 89 58 10 48 89 70 18 48 89 78 20 55 41 54 41 55 41 56 41 57 48 8D 68 A1
+DESC: What it is: The setup function for the PvP profile action page. When it runs: When the game first builds that page inside the profile UI. Why you would care: Use this if you want a clean hook when the action page is created.
+----------------------------------------
+NAME: PvpProfileManeuvers_OnRequestedUpdate
+SIG:  48 8B 42 08 41 B9 07 00 00 00 48 8B 10 44 8B 42 04 45 85 C0 74 1A 41 83 E8 01 74 0C
+DESC: What it is: A refresh function for the Maneuvers page inside the PvP profile UI. When it runs: When the game wants that page to reload its current data. Why you would care: Use this if you want a UI-side hook for Maneuvers profile updates.
 ----------------------------------------
 NAME: AddonPvpProfileQuickChat_HandleCustomInput
 SIG:  40 53 48 83 EC 30 83 3A 02 48 8B D9 75 5B 80 7A 04 00 75 55 E8 17 EF 3E FF 0F B7 93 E8 01 00 00 48 8B 48 20 E8 17 9A 3F FF 48 85 C0 74 33
@@ -2232,6 +2301,10 @@ DESC: What it is: The shell command that actually sends a quick chat command onc
 
 CATEGORY: PvP Records
 ----------------------------------------
+NAME: FrontlineRecord_OnRefresh
+SIG:  48 89 5C 24 10 57 48 83 EC 20 F6 81 A1 01 00 00 01 49 8B F8 48 8B D9 75 0D 32 C0
+DESC: What it is: A refresh function for the Frontline record or history window. When it runs: When the game reloads the data shown in that record UI. Why you would care: Use this if you want a UI-side hook for Frontline history updates.
+----------------------------------------
 NAME: AgentPvpTeam_ReceiveEvent
 SIG:  40 53 56 41 56 48 81 EC 80 00 00 00 48 8B 05 F5 95 26 02 48 33 C4 48 89 44 24 60 48 83 BC 24 C0 00 00 00 00
 DESC: What it is: The input handler for the PvP team-management agent. When it runs: When callbacks or player interaction are routed through that agent. Why you would care: Use this if you want an agent-level hook for team-management interaction.
@@ -2266,6 +2339,14 @@ DESC: What it is: The setup function for the PvP screen hotbar window. When it r
 
 CATEGORY: PvP Team UI
 ----------------------------------------
+NAME: PvPTeam_OnSetup
+SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 56 41 57 48 83 EC 30 44 8B F2 49 8B E8
+DESC: What it is: The setup function for the main PvP team window. When it runs: When the game first builds that team UI. Why you would care: Use this if you want a clean hook when the PvP team window is created.
+----------------------------------------
+NAME: PvPTeamActivity_OnSetup
+SIG:  40 53 55 56 57 41 56 48 81 EC 80 00 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 44 24 78
+DESC: What it is: The setup function for the PvP team activity window. When it runs: When the game first builds that activity UI. Why you would care: Use this if you want a clean hook when the team activity panel is created.
+----------------------------------------
 NAME: PvPSpectatorCameraList_OnRequestedUpdate
 SIG:  F6 81 A1 01 00 00 01 74 2D 48 8B 82 B0 03 00 00 48 8B 50 28 48 63 42 04 83 F8 07 77 19
 DESC: What it is: A refresh function for the spectator camera list. When it runs: When the game has updated spectator camera state and wants the list to redraw. Why you would care: Use this if you want a UI-side hook for camera option changes while spectating.
@@ -2284,6 +2365,10 @@ DESC: What it is: The active update function for the main PvP team window. When 
 ----------------------------------------
 
 CATEGORY: PvP Utility UI
+----------------------------------------
+NAME: PvpCalendar_OnSetup
+SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 54 41 55 41 56 41 57 48 83 EC 30
+DESC: What it is: The setup function for the PvP calendar window. When it runs: When the game first builds that calendar UI. Why you would care: Use this if you want a clean hook when the PvP calendar appears.
 ----------------------------------------
 NAME: PvpActionSetView_OnSetup
 SIG:  40 55 56 57 48 81 EC A0 00 00 00 48 8B 05 66 0A 57 01 48 33 C4 48 89 84 24 90 00 00 00
@@ -2316,6 +2401,10 @@ DESC: What it is: The input handler for the PvP reward window. When it runs: Whe
 
 CATEGORY: Frontline Match UI
 ----------------------------------------
+NAME: PvPFrontlineGauge_OnSetup
+SIG:  48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 56 48 83 EC 20 48 8B E9
+DESC: What it is: The setup function for the Frontline gauge window. When it runs: When the game first builds the Frontline gauge UI. Why you would care: Use this if you want a clean hook when the gauge window is created.
+----------------------------------------
 NAME: PvPFrontlineGauge_OnRefresh
 SIG:  48 83 EC 28 F6 81 A1 01 00 00 01 74 08 45 33 C9 E8 2B 00 00 00 B0 01 48 83 C4 28 C3
 DESC: What it is: A refresh function for the Frontline gauge display. When it runs: When the game has updated match values and wants the gauge to redraw. Why you would care: Use this if you want a UI-side hook for gauge value changes.
@@ -2339,12 +2428,24 @@ DESC: What it is: The main update function for the PvP screen hotbar. When it ru
 
 CATEGORY: Duel Request
 ----------------------------------------
+NAME: PvPDuelRequest_Show
+SIG:  40 53 48 83 EC 20 48 8B D9 E8 ?? ?? ?? ?? 80 8B A1 01 00 00 40 48 83 C4 20 5B C3
+DESC: What it is: The function that shows the PvP duel request window. When it runs: When the game decides to display an incoming duel request. Why you would care: Use this if you want a clean hook when a duel request appears.
+----------------------------------------
+NAME: PvPDuelRequest_ReceiveEvent
+SIG:  66 83 FA 19 75 2E 53 48 83 EC 20 49 8B D9 45 85 C0 74 0B 41 83 F8 01 75 0C 41 8B D0
+DESC: What it is: The input handler for the PvP duel request window. When it runs: When the player accepts, declines, or interacts with the duel request UI. Why you would care: Use this if you want to react to player decisions on duel prompts.
+----------------------------------------
 NAME: PvPCharacter_OnRequestedUpdate
 SIG:  40 55 56 57 48 83 EC 50 F6 81 A1 01 00 00 01 49 8B F0 48 8B FA 48 8B E9 0F 84 ?? ?? ?? ??
 DESC: What it is: A refresh function for the PvP character window. When it runs: When the game has new PvP profile or character values and wants the window to redraw. Why you would care: Use this if you want a UI-side hook for PvP character updates.
 ----------------------------------------
 
 CATEGORY: Spectator UI
+----------------------------------------
+NAME: PvPSpectatorList_OnSetup
+SIG:  48 89 5C 24 10 48 89 6C 24 18 48 89 74 24 20 57 48 81 EC B0 00 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4
+DESC: What it is: The setup function for the PvP spectator list window. When it runs: When the game first builds the spectator list UI. Why you would care: Use this if you want a clean hook when the spectator list appears.
 ----------------------------------------
 NAME: PvPDuelRequest_OnSetup
 SIG:  48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 40 49 8B F0 0F 29 74 24 30 F3 0F 10 35 ?? ?? ?? ??
@@ -2433,11 +2534,24 @@ SIG:  48 83 EC 28 48 83 3D FC D4 06 01 00 74 11 E8 6D 53 30 FF 48 8B C8 48 83 C4
 DESC: What it is: A small global helper that returns the current Crystalline Conflict director if one exists. When it runs: When code wants the live director quickly without walking the full EventFramework. Why you would care: Use this if you want the shortest direct hook or lookup for active Crystalline Conflict state. Extra context: This is the lightweight global accessor version of the framework lookup and is useful when you want a fast null-checked anchor rather than the broader EventFramework path. Pairs with: EventFramework_GetCrystallineConflictDirector_Deep
 ----------------------------------------
 
+NAME: CrystallineConflictDirector_SetSequence_Deep
+SIG:  48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 41 0F B6 F8 0F B6 F2 48 8B E9 80 FA 14 74 5A 41 80 F8 14 75 4E
+DESC: What it is: The Crystalline Conflict sequence-change function that moves the match from one stage to another. When it runs: It runs when the match enters a new sequence, such as a major phase change or screen-state transition. Why you would care: Use it if you want a clean hook for major Crystalline Conflict phase changes instead of trying to infer them from many smaller updates.
+----------------------------------------
+
 CATEGORY: Crystalline Conflict Agents and Records
 ----------------------------------------
 NAME: AgentColosseumRecord_Hide_Deep
 SIG:  48 89 5C 24 18 56 57 41 57 48 83 EC 20 48 89 6C 24 40 45 33 FF 48 8B 69 28 48 8B F1 48 85 ED 74 76
 DESC: What it is: The hide function for the Colosseum record agent. When it runs: It runs when the record flow is being closed and the active agent-side task state is being torn down. Why you would care: Use it if you want to detect when that record flow is being dismissed.
+----------------------------------------
+NAME: ColosseumRecord_OnRefresh_Deep
+SIG:  48 89 6C 24 18 56 48 83 EC 20 F6 81 A1 01 00 00 01 49 8B F0 48 8B E9 75 0D 32 C0 48 8B 6C 24 40 48 83 C4 20 5E C3
+DESC: What it is: The refresh function for the Colosseum record or history screen. When it runs: It runs when the game redraws the visible ranked-history data on that screen. Why you would care: Use it if you want a hook for changes to the displayed Colosseum history data.
+----------------------------------------
+NAME: MKSRecord_HandleCustomInput_Deep
+SIG:  40 53 48 83 EC 30 80 7A 04 00 48 8B D9 75 46 83 3A 02 75 41 48 8B 91 50 02 00 00 45 33 C9 41 B0 01
+DESC: What it is: A helper that handles controller-style or custom input for the Crystalline Conflict record screen. When it runs: It runs when that screen receives non-mouse input paths that need special handling. Why you would care: Use it if you want to catch controller or alternate input separately from normal click handling.
 ----------------------------------------
 NAME: AgentColosseumRecord_ReceiveEvent_Deep
 SIG:  4C 8B DC 49 89 5B 20 41 54 41 56 41 57 48 81 EC D0 00 00 00 48 8B 84 24 10 01 00 00 49 8B D8 4C 8B FA 4C 8B F1
@@ -2509,6 +2623,14 @@ DESC: What it is: The input handler for the rank and rating result screen. When 
 ----------------------------------------
 
 CATEGORY: Crystalline Conflict UI
+----------------------------------------
+NAME: PvPMKSHeader_OnRefresh_Deep
+SIG:  48 89 5C 24 08 57 48 83 EC 20 F6 81 A1 01 00 00 01 49 8B D8 48 8B F9 74 2C 85 D2 74 28 48 85 DB 74 23
+DESC: What it is: The refresh function for the main Crystalline Conflict header at the top of the screen. When it runs: It runs when the game wants to redraw the visible header text or indicators. Why you would care: Use it if you want a hook for visible match-state updates in the main header.
+----------------------------------------
+NAME: PvPMKSIntroduction_ReceiveEvent_Deep
+SIG:  66 83 FA 4A 75 66 48 89 5C 24 08 57 48 83 EC 20 41 F6 41 2A 01 49 8B F9 48 8B D9 75 45
+DESC: What it is: The input handler for the Crystalline Conflict introduction screen. When it runs: It runs when the player presses buttons or closes or advances the introduction screen. Why you would care: Use this if you want to catch direct player interaction with that screen.
 ----------------------------------------
 NAME: CrystallineConflictDirector_vf319_Deep
 SIG:  48 83 EC 38 44 0F B6 81 D0 0D 00 00 BA 3A 02 00 00 41 B9 01 00 00 00 C7 44 24 20 00 00 00 00 E8 1C B1 2F FF 32 C0
@@ -3593,5 +3715,3 @@ NAME: WKSMissionModule_UpdateTodoText
 SIG:  48 85 D2 0F 84 C6 02 00 00 55 56 57 41 54 41 56 41 57 48 8D 6C 24 E1 48 81 EC F8 00 00 00 48 8B 05 33 4F E2 00 48 33 C4 48 89 45 07 4C 8B 65 77 45 8B F1 41 8B F0 48 89 9C 24 F0 00 00 00 48 8B
 DESC: What it is: A deeper mission-module function that builds the text shown in the Cosmic todo panel. When it runs: When the client formats mission text and writes it into the visible Cosmic objective area. Why you would care: Use this if you want a deeper hook for mission text changes after the client has already picked the active mission.
 ---------------------------------------
-
-
