@@ -22,10 +22,15 @@ CATEGORY: Gold Saucer
 CATEGORY: Fashion Report
 CATEGORY: Cosmic Exploration
 CATEGORY: Local Character
+CATEGORY: Other Players
+CATEGORY: Market Board
+CATEGORY: Retainers
+CATEGORY: Housing and Workshop
 CATEGORY: Animation Lock
 
 Search one exact section with:
 CATEGORY: Network - Core Packet Dispatcher Hooks
+CATEGORY: Network - Infrastructure, IPC, Compression, and Lobby Hooks
 CATEGORY: Shared Boss Mechanics - Packet and Server-Fed Delivery
 CATEGORY: Quest - Core State and Access
 CATEGORY: Treasure Maps - Door Choice and Instance State
@@ -36,11 +41,38 @@ CATEGORY: Armoury Chest - UI and State Hooks
 CATEGORY: Gil - Core State Hooks
 CATEGORY: Party Finder - Network and Listing Hooks
 CATEGORY: Local Character - Core PlayerState Hooks
+CATEGORY: Other Players - Packet and Server-Fed Hooks
+CATEGORY: Market Board - Packet and Server-Fed Hooks
+CATEGORY: Retainers - Packet and Server-Fed Hooks
+CATEGORY: Housing and Workshop - Packet, Server-Fed, and Support Hooks
 CATEGORY: Animation Lock - Core State and Action Hooks
 
 Full Category List
 
 CATEGORY: General and Core Signatures
+CATEGORY: Market Board - Packet and Server-Fed Hooks
+CATEGORY: Retainers - Packet and Server-Fed Hooks
+CATEGORY: Housing and Workshop - Packet, Server-Fed, and Support Hooks
+CATEGORY: Local Character - Core PlayerState Hooks
+CATEGORY: Local Character - Identity and Access Hooks
+CATEGORY: Local Character - Packet and Server-Fed Hooks
+CATEGORY: Local Character - Party, Instance, and Social State
+CATEGORY: Local Character - Job Change and UI Hooks
+CATEGORY: Local Character - Non-Core PlayerState Support
+CATEGORY: Local Character - Conditions and Permission Support
+CATEGORY: Other Players - Core Character and Target Hooks
+CATEGORY: Other Players - Packet and Server-Fed Hooks
+CATEGORY: Other Players - Party, Alliance, and Cross-Realm State
+CATEGORY: Other Players - Non-Core and Support Hooks
+CATEGORY: Animation Lock - Core State and Action Hooks
+CATEGORY: Animation Lock - Cast, Forced-Cast, and Reset Hooks
+CATEGORY: Animation Lock - Non-Core Timing and Support
+CATEGORY: Local Character - Territory, Targeting, and Instance Context
+CATEGORY: Local Character - Cooldown, Combo, Duty Action, and Limit Break
+CATEGORY: Local Character - Glamour, Title, and Presentation
+CATEGORY: APIs - Framework and Service Entry Points
+CATEGORY: APIs - Action and Gameplay Services
+CATEGORY: Network - Infrastructure, IPC, Compression, and Lobby Hooks
 CATEGORY: Network - Core Packet Dispatcher Hooks
 CATEGORY: Network - Actor and Status Packet Hooks
 CATEGORY: Network - Deep Packet Ingress and Dispatch
@@ -54,6 +86,7 @@ CATEGORY: Network - Content Packet Hooks - Markers, Map, and World State
 CATEGORY: Network - Content Packet Hooks - Player, Inventory, and UI Readers
 CATEGORY: Network - Non-Core and UI Packet Support
 CATEGORY: Network - Non-Core Content Packet Support
+CATEGORY: Network - Event Packet Stand-Ins and Framework Support
 CATEGORY: Shared Boss Mechanics - Core Combat Delivery
 CATEGORY: Shared Boss Mechanics - Packet and Server-Fed Delivery
 CATEGORY: Shared Boss Mechanics - Visual Indicators
@@ -77,9 +110,9 @@ CATEGORY: Quest - Todo and Objective Flow
 CATEGORY: Quest - Interaction and Marker Flow
 CATEGORY: Quest - Journal and Input Hooks
 CATEGORY: Quest - Quest Battle Internals
+CATEGORY: Treasure Maps - Door Choice and Instance State
 CATEGORY: Quest - Redo and Recomplete Progression
 CATEGORY: Quest - Deep Event and Presentation Logic
-CATEGORY: Treasure Maps - Door Choice and Instance State
 CATEGORY: Treasure Maps - Shared Door and Interaction Hooks
 CATEGORY: Treasure Maps - Mob Radius and Range Hooks
 CATEGORY: Treasure Maps - Non-Core Object and UI Support
@@ -159,19 +192,7 @@ CATEGORY: Cosmic Exploration - State and Director
 CATEGORY: Cosmic Exploration - Secondary Director Layer
 CATEGORY: Cosmic Exploration - Packet and Server-Fed Modules
 CATEGORY: Cosmic Exploration - Mission and Progression
+CATEGORY: Cosmic Exploration - Mecha Event and Stage Flow
 CATEGORY: Cosmic Exploration - Research and Unlock Progression
 CATEGORY: Cosmic Exploration - Todo and HUD Flow
 CATEGORY: Cosmic Exploration - UI Windows and Interaction
-CATEGORY: Cosmic Exploration - Mecha Event and Stage Flow
-CATEGORY: Local Character - Core PlayerState Hooks
-CATEGORY: Local Character - Identity and Access Hooks
-CATEGORY: Local Character - Packet and Server-Fed Hooks
-CATEGORY: Local Character - Party, Instance, and Social State
-CATEGORY: Local Character - Job Change and UI Hooks
-CATEGORY: Local Character - Non-Core PlayerState Support
-CATEGORY: Local Character - Conditions and Permission Support
-CATEGORY: Animation Lock - Core State and Action Hooks
-CATEGORY: Animation Lock - Cast, Forced-Cast, and Reset Hooks
-CATEGORY: Animation Lock - Non-Core Timing and Support
-CATEGORY: APIs - Framework and Service Entry Points
-CATEGORY: APIs - Action and Gameplay Services
