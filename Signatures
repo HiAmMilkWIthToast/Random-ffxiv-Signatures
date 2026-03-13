@@ -2005,10 +2005,6 @@ NAME: StatusManager_HasStatus
 SIG:  45 33 D2 48 8D 41 10 45 8B CA 41 BB 00 00 00 E0 0F B7 48 F8 3B CA 75 0A 4D 3B C3 74 1B 4C 39 00 74 16 41 FF C2 49 FF C1 48 83 C0 10 49 83 F9 3C 7C DE 41 BA FF FF FF FF
 DESC: What it is: A search function that checks whether an actor currently has a particular status. When it runs: When the client wants a yes-or-no answer for status presence, with an optional source filter. Why you would care: Use this if you want the same status lookup behavior the client already relies on.
 ----------------------------------------
-NAME: LimitBreakController_SetValues
-SIG:  0F B6 44 24 28 88 41 0E 0F B6 44 24 30 88 41 0F 88 51 08 66 44 89 41 0A 66 44 89 49 0C C3
-DESC: What it is: The function that writes the current Limit Break controller values into its fields. When it runs: When the client updates Limit Break availability, flags, or stored action ids. Why you would care: Use this if you want to watch the Limit Break state being refreshed in one place.
-----------------------------------------
 NAME: StatusEffectListPlayerPacket
 SIG:  48 89 5C 24 08 57 48 83 EC 20 48 8B 1D ?? ?? ?? ?? 48 8B FA 48 85 DB 74 28
 DESC: What it is: The packet handler that loads a player's status-effect list into the local status manager. When it runs: When the client receives the normal player status packet from the server. Why you would care: Use this if you want a direct hook when the client refreshes live status data from the network.
@@ -2035,6 +2031,12 @@ DESC: What it is: A helper that returns the status id stored in a given status s
 ----------------------------------------
 
 CATEGORY: Limit Break
+
+----------------------------------------
+NAME: LimitBreakController_SetValues
+SIG:  0F B6 44 24 28 88 41 0E 0F B6 44 24 30 88 41 0F 88 51 08 66 44 89 41 0A 66 44 89 49 0C C3
+DESC: What it is: The function that writes the current Limit Break controller values into its fields. When it runs: When the client updates Limit Break availability, flags, or stored action ids. Why you would care: Use this if you want to watch the Limit Break state being refreshed in one place.
+----------------------------------------
 NAME: LimitBreakUI_Update
 SIG:  28 C8 48 8B CF 44 0F 28 44 24 20 48 83 C4 50 5F E9 ?? ?? ?? ?? CC CC CC CC CC CC CC CC CC CC CC 40 57 48 83 EC 50 F6 81 A1 01 00 00 01 48 8B F9 44 0F 29 44 24 20 44 0F 28 C1 0F 84 ?? ?? ?? ?? F3 0F 10 81 90 02 00 00 0F 29 7C ?? 30 0F 57 FF 0F 2F C7 0F 86 ?? ?? ?? ?? 0F 29 74 ?? 40 0F 28 F1 E8 ?? ?? ?? ?? 48 8B C8 E8 ?? ?? ?? ?? 48 8B 40 50 48 85 C0 74 ?? 48 8B 40 28 83 B8 14 03 00 00 00 74 ?? 83 B8 18 03 00 00 00 75 ?? 66 0F 6E B0 1C 03 00 00 0F 5B F6 F3 41 0F 59 F0 F3 0F 10 87 90 02 00 00 F3 0F 5C C6 0F 28 74 ?? 40 0F 2F F8 F3 0F 11 87 90 02 00 00 0F 82 ?? ?? ?? ?? ?? BF 87 94 02 00 00 0F 57 C0 66 89 87 96 02 00 00 8B C8 48 89 6C 24 68 B8 AD 8B DB 68 F7 E9 ?? ?? ?? ?? 00 00 00 00 00 00 8B EA C6 87 A2 02 00 00 00 C1 FD 0C 8B C5 C1 E8
 DESC: What it is: The main update function for the Limit Break UI window. When it runs: While the Limit Break gauge is visible and the client is keeping the UI in sync. Why you would care: Use this if you want a UI-side hook for gauge changes, bar updates, or segment animation.
